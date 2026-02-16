@@ -96,7 +96,7 @@ export function Footer({ onNavigateComingSoon }: FooterProps) {
 
         <div className="border-t border-slate-800 pt-4 mt-4 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-slate-500">
           <div>
-            © 2025 GoldenPath. Made with ❤️ by ITB Students.
+            © 2025 SepuhIUP. Made by ITB Students.
           </div>
           <div className="flex gap-4">
             <span>Bandung · Indonesia</span>

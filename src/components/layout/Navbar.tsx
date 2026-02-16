@@ -1,16 +1,17 @@
-import { useState } from 'react';
-import { Menu, X } from 'lucide-react';
-import { Button } from '../ui/Button';
-import { Container } from '../ui/Container';
+import { useState } from "react";
+import { Menu, X } from "lucide-react";
+import { Button } from "../ui/Button";
+import { Container } from "../ui/Container";
 
 interface NavbarProps {
-  onNavigateComingSoon?: () => void;
+  onNavigateLogin?: () => void;
+  onNavigateRegister?: () => void;
 }
 
-export function Navbar({ onNavigateComingSoon }: NavbarProps) {
+export function Navbar({ onNavigateLogin, onNavigateRegister }: NavbarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const menuItems = ['Features', 'Pricing', 'Testimonials'];
+  const menuItems = ["Features", "Pricing", "Testimonials"];
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-brand-light">
@@ -18,7 +19,10 @@ export function Navbar({ onNavigateComingSoon }: NavbarProps) {
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <div className="flex items-center">
-            <a href="/" className="text-2xl font-bold font-serif text-brand-dark">
+            <a
+              href="/"
+              className="text-2xl font-bold font-serif text-brand-dark"
+            >
               Golden<span className="text-brand-primary">Path</span>
             </a>
           </div>
@@ -38,18 +42,10 @@ export function Navbar({ onNavigateComingSoon }: NavbarProps) {
 
           {/* Desktop CTA Buttons */}
           <div className="hidden md:flex items-center gap-4">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onNavigateComingSoon}
-            >
+            <Button variant="outline" size="sm" onClick={onNavigateLogin}>
               Login
             </Button>
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={onNavigateComingSoon}
-            >
+            <Button variant="primary" size="sm" onClick={onNavigateRegister}>
               Get Started
             </Button>
           </div>
@@ -83,7 +79,7 @@ export function Navbar({ onNavigateComingSoon }: NavbarProps) {
                   variant="outline"
                   size="md"
                   className="w-full"
-                  onClick={onNavigateComingSoon}
+                  onClick={onNavigateLogin}
                 >
                   Login
                 </Button>
@@ -91,7 +87,7 @@ export function Navbar({ onNavigateComingSoon }: NavbarProps) {
                   variant="primary"
                   size="md"
                   className="w-full"
-                  onClick={onNavigateComingSoon}
+                  onClick={onNavigateRegister}
                 >
                   Get Started
                 </Button>

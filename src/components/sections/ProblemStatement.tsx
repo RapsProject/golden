@@ -9,10 +9,7 @@ export function ProblemStatement() {
   ];
 
   return (
-    <section
-      id="problem"
-      className="py-20 md:py-24 bg-white"
-    >
+    <section id="problem" className="py-20 md:py-24 bg-white">
       <Container>
         <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
           {/* Visual Left */}
@@ -26,19 +23,23 @@ export function ProblemStatement() {
               </div>
 
               <h2 className="text-2xl md:text-3xl font-serif font-bold text-white mb-4">
-                Stacks of outdated UTBK books won&apos;t get you into ITB International.
+                Stacks of outdated UTBK books won&apos;t get you into ITB
+                International.
               </h2>
 
               <p className="text-slate-300 text-sm md:text-base mb-6">
-                IUP ITB entrance exam is designed differently — more logic, more English, and
-                more application. The usual drill books simply don&apos;t match the questions you&apos;ll face.
+                IUP ITB entrance exam is designed differently — more logic, more
+                English, and more application. The usual drill books simply
+                don&apos;t match the questions you&apos;ll face.
               </p>
 
               <div className="space-y-3">
                 {points.map((point) => (
                   <div key={point} className="flex items-start gap-3">
                     <CheckCircle2 className="mt-0.5 h-5 w-5 text-brand-secondary" />
-                    <p className="text-slate-200 text-sm md:text-base">{point}</p>
+                    <p className="text-slate-200 text-sm md:text-base">
+                      {point}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -51,13 +52,15 @@ export function ProblemStatement() {
               ITB IUP Entrance Exam is NOT UTBK.
             </h2>
             <p className="text-slate-600 text-base md:text-lg mb-6">
-              Regular national exam prep focuses on standard curriculum and Bahasa Indonesia questions.
-              AqTest for IUP ITB is built differently — it combines English proficiency, mathematical
+              Regular national exam prep focuses on standard curriculum and
+              Bahasa Indonesia questions. AqTest for IUP ITB is built
+              differently — it combines English proficiency, mathematical
               reasoning, and scientific logic in one high-pressure environment.
             </p>
             <p className="text-slate-600 text-base md:text-lg mb-4">
-              Without the right blueprint, you might be practicing hard but for the wrong game.
-              GoldenPath helps you align every study session with the actual demands of the IUP ITB exam.
+              Without the right blueprint, you might be practicing hard but for
+              the wrong game. SepuhIUP helps you align every study session with
+              the actual demands of the IUP ITB exam.
             </p>
           </div>
         </div>

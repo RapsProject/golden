@@ -6,10 +6,7 @@ export function InteractiveDemo() {
   const selected = 'C. 4';
 
   return (
-    <section
-      id="demo"
-      className="py-20 md:py-24 bg-brand-light"
-    >
+    <section id="demo" className="py-20 md:py-24 bg-brand-light">
       <Container>
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-10">
@@ -17,8 +14,9 @@ export function InteractiveDemo() {
               Experience the AqTest Environment.
             </h2>
             <p className="text-slate-600 text-base md:text-lg max-w-2xl mx-auto">
-              A static preview of how our English-based Math questions feel inside the real simulation
-              dashboard — with instant feedback designed by IUP ITB students.
+              A static preview of how our English-based Math questions feel
+              inside the real simulation dashboard — with instant feedback
+              designed by IUP ITB students.
             </p>
           </div>
 
@@ -61,11 +59,11 @@ export function InteractiveDemo() {
                     key={option}
                     type="button"
                     className={[
-                      'flex items-center justify-between w-full rounded-lg border px-4 py-3 text-left text-sm md:text-base transition-all',
+                      "flex items-center justify-between w-full rounded-lg border px-4 py-3 text-left text-sm md:text-base transition-all",
                       isSelected
-                        ? 'border-brand-secondary bg-brand-secondary/10 text-brand-dark shadow-sm'
-                        : 'border-brand-light bg-white hover:border-brand-primary hover:bg-brand-light/60',
-                    ].join(' ')}
+                        ? "border-brand-secondary bg-brand-secondary/10 text-brand-dark shadow-sm"
+                        : "border-brand-light bg-white hover:border-brand-primary hover:bg-brand-light/60",
+                    ].join(" ")}
                   >
                     <span>{option}</span>
                     {isSelected && (
@@ -84,12 +82,14 @@ export function InteractiveDemo() {
                 FEEDBACK
               </div>
               <p className="text-sm md:text-base text-slate-800 mb-2">
-                <span className="font-semibold">Correct!</span> The function composition (f ∘ g)(3)
-                means f(g(3)). First compute g(3) = 3² = 9, then apply f: f(9) = 2 · 9 + 1 = 19.
+                <span className="font-semibold">Correct!</span> The function
+                composition (f ∘ g)(3) means f(g(3)). First compute g(3) = 3² =
+                9, then apply f: f(9) = 2 · 9 + 1 = 19.
               </p>
               <p className="text-xs md:text-sm text-slate-600">
-                Every question in GoldenPath includes detailed reasoning like this, so you do not just
-                memorize formulas — you understand the logic that IUP ITB cares about.
+                Every question in SepuhIUP includes detailed reasoning like
+                this, so you do not just memorize formulas — you understand the
+                logic that IUP ITB cares about.
               </p>
             </div>
           </div>

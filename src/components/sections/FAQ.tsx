@@ -3,24 +3,24 @@ import { Container } from '../ui/Container';
 
 const faqs = [
   {
-    question: 'Is GoldenPath officially affiliated with ITB?',
+    question: "Is SepuhIUP officially affiliated with ITB?",
     answer:
-      'GoldenPath is built by IUP ITB students and alumni, but it is an independent preparation platform and not an official product of ITB.',
+      "SepuhIUP is built by IUP ITB students and alumni, but it is an independent preparation platform and not an official product of ITB.",
   },
   {
-    question: 'Do I need strong English skills before starting?',
+    question: "Do I need strong English skills before starting?",
     answer:
-      'Not yet. GoldenPath helps you build exam-specific English proficiency through explanations, question wording, and practice in context.',
+      "Not yet. SepuhIUP helps you build exam-specific English proficiency through explanations, question wording, and practice in context.",
   },
   {
-    question: 'Can I access the platform from mobile?',
+    question: "Can I access the platform from mobile?",
     answer:
-      'Yes. The simulation dashboard is responsive, so you can review questions and explanations from your phone or tablet.',
+      "Yes. The simulation dashboard is responsive, so you can review questions and explanations from your phone or tablet.",
   },
   {
-    question: 'What if I am targeting the next intake, not this year?',
+    question: "What if I am targeting the next intake, not this year?",
     answer:
-      'You can start with concept-building modules and low-stress simulations now, then switch to full exam-mode closer to your exam window.',
+      "You can start with concept-building modules and low-stress simulations now, then switch to full exam-mode closer to your exam window.",
   },
 ];
 
@@ -28,17 +28,15 @@ export function FAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <section
-      id="faq"
-      className="py-20 md:py-24 bg-white"
-    >
+    <section id="faq" className="py-20 md:py-24 bg-white">
       <Container>
         <div className="text-center mb-10">
           <h2 className="text-3xl md:text-4xl font-serif font-bold text-brand-dark mb-4">
             Frequently Asked Questions.
           </h2>
           <p className="text-slate-600 text-base md:text-lg max-w-2xl mx-auto">
-            Still unsure about how GoldenPath fits your IUP ITB journey? These answers might help.
+            Still unsure about how SepuhIUP fits your IUP ITB journey? These
+            answers might help.
           </p>
         </div>
 
@@ -59,7 +57,7 @@ export function FAQ() {
                     {faq.question}
                   </span>
                   <span className="ml-4 text-brand-primary text-xl leading-none">
-                    {isOpen ? '−' : '+'}
+                    {isOpen ? "−" : "+"}
                   </span>
                 </button>
                 {isOpen && (

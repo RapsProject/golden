@@ -1,47 +1,31 @@
-import { useState } from "react";
-import { Navbar } from "./components/layout/Navbar";
-import { Footer } from "./components/layout/Footer";
-import { Hero } from "./components/sections/Hero";
-import { ProblemStatement } from "./components/sections/ProblemStatement";
-import { InteractiveDemo } from "./components/sections/InteractiveDemo";
-import { Features } from "./components/sections/Features";
-import { Testimonials } from "./components/sections/Testimonials";
-import { Pricing } from "./components/sections/Pricing";
-import { FAQ } from "./components/sections/FAQ";
-import { ComingSoon } from "./components/sections/ComingSoon";
+import { Navigate, Route, Routes } from 'react-router-dom';
+import { MarketingLayout } from './app/(marketing)/layout.tsx';
+import MarketingPage from './app/(marketing)/page.tsx';
+import { ComingSoonPage } from './app/(marketing)/coming-soon/page.tsx';
+import { AuthLayout } from './app/(auth)/layout.tsx';
+import { LoginPage } from './app/(auth)/login/page.tsx';
+import { RegisterPage } from './app/(auth)/register/page.tsx';
+import { DashboardLayout } from './app/(dashboard)/layout.tsx';
+import { DashboardHomePage } from './app/(dashboard)/dashboard/page.tsx';
 
-type ViewMode = "landing" | "comingSoon";
-
-function App() {
-  const [view, setView] = useState<ViewMode>("landing");
-
-  const handleGoToComingSoon = () => {
-    setView("comingSoon");
-  };
-
-  const handleBackToLanding = () => {
-    setView("landing");
-  };
-
-  if (view === "comingSoon") {
-    return <ComingSoon onBackToLanding={handleBackToLanding} />;
-  }
-
+export default function App() {
   return (
-    <div className="min-h-screen bg-white">
-      <Navbar onNavigateComingSoon={handleGoToComingSoon} />
-      <main className="pt-16 md:pt-20">
-        <Hero onNavigateComingSoon={handleGoToComingSoon} />
-        <ProblemStatement />
-        <InteractiveDemo />
-        <Features />
-        <Testimonials />
-        <Pricing onNavigateComingSoon={handleGoToComingSoon} />
-        <FAQ />
-      </main>
-      <Footer onNavigateComingSoon={handleGoToComingSoon} />
-    </div>
+    <Routes>
+      <Route element={<MarketingLayout />}>
+        <Route index element={<MarketingPage />} />
+        <Route path="coming-soon" element={<ComingSoonPage />} />
+      </Route>
+
+      <Route element={<AuthLayout />}>
+        <Route path="login" element={<LoginPage />} />
+        <Route path="register" element={<RegisterPage />} />
+      </Route>
+
+      <Route element={<DashboardLayout />}>
+        <Route path="dashboard" element={<DashboardHomePage />} />
+      </Route>
+
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
-
-export default App;
