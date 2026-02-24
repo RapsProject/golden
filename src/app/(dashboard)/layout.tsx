@@ -6,11 +6,13 @@ import {
   Home,
   LogOut,
   Menu,
+  User,
   X,
 } from 'lucide-react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { cn } from '../../lib/utils';
 import { Button } from '../../components/ui/Button';
+import { useAuth } from '../../contexts/AuthContext';
 
 type NavItem = {
   label: string;
@@ -20,22 +22,32 @@ type NavItem = {
 
 export function DashboardLayout() {
   const navigate = useNavigate();
+  const { user: authUser, signOut } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const user = useMemo(
     () => ({
-      name: 'Sudar (Mock)',
-      email: 'sudar@example.com',
+      name:
+        (authUser?.user_metadata?.full_name as string) ||
+        authUser?.email?.split('@')[0] ||
+        'User',
+      email: authUser?.email ?? '',
     }),
-    []
+    [authUser]
   );
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/login');
+  };
 
   const items: NavItem[] = useMemo(
     () => [
       { label: 'Dashboard', to: '/dashboard', icon: Home },
-      { label: 'Practice', to: '/coming-soon', icon: BookOpen },
-      { label: 'Simulation', to: '/coming-soon', icon: Clock },
-      { label: 'Analytics', to: '/coming-soon', icon: BarChart3 },
+      { label: 'Simulation', to: '/tryout', icon: Clock },
+      { label: 'Analytics', to: '/analytics', icon: BarChart3 },
+      { label: 'Practice (Coming Soon)', to: '/coming-soon', icon: BookOpen },
+      { label: 'Profile', to: '/profile', icon: User },
     ],
     []
   );
@@ -96,7 +108,7 @@ export function DashboardLayout() {
           className="w-full justify-center"
           icon={LogOut}
           iconPosition="left"
-          onClick={() => navigate('/login')}
+          onClick={handleLogout}
         >
           Logout
         </Button>

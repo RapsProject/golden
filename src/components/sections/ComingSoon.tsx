@@ -1,11 +1,20 @@
+import { useNavigate } from 'react-router-dom';
 import { Container } from '../ui/Container';
 import { Button } from '../ui/Button';
+import { useAuth } from '../../contexts/AuthContext';
 
-interface ComingSoonProps {
-  onBackToLanding?: () => void;
-}
+export function ComingSoon() {
+  const navigate = useNavigate();
+  const { session } = useAuth();
 
-export function ComingSoon({ onBackToLanding }: ComingSoonProps) {
+  const handleBack = () => {
+    if (session) {
+      navigate('/dashboard');
+    } else {
+      navigate('/');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-brand-light to-white flex flex-col">
       <main className="flex-1 flex items-center">
@@ -21,16 +30,9 @@ export function ComingSoon({ onBackToLanding }: ComingSoonProps) {
               The full simulation dashboard, payment, and login system are almost ready. For now, you can
               explore the preview of the IUP ITB preparation journey on this landing page.
             </p>
-
-            {onBackToLanding && (
-              <Button
-                variant="primary"
-                size="md"
-                onClick={onBackToLanding}
-              >
-                Back to Landing Page
-              </Button>
-            )}
+            <Button variant="primary" size="md" onClick={handleBack}>
+              {session ? 'Back to Dashboard' : 'Back to Landing Page'}
+            </Button>
           </div>
         </Container>
       </main>

@@ -17,7 +17,7 @@ export function Footer({ onNavigateComingSoon }: FooterProps) {
           {/* Logo / Bio */}
           <div>
             <div className="text-2xl font-bold font-serif text-white mb-3">
-              Golden<span className="text-brand-primary">Path</span>
+              Sepuh<span className="text-brand-primary">IUP</span>
             </div>
             <p className="text-sm text-slate-400 max-w-xs">
               Exam-focused preparation for IUP ITB. Crafted by students who have passed the AqTest

@@ -23,7 +23,7 @@ export function Navbar({ onNavigateLogin, onNavigateRegister }: NavbarProps) {
               href="/"
               className="text-2xl font-bold font-serif text-brand-dark"
             >
-              Golden<span className="text-brand-primary">Path</span>
+              Sepuh<span className="text-brand-primary">IUP</span>
             </a>
           </div>
 

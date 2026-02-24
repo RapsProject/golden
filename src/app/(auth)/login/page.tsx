@@ -3,14 +3,53 @@ import { Chrome, Eye, EyeOff } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
+import { useAuth } from '../../../contexts/AuthContext';
+import { syncProfile } from '../../../lib/api';
+import { supabase } from '../../../lib/supabase';
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const { signIn } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const canSubmit = useMemo(() => email.length > 3 && password.length > 3, [email, password]);
+  const canSubmit = useMemo(
+    () => email.length > 3 && password.length > 3 && !loading,
+    [email, password, loading]
+  );
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+    const { error: signInError } = await signIn(email, password);
+    if (signInError) {
+      setError(signInError.message);
+      setLoading(false);
+      return;
+    }
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.access_token) {
+      console.log('[Login] Berhasil login. Token ada:', true, 'panjang:', session.access_token.length, 'user id:', session.user?.id);
+      try {
+        await syncProfile(session.access_token, {
+          email,
+          full_name: session.user?.user_metadata?.full_name as string | undefined,
+        });
+        console.log('[Login] syncProfile ke backend: sukses');
+      } catch (err) {
+        console.warn('[Login] syncProfile ke backend gagal (optional):', err instanceof Error ? err.message : err);
+        // sync optional; user can still use app
+      }
+    } else {
+      console.warn('[Login] Berhasil login tapi session/access_token tidak ada');
+    }
+    setLoading(false);
+    navigate('/dashboard');
+  };
 
   return (
     <div>
@@ -46,14 +85,12 @@ export function LoginPage() {
         <div className="h-px bg-slate-200 flex-1" />
       </div>
 
+      {error && (
+        <p className="text-sm text-red-600 mb-4 rounded-lg bg-red-50 px-3 py-2">{error}</p>
+      )}
+
       {/* Form */}
-      <form
-        className="space-y-4"
-        onSubmit={(e) => {
-          e.preventDefault();
-          navigate('/dashboard');
-        }}
-      >
+      <form className="space-y-4" onSubmit={handleSubmit}>
         <Input
           label="Email"
           type="email"
@@ -106,7 +143,7 @@ export function LoginPage() {
           disabled={!canSubmit}
           type="submit"
         >
-          Log In
+          {loading ? 'Signing in…' : 'Log In'}
         </Button>
       </form>
 

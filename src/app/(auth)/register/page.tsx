@@ -3,11 +3,17 @@ import { Eye, EyeOff } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
+import { useAuth } from '../../../contexts/AuthContext';
+import { syncProfile } from '../../../lib/api';
+import { supabase } from '../../../lib/supabase';
 
 export function RegisterPage() {
   const navigate = useNavigate();
+  const { signUp } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -16,15 +22,43 @@ export function RegisterPage() {
   const [agree, setAgree] = useState(false);
 
   const passwordsMatch = password.length > 0 && password === confirmPassword;
+  const passwordValid =
+    password.length >= 6 &&
+    /[a-z]/.test(password) &&
+    /[A-Z]/.test(password) &&
+    /[0-9]/.test(password);
   const canSubmit = useMemo(() => {
     return (
       fullName.trim().length >= 2 &&
       email.length > 3 &&
-      password.length >= 6 &&
+      passwordValid &&
       passwordsMatch &&
-      agree
+      agree &&
+      !loading
     );
-  }, [agree, email, fullName, password, passwordsMatch]);
+  }, [agree, email, fullName, passwordValid, passwordsMatch, loading]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+    const { error: signUpError } = await signUp(email, password, fullName.trim());
+    if (signUpError) {
+      setError(signUpError.message);
+      setLoading(false);
+      return;
+    }
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.access_token) {
+      try {
+        await syncProfile(session.access_token, { email, full_name: fullName.trim() });
+      } catch {
+        // sync optional
+      }
+    }
+    setLoading(false);
+    navigate('/dashboard');
+  };
 
   return (
     <div>
@@ -40,13 +74,11 @@ export function RegisterPage() {
         </p>
       </div>
 
-      <form
-        className="space-y-4"
-        onSubmit={(e) => {
-          e.preventDefault();
-          navigate('/dashboard');
-        }}
-      >
+      {error && (
+        <p className="text-sm text-red-600 mb-4 rounded-lg bg-red-50 px-3 py-2">{error}</p>
+      )}
+
+      <form className="space-y-4" onSubmit={handleSubmit}>
         <Input
           label="Full Name"
           name="fullName"
@@ -89,6 +121,11 @@ export function RegisterPage() {
               {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
             </button>
           </div>
+          {password.length > 0 && !passwordValid && (
+            <p className="mt-1.5 text-xs text-red-500">
+              Password harus mengandung minimal 1 huruf kecil, 1 huruf besar, dan 1 angka (min. 6 karakter).
+            </p>
+          )}
         </div>
 
         <div>
@@ -147,7 +184,7 @@ export function RegisterPage() {
         </label>
 
         <Button variant="primary" size="md" className="w-full" disabled={!canSubmit} type="submit">
-          Create Account
+          {loading ? 'Creating account…' : 'Create Account'}
         </Button>
       </form>
 
