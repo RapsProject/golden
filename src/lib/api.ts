@@ -1,17 +1,17 @@
-const BASE = (import.meta.env.VITE_API_BASE_URL as string) ?? '';
+const BASE = (import.meta.env.VITE_API_BASE_URL as string) ?? "";
 
 type ApiResponse<T> = { success: boolean; message: string; data?: T };
 
 async function request<T>(
   method: string,
   path: string,
-  options?: { body?: unknown; token?: string | null }
+  options?: { body?: unknown; token?: string | null },
 ): Promise<ApiResponse<T>> {
-  const url = `${BASE.replace(/\/$/, '')}${path.startsWith('/') ? path : `/${path}`}`;
+  const url = `${BASE.replace(/\/$/, "")}${path.startsWith("/") ? path : `/${path}`}`;
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   };
-  if (options?.token) headers['Authorization'] = `Bearer ${options.token}`;
+  if (options?.token) headers["Authorization"] = `Bearer ${options.token}`;
 
   const res = await fetch(url, {
     method,
@@ -28,25 +28,28 @@ async function request<T>(
 
 export const api = {
   get: <T>(path: string, token?: string | null) =>
-    request<T>('GET', path, { token }),
+    request<T>("GET", path, { token }),
 
   post: <T>(path: string, body?: unknown, token?: string | null) =>
-    request<T>('POST', path, { body, token }),
+    request<T>("POST", path, { body, token }),
 
   put: <T>(path: string, body?: unknown, token?: string | null) =>
-    request<T>('PUT', path, { body, token }),
+    request<T>("PUT", path, { body, token }),
 
   delete: <T>(path: string, token?: string | null) =>
-    request<T>('DELETE', path, { token }),
+    request<T>("DELETE", path, { token }),
 };
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
-export async function syncProfile(token: string, body?: { email?: string; full_name?: string }) {
+export async function syncProfile(
+  token: string,
+  body?: { email?: string; full_name?: string },
+) {
   const res = await api.post<{ id: string; email: string; fullName: string }>(
-    '/api/v1/auth/sync',
+    "/api/v1/auth/sync",
     body ?? {},
-    token
+    token,
   );
   return res.data;
 }
@@ -67,7 +70,7 @@ export type ProfileData = {
 };
 
 export async function getMe(token: string) {
-  const res = await api.get<ProfileData>('/api/v1/auth/me', token);
+  const res = await api.get<ProfileData>("/api/v1/auth/me", token);
   return res.data;
 }
 
@@ -88,22 +91,24 @@ export type DashboardStats = {
 };
 
 export async function getDashboardStats(token: string) {
-  const res = await api.get<DashboardStats>('/api/v1/dashboard/stats', token);
+  const res = await api.get<DashboardStats>("/api/v1/dashboard/stats", token);
   return res.data;
 }
 
 // ─── Tryouts ──────────────────────────────────────────────────────────────────
 
 export async function getTryouts(token: string) {
-  const res = await api.get<Array<{
-    id: string;
-    title: string;
-    type: string;
-    durationMinutes: number;
-    maxAttempts: number | null;
-    isPremium: boolean;
-    isPublished: boolean;
-  }>>('/api/v1/tryouts', token);
+  const res = await api.get<
+    Array<{
+      id: string;
+      title: string;
+      type: string;
+      durationMinutes: number;
+      maxAttempts: number | null;
+      isPremium: boolean;
+      isPublished: boolean;
+    }>
+  >("/api/v1/tryouts", token);
   return res.data ?? [];
 }
 
@@ -123,20 +128,26 @@ export async function getTryoutById(token: string, id: string) {
       imageUrl: string | null;
       subjectId: string;
       topicId: string | null;
-      options: Array<{ id: string; sequenceNumber: number; text: string; imageUrl: string | null }>;
+      options: Array<{
+        id: string;
+        sequenceNumber: number;
+        text: string;
+        imageUrl: string | null;
+      }>;
     }>;
-  }>('/api/v1/tryouts/' + encodeURIComponent(id), token);
+  }>("/api/v1/tryouts/" + encodeURIComponent(id), token);
   return res.data;
 }
 
 // ─── Sessions ─────────────────────────────────────────────────────────────────
 
 export async function startSession(token: string, tryoutId: string) {
-  const res = await api.post<{ id: string; userId: string; tryoutId: string; status: string }>(
-    '/api/v1/sessions/start',
-    { tryoutId },
-    token
-  );
+  const res = await api.post<{
+    id: string;
+    userId: string;
+    tryoutId: string;
+    status: string;
+  }>("/api/v1/sessions/start", { tryoutId }, token);
   return res.data;
 }
 
@@ -145,12 +156,12 @@ export async function saveAnswer(
   sessionId: string,
   questionId: string,
   optionId: string | null,
-  isMarkedForReview?: boolean
+  isMarkedForReview?: boolean,
 ) {
   await api.put(
     `/api/v1/sessions/${encodeURIComponent(sessionId)}/answer`,
     { questionId, optionId, isMarkedForReview: isMarkedForReview ?? false },
-    token
+    token,
   );
 }
 
@@ -168,7 +179,16 @@ export type SessionAnswerResult = {
   questionId: string;
   optionId: string | null;
   isMarkedForReview: boolean;
+<<<<<<< Updated upstream
   option: { id: string; sequenceNumber: number; text: string; isCorrect: boolean } | null;
+=======
+  option: {
+    id: string;
+    sequenceNumber: number;
+    text: string;
+    isCorrect: boolean;
+  } | null;
+>>>>>>> Stashed changes
   question: {
     id: string;
     sequenceNumber: number;
@@ -190,7 +210,7 @@ export type SessionData = {
   answers: SessionAnswer[];
 };
 
-export type SessionDataCompleted = Omit<SessionData, 'answers'> & {
+export type SessionDataCompleted = Omit<SessionData, "answers"> & {
   answers: SessionAnswerResult[];
 };
 
@@ -198,7 +218,7 @@ export async function submitSession(token: string, sessionId: string) {
   const res = await api.post<SessionDataCompleted>(
     `/api/v1/sessions/${encodeURIComponent(sessionId)}/submit`,
     undefined,
-    token
+    token,
   );
   return res.data;
 }
@@ -206,20 +226,22 @@ export async function submitSession(token: string, sessionId: string) {
 export async function getSession(token: string, sessionId: string) {
   const res = await api.get<SessionData | SessionDataCompleted>(
     `/api/v1/sessions/${encodeURIComponent(sessionId)}`,
-    token
+    token,
   );
   return res.data;
 }
 
 export async function getSessions(token: string) {
-  const res = await api.get<Array<{
-    id: string;
-    tryoutId: string;
-    score: number | null;
-    status: string;
-    startTime: string;
-    tryout?: { id: string; title: string; type: string };
-  }>>('/api/v1/sessions', token);
+  const res = await api.get<
+    Array<{
+      id: string;
+      tryoutId: string;
+      score: number | null;
+      status: string;
+      startTime: string;
+      tryout?: { id: string; title: string; type: string };
+    }>
+  >("/api/v1/sessions", token);
   return res.data ?? [];
 }
 
@@ -243,14 +265,14 @@ export type ProfileDetail = {
 };
 
 export async function getMyProfile(token: string) {
-  const res = await api.get<ProfileDetail>('/api/v1/profile/me', token);
+  const res = await api.get<ProfileDetail>("/api/v1/profile/me", token);
   return res.data;
 }
 
 export async function updateMyProfile(
   token: string,
-  data: { phoneNumber?: string; dreamMajor?: string; fullName?: string }
+  data: { phoneNumber?: string; dreamMajor?: string; fullName?: string },
 ) {
-  const res = await api.put<ProfileDetail>('/api/v1/profile/me', data, token);
+  const res = await api.put<ProfileDetail>("/api/v1/profile/me", data, token);
   return res.data;
 }
