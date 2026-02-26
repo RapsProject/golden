@@ -61,7 +61,7 @@ export function DashboardLayout() {
     >
       <div className="bg-brand-dark text-white px-5 py-5">
         <div className="text-xl font-bold font-serif">
-          Sepuh<span className="text-brand-secondary">IUP</span>
+          Sabi<span className="text-brand-secondary">Academia</span>
         </div>
         <div className="text-xs text-white/80 mt-1">Member Area</div>
       </div>
@@ -133,7 +133,7 @@ export function DashboardLayout() {
         <div className="sticky top-0 z-40 bg-white border-b border-brand-light">
           <div className="flex items-center justify-between px-4 py-3">
             <div className="text-lg font-bold font-serif text-brand-dark">
-              Sepuh<span className="text-brand-primary">IUP</span>
+              Sabi<span className="text-brand-primary">Academia</span>
             </div>
             <button
               type="button"

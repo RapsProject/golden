@@ -169,7 +169,17 @@ export type SessionAnswerResult = {
   optionId: string | null;
   isMarkedForReview: boolean;
   option: { id: string; sequenceNumber: number; text: string; isCorrect: boolean } | null;
-  question: { id: string; sequenceNumber: number; explanation: string | null };
+  question: {
+    id: string;
+    sequenceNumber: number;
+    explanation: string | null;
+    options?: Array<{
+      id: string;
+      sequenceNumber: number;
+      text: string;
+      isCorrect: boolean;
+    }>;
+  };
 };
 
 export type SessionData = {

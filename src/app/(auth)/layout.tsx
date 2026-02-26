@@ -17,7 +17,7 @@ export function AuthLayout() {
 
           <div className="relative max-w-md">
             <p className="text-brand-secondary text-sm font-semibold tracking-wide mb-4">
-              SepuhIUP · IUP ITB Preparation
+              SabiAcademia · IUP ITB Preparation
             </p>
             <h2 className="text-3xl font-serif font-bold mb-4">
               “Lolos IUP ITB berkat latihan rutin dan strategi yang tepat.”

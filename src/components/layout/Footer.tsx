@@ -17,7 +17,7 @@ export function Footer({ onNavigateComingSoon }: FooterProps) {
           {/* Logo / Bio */}
           <div>
             <div className="text-2xl font-bold font-serif text-white mb-3">
-              Sepuh<span className="text-brand-primary">IUP</span>
+              Sabi<span className="text-brand-primary">Academia</span>
             </div>
             <p className="text-sm text-slate-400 max-w-xs">
               Exam-focused preparation for IUP ITB. Crafted by students who have passed the AqTest
@@ -96,7 +96,7 @@ export function Footer({ onNavigateComingSoon }: FooterProps) {
 
         <div className="border-t border-slate-800 pt-4 mt-4 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-slate-500">
           <div>
-            © 2025 SepuhIUP. Made by ITB Students.
+            © 2025 SabiAcademia. Made by ITB Students.
           </div>
           <div className="flex gap-4">
             <span>Bandung · Indonesia</span>

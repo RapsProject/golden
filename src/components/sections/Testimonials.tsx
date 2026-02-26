@@ -11,7 +11,7 @@ const testimonials = [
     name: "Nabila Ayu",
     role: "Industrial Engineering, ITB '23",
     quote:
-      "Most students underestimate the English reasoning component. SepuhIUP makes you comfortable thinking in English under time pressure.",
+      "Most students underestimate the English reasoning component. SabiAcademia makes you comfortable thinking in English under time pressure.",
   },
 ];
 
@@ -24,9 +24,9 @@ export function Testimonials() {
             Insider Access from IUP ITB Students.
           </h2>
           <p className="text-slate-600 text-base md:text-lg max-w-2xl mx-auto">
-            SepuhIUP is crafted together with question writers and successful
-            IUP ITB students — giving you guidance from people who have passed
-            the exam themselves.
+            SabiAcademia is crafted together with question writers and
+            successful IUP ITB students — giving you guidance from people who
+            have passed the exam themselves.
           </p>
         </div>
 
