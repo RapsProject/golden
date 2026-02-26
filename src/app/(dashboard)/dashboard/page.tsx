@@ -38,7 +38,7 @@ export function DashboardHomePage() {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h1 className="text-xl md:text-2xl font-serif font-bold text-brand-dark">
-              {loading ? 'Loading…' : `Hi, ${name}! Ready to conquer SepuhIUP today?`}
+              {loading ? 'Loading…' : `Hi, ${name}! Ready to conquer SabiAcademia today?`}
             </h1>
             <p className="text-sm md:text-base text-slate-600 mt-2">
               {error

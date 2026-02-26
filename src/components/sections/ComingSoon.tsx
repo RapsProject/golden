@@ -24,7 +24,7 @@ export function ComingSoon() {
               Coming Soon
             </p>
             <h1 className="text-3xl md:text-5xl font-serif font-bold text-brand-dark mb-4">
-              We&apos;re finalizing the SepuhIUP platform experience.
+              We&apos;re finalizing the SabiAcademia platform experience.
             </h1>
             <p className="text-base md:text-lg text-slate-600 mb-8">
               The full simulation dashboard, payment, and login system are almost ready. For now, you can
