@@ -143,7 +143,7 @@ export function Hero({ onNavigateRegister, onNavigateComingSoon }: HeroProps) {
                       <div className="text-xl font-bold text-brand-secondary">
                         6
                       </div>
-                      <div className="text-xs text-slate-600">Review</div>
+                      <div className="text-xs text-slate-600">Wrong</div>
                     </div>
                   </div>
                 </div>

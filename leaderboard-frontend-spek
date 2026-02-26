@@ -1,0 +1,56 @@
+---
+
+### 2. Spesifikasi Frontend (Untuk Repo Frontend)
+
+Buat file `leaderboard-frontend-spek.md` di *root folder repository frontend* kamu.
+
+```markdown
+# `leaderboard-frontend-spek.md` - Leaderboard UI & Podium Specification
+
+## 1. Feature Overview
+Kita akan membuat halaman Leaderboard di dalam Dashboard `(dashboard)/leaderboard/page.tsx`. Halaman ini menampilkan peringkat siswa berdasarkan filter (Overall, Subject, Tryout). Fitur utamanya adalah **Top 3 Podium Section** bergaya Quizizz yang interaktif dan visual.
+
+* **Theme Colors:** `brand-dark` (#09637E), `brand-primary` (#088395), `brand-secondary` (#7AB2B2), `brand-light` (#EBF4F6), serta warna medali (Emas, Perak, Perunggu).
+
+## 2. UI Layout & Architecture
+
+### 2.1. Header & Filters
+* **Title:** "AqTest Global Leaderboard".
+* **Filter Controls:** Gunakan `Tabs` atau `Select` dropdown.
+  * Tipe: "Overall Average", "By Subject", "Specific Tryout".
+  * Jika "By Subject" dipilih, munculkan dropdown kedua: "Mathematics", "Physics".
+
+### 2.2. The Top 3 Podium (Quizizz Style)
+Ini adalah komponen visual utama. Pisahkan array data index `0, 1, 2`.
+* **Layout:** Flex container dengan `items-end` (rata bawah) dan `justify-center`.
+* **Rank 2 (Kiri):**
+  * Avatar & Nama user.
+  * Balok Podium: Tinggi medium (misal: `h-32`), warna Silver / Abu-abu terang.
+  * Angka "2" besar di tengah balok.
+* **Rank 1 (Tengah):**
+  * Avatar & Nama user (Beri efek *glow* atau mahkota kecil/icon `Crown`).
+  * Balok Podium: Paling tinggi (misal: `h-48`), warna Gold / Kuning keemasan.
+  * Angka "1" besar di tengah balok.
+* **Rank 3 (Kanan):**
+  * Avatar & Nama user.
+  * Balok Podium: Paling rendah (misal: `h-24`), warna Bronze / Cokelat tembaga.
+  * Angka "3" besar di tengah balok.
+
+### 2.3. The List View (Rank 4 and Below)
+* Menampilkan *scrollable list* untuk sisa data (index 3 ke atas).
+* Setiap baris (`Card` atau `Row`) menampilkan:
+  * Angka Rank (Misal: 4, 5, 6...).
+  * Avatar & Nama.
+  * Total Skor (di sisi kanan dengan warna *text* yang tebal).
+* Jika *current user* yang sedang login ada di posisi ke-50, beri warna *highlight* khusus (misal: background `brand-light` dengan border `brand-primary`) agar mudah ditemukan.
+
+## 3. State Management & Integration
+* Gunakan `useQuery` (jika memakai React Query) atau `useEffect` + `useState` standar.
+* **Fetch Function:** Panggil *API Client* ke `GET http://localhost:4000/api/v1/leaderboard?filterType=OVERALL` (Sesuaikan dengan *state* filter yang sedang aktif).
+* **Loading State:** Tampilkan *skeleton loader* yang berbentuk podium saat data sedang di-fetch.
+
+## 4. Instructions for Cursor AI
+1. Create the `leaderboard/page.tsx` within the `(dashboard)` route group.
+2. Build the UI components: `LeaderboardFilters`, `PodiumTop3` (handling the visual representation of ranks 1, 2, and 3), and `LeaderboardList` (for ranks 4+).
+3. Use Tailwind CSS heavily for the podium sizing (`h-`, `items-end`) and coloring to mimic the Quizizz feel. Add subtle hover scaling animations (`hover:scale-105 transition-transform`).
+4. Integrate the page with the Backend API. Watch the filter states, and whenever a filter changes, re-fetch the data from the API endpoint defined in the backend spec. Handle loading states gracefully with Skeleton UI.
