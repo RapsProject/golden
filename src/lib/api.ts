@@ -179,16 +179,12 @@ export type SessionAnswerResult = {
   questionId: string;
   optionId: string | null;
   isMarkedForReview: boolean;
-<<<<<<< Updated upstream
-  option: { id: string; sequenceNumber: number; text: string; isCorrect: boolean } | null;
-=======
   option: {
     id: string;
     sequenceNumber: number;
     text: string;
     isCorrect: boolean;
   } | null;
->>>>>>> Stashed changes
   question: {
     id: string;
     sequenceNumber: number;
