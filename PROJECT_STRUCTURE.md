@@ -1,4 +1,4 @@
-# Project Structure - SepuhIUP ITB Preparation Platform
+# Project Structure - SabiAcademia ITB Preparation Platform
 
 ## Overview
 This is a landing page for an IUP ITB entrance exam preparation platform, built with React, Vite, and Tailwind CSS.

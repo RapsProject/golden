@@ -59,8 +59,8 @@ export function ProblemStatement() {
             </p>
             <p className="text-slate-600 text-base md:text-lg mb-4">
               Without the right blueprint, you might be practicing hard but for
-              the wrong game. SepuhIUP helps you align every study session with
-              the actual demands of the IUP ITB exam.
+              the wrong game. SabiAcademia helps you align every study session
+              with the actual demands of the IUP ITB exam.
             </p>
           </div>
         </div>
