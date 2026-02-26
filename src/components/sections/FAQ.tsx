@@ -3,14 +3,14 @@ import { Container } from '../ui/Container';
 
 const faqs = [
   {
-    question: "Is SepuhIUP officially affiliated with ITB?",
+    question: "Is SabiAcademia officially affiliated with ITB?",
     answer:
-      "SepuhIUP is built by IUP ITB students and alumni, but it is an independent preparation platform and not an official product of ITB.",
+      "SabiAcademia is built by IUP ITB students and alumni, but it is an independent preparation platform and not an official product of ITB.",
   },
   {
     question: "Do I need strong English skills before starting?",
     answer:
-      "Not yet. SepuhIUP helps you build exam-specific English proficiency through explanations, question wording, and practice in context.",
+      "Not yet. SabiAcademia helps you build exam-specific English proficiency through explanations, question wording, and practice in context.",
   },
   {
     question: "Can I access the platform from mobile?",
@@ -35,8 +35,8 @@ export function FAQ() {
             Frequently Asked Questions.
           </h2>
           <p className="text-slate-600 text-base md:text-lg max-w-2xl mx-auto">
-            Still unsure about how SepuhIUP fits your IUP ITB journey? These
-            answers might help.
+            Still unsure about how SabiAcademia fits your IUP ITB journey?
+            These answers might help.
           </p>
         </div>
 

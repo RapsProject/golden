@@ -1,7 +1,7 @@
 # ✅ Completed - Phase 1: Project Setup & Hero Section
 
 ## Summary
-Successfully scaffolded the SepuhIUP landing page project with Tailwind CSS configuration and built the Layout (Navbar) and Hero section according to the specification.
+Successfully scaffolded the SabiAcademia landing page project with Tailwind CSS configuration and built the Layout (Navbar) and Hero section according to the specification.
 
 ## What Was Done
 
@@ -44,7 +44,7 @@ src/
 ### 4. ✅ Navbar Component
 **Features Implemented:**
 - ✅ Sticky/fixed positioning with backdrop blur effect
-- ✅ Logo with brand colors (SepuhIUP)
+- ✅ Logo with brand colors (SabiAcademia)
 - ✅ Desktop menu: Features, Pricing, Testimonials
 - ✅ Mobile hamburger menu with slide-down drawer
 - ✅ Two CTA buttons: "Login" (outline) and "Get Started" (primary)

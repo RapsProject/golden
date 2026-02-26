@@ -7,7 +7,12 @@ import {
 } from 'react-router-dom';
 import { CheckCircle2, XCircle, MinusCircle } from 'lucide-react';
 import { useAuth } from '../../../../../contexts/AuthContext';
-import { getSessions, getSession, type SessionDataCompleted } from '../../../../../lib/api';
+import {
+  getSessions,
+  getSession,
+  getTryoutById,
+  type SessionDataCompleted,
+} from '../../../../../lib/api';
 
 export function ExamResultPage() {
   const { id } = useParams<{ id: string }>();
@@ -25,6 +30,7 @@ export function ExamResultPage() {
   const [result, setResult] = useState<SessionDataCompleted | null>(stateResult ?? null);
   const [loading, setLoading] = useState(!stateResult);
   const [notFound, setNotFound] = useState(false);
+  const [totalQuestions, setTotalQuestions] = useState<number | null>(null);
 
   useEffect(() => {
     if (stateResult || !id || !accessToken) return;
@@ -78,6 +84,29 @@ export function ExamResultPage() {
     return () => { cancelled = true; };
   }, [id, accessToken, stateResult, stateSessionId]);
 
+  // Load total number of questions for this tryout,
+  // so we can correctly count unanswered (including untouched questions).
+  useEffect(() => {
+    if (!id || !accessToken) return;
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const tryout = await getTryoutById(accessToken, id);
+        if (!cancelled) {
+          const count = tryout?.questions?.length ?? 0;
+          setTotalQuestions(count > 0 ? count : null);
+        }
+      } catch {
+        if (!cancelled) setTotalQuestions(null);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id, accessToken]);
+
   if (!id) return <Navigate to="/tryout" replace />;
 
   if (loading) {
@@ -110,9 +139,14 @@ export function ExamResultPage() {
   const wrong = answers.filter(
     (a) => a.optionId != null && !a.option?.isCorrect,
   ).length;
-  const unanswered = answers.filter((a) => a.optionId == null).length;
-  const total = answers.length;
-  const scoreDisplay = total > 0 ? Math.round((correct / total) * 1000) : 0;
+
+  const baseTotal =
+    totalQuestions != null && totalQuestions > 0
+      ? totalQuestions
+      : answers.length;
+
+  const unanswered = Math.max(0, baseTotal - correct - wrong);
+  const scoreDisplay = baseTotal > 0 ? Math.round((correct / baseTotal) * 1000) : 0;
 
   const scoreColor =
     scoreDisplay >= 700
@@ -158,6 +192,7 @@ export function ExamResultPage() {
           {answers.map((a, idx) => {
             const isCorrect = a.option?.isCorrect ?? false;
             const isUnanswered = a.optionId == null;
+            const correctOption = a.question?.options?.find((o) => o.isCorrect);
             return (
               <div key={a.questionId ?? idx} className="p-5 space-y-3">
                 <div className="flex items-start gap-3">
@@ -174,6 +209,12 @@ export function ExamResultPage() {
                     <span className="text-xs text-slate-400">Q{idx + 1}</span>
                   </div>
                 </div>
+                {correctOption && (isUnanswered || !isCorrect) && (
+                  <div className="ml-8 text-xs md:text-sm text-slate-700">
+                    <span className="font-semibold text-brand-primary">Correct answer:</span>{' '}
+                    <span>{correctOption.text}</span>
+                  </div>
+                )}
                 {a.question?.explanation && (
                   <div className="ml-8 rounded-xl bg-brand-light/60 border border-brand-secondary/30 px-4 py-3">
                     <p className="text-xs font-semibold text-brand-secondary mb-1">

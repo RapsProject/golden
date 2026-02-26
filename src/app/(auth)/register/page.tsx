@@ -63,9 +63,13 @@ export function RegisterPage() {
   return (
     <div>
       <div className="mb-8">
-        <div className="text-xl font-bold font-serif text-brand-dark mb-2">
-          Sepuh<span className="text-brand-primary">IUP</span>
-        </div>
+        <button
+          type="button"
+          onClick={() => navigate("/")}
+          className="text-xl font-bold font-serif text-brand-dark mb-2 cursor-pointer"
+        >
+          Sabi<span className="text-brand-primary">Academia</span>
+        </button>
         <h1 className="text-2xl md:text-3xl font-serif font-bold text-slate-900">
           Start Your Journey
         </h1>
@@ -75,7 +79,9 @@ export function RegisterPage() {
       </div>
 
       {error && (
-        <p className="text-sm text-red-600 mb-4 rounded-lg bg-red-50 px-3 py-2">{error}</p>
+        <p className="text-sm text-red-600 mb-4 rounded-lg bg-red-50 px-3 py-2">
+          {error}
+        </p>
       )}
 
       <form className="space-y-4" onSubmit={handleSubmit}>
@@ -100,10 +106,12 @@ export function RegisterPage() {
         />
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">Password</label>
+          <label className="block text-sm font-medium text-slate-700 mb-2">
+            Password
+          </label>
           <div className="relative">
             <Input
-              type={showPassword ? 'text' : 'password'}
+              type={showPassword ? "text" : "password"}
               name="password"
               placeholder="Create a password"
               value={password}
@@ -116,14 +124,19 @@ export function RegisterPage() {
               type="button"
               className="absolute inset-y-0 right-3 flex items-center text-slate-500 hover:text-slate-700"
               onClick={() => setShowPassword((v) => !v)}
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              aria-label={showPassword ? "Hide password" : "Show password"}
             >
-              {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              {showPassword ? (
+                <EyeOff className="h-5 w-5" />
+              ) : (
+                <Eye className="h-5 w-5" />
+              )}
             </button>
           </div>
           {password.length > 0 && !passwordValid && (
             <p className="mt-1.5 text-xs text-red-500">
-              Password harus mengandung minimal 1 huruf kecil, 1 huruf besar, dan 1 angka (min. 6 karakter).
+              Password harus mengandung minimal 1 huruf kecil, 1 huruf besar,
+              dan 1 angka (min. 6 karakter).
             </p>
           )}
         </div>
@@ -134,7 +147,7 @@ export function RegisterPage() {
           </label>
           <div className="relative">
             <Input
-              type={showConfirm ? 'text' : 'password'}
+              type={showConfirm ? "text" : "password"}
               name="confirmPassword"
               placeholder="Repeat your password"
               value={confirmPassword}
@@ -142,15 +155,23 @@ export function RegisterPage() {
               autoComplete="new-password"
               required
               className="pr-12"
-              error={confirmPassword.length > 0 && !passwordsMatch ? 'Passwords do not match' : undefined}
+              error={
+                confirmPassword.length > 0 && !passwordsMatch
+                  ? "Passwords do not match"
+                  : undefined
+              }
             />
             <button
               type="button"
               className="absolute inset-y-0 right-3 flex items-center text-slate-500 hover:text-slate-700"
               onClick={() => setShowConfirm((v) => !v)}
-              aria-label={showConfirm ? 'Hide password' : 'Show password'}
+              aria-label={showConfirm ? "Hide password" : "Show password"}
             >
-              {showConfirm ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              {showConfirm ? (
+                <EyeOff className="h-5 w-5" />
+              ) : (
+                <Eye className="h-5 w-5" />
+              )}
             </button>
           </div>
         </div>
@@ -163,19 +184,19 @@ export function RegisterPage() {
             onChange={(e) => setAgree(e.target.checked)}
           />
           <span>
-            I agree to{' '}
+            I agree to{" "}
             <button
               type="button"
               className="text-brand-primary hover:text-brand-dark font-medium"
-              onClick={() => navigate('/coming-soon')}
+              onClick={() => navigate("/coming-soon")}
             >
               Terms
-            </button>{' '}
-            &{' '}
+            </button>{" "}
+            &{" "}
             <button
               type="button"
               className="text-brand-primary hover:text-brand-dark font-medium"
-              onClick={() => navigate('/coming-soon')}
+              onClick={() => navigate("/coming-soon")}
             >
               Privacy Policy
             </button>
@@ -183,14 +204,23 @@ export function RegisterPage() {
           </span>
         </label>
 
-        <Button variant="primary" size="md" className="w-full" disabled={!canSubmit} type="submit">
-          {loading ? 'Creating account…' : 'Create Account'}
+        <Button
+          variant="primary"
+          size="md"
+          className="w-full"
+          disabled={!canSubmit}
+          type="submit"
+        >
+          {loading ? "Creating account…" : "Create Account"}
         </Button>
       </form>
 
       <p className="text-sm text-slate-600 mt-6">
-        Already have an account?{' '}
-        <Link to="/login" className="text-brand-primary hover:text-brand-dark font-medium">
+        Already have an account?{" "}
+        <Link
+          to="/login"
+          className="text-brand-primary hover:text-brand-dark font-medium"
+        >
           Log in
         </Link>
       </p>

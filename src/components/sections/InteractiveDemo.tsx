@@ -87,7 +87,7 @@ export function InteractiveDemo() {
                 9, then apply f: f(9) = 2 · 9 + 1 = 19.
               </p>
               <p className="text-xs md:text-sm text-slate-600">
-                Every question in SepuhIUP includes detailed reasoning like
+                Every question in SabiAcademia includes detailed reasoning like
                 this, so you do not just memorize formulas — you understand the
                 logic that IUP ITB cares about.
               </p>

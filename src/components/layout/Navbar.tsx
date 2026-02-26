@@ -23,7 +23,7 @@ export function Navbar({ onNavigateLogin, onNavigateRegister }: NavbarProps) {
               href="/"
               className="text-2xl font-bold font-serif text-brand-dark"
             >
-              Sepuh<span className="text-brand-primary">IUP</span>
+              Sabi<span className="text-brand-primary">Academia</span>
             </a>
           </div>
 

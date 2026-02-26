@@ -55,9 +55,13 @@ export function LoginPage() {
     <div>
       {/* Header */}
       <div className="mb-8">
-        <div className="text-xl font-bold font-serif text-brand-dark mb-2">
-          Sepuh<span className="text-brand-primary">IUP</span>
-        </div>
+        <button
+          type="button"
+          onClick={() => navigate("/")}
+          className="text-xl font-bold font-serif text-brand-dark mb-2 cursor-pointer"
+        >
+          Sabi<span className="text-brand-primary">Academia</span>
+        </button>
         <h1 className="text-2xl md:text-3xl font-serif font-bold text-slate-900">
           Welcome Back
         </h1>
@@ -73,7 +77,7 @@ export function LoginPage() {
         className="w-full border-slate-200 text-slate-700 hover:bg-slate-50"
         icon={Chrome}
         iconPosition="left"
-        onClick={() => navigate('/coming-soon')}
+        onClick={() => navigate("/coming-soon")}
       >
         Sign in with Google
       </Button>
@@ -86,7 +90,9 @@ export function LoginPage() {
       </div>
 
       {error && (
-        <p className="text-sm text-red-600 mb-4 rounded-lg bg-red-50 px-3 py-2">{error}</p>
+        <p className="text-sm text-red-600 mb-4 rounded-lg bg-red-50 px-3 py-2">
+          {error}
+        </p>
       )}
 
       {/* Form */}
@@ -104,11 +110,13 @@ export function LoginPage() {
 
         <div>
           <div className="flex items-center justify-between mb-2">
-            <label className="block text-sm font-medium text-slate-700">Password</label>
+            <label className="block text-sm font-medium text-slate-700">
+              Password
+            </label>
             <button
               type="button"
               className="text-xs text-brand-primary hover:text-brand-dark"
-              onClick={() => navigate('/coming-soon')}
+              onClick={() => navigate("/coming-soon")}
             >
               Forgot password?
             </button>
@@ -116,7 +124,7 @@ export function LoginPage() {
 
           <div className="relative">
             <Input
-              type={showPassword ? 'text' : 'password'}
+              type={showPassword ? "text" : "password"}
               name="password"
               placeholder="Your password"
               value={password}
@@ -129,9 +137,13 @@ export function LoginPage() {
               type="button"
               className="absolute inset-y-0 right-3 flex items-center text-slate-500 hover:text-slate-700"
               onClick={() => setShowPassword((v) => !v)}
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              aria-label={showPassword ? "Hide password" : "Show password"}
             >
-              {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              {showPassword ? (
+                <EyeOff className="h-5 w-5" />
+              ) : (
+                <Eye className="h-5 w-5" />
+              )}
             </button>
           </div>
         </div>
@@ -143,13 +155,16 @@ export function LoginPage() {
           disabled={!canSubmit}
           type="submit"
         >
-          {loading ? 'Signing in…' : 'Log In'}
+          {loading ? "Signing in…" : "Log In"}
         </Button>
       </form>
 
       <p className="text-sm text-slate-600 mt-6">
-        Don&apos;t have an account?{' '}
-        <Link to="/register" className="text-brand-primary hover:text-brand-dark font-medium">
+        Don&apos;t have an account?{" "}
+        <Link
+          to="/register"
+          className="text-brand-primary hover:text-brand-dark font-medium"
+        >
           Sign up
         </Link>
       </p>
