@@ -196,6 +196,13 @@ export async function updateTryout(
   return res.data;
 }
 
+export async function deleteTryout(
+  token: string,
+  id: string,
+): Promise<void> {
+  await api.delete(`/api/v1/admin/tryouts/${encodeURIComponent(id)}`, token);
+}
+
 // ─── Sessions ─────────────────────────────────────────────────────────────────
 
 export async function startSession(token: string, tryoutId: string) {

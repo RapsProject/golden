@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Pencil, Save, ToggleLeft, ToggleRight, X, AlertCircle, Settings2 } from 'lucide-react';
+import { Plus, Pencil, Save, ToggleLeft, ToggleRight, X, AlertCircle, Settings2, Trash2 } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
 import {
   getAdminTryouts,
   createTryout,
   updateTryout,
+  deleteTryout,
   type TryoutData,
   type CreateTryoutInput,
 } from '../../../lib/api';
@@ -41,6 +42,7 @@ export function AdminTryoutsPage() {
   const [form, setForm] = useState<FormState>(emptyForm());
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const loadTryouts = async () => {
     if (!accessToken) return;
@@ -258,6 +260,14 @@ export function AdminTryoutsPage() {
                       >
                         <Pencil className="h-4 w-4" />
                       </button>
+                      <button
+                        type="button"
+                        onClick={() => setDeleteId(t.id)}
+                        className="p-1.5 rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+                        title="Hapus tryout"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -337,6 +347,7 @@ export function AdminTryoutsPage() {
                 </div>
               </div>
 
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-slate-600 mb-1">
@@ -391,6 +402,52 @@ export function AdminTryoutsPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete confirmation modal */}
+      {deleteId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4">
+            <div className="flex items-center gap-3 p-5 border-b border-slate-100">
+              <div className="p-2 bg-red-50 rounded-xl">
+                <Trash2 className="h-5 w-5 text-red-600" />
+              </div>
+              <h2 className="text-base font-semibold text-slate-900">Hapus tryout?</h2>
+            </div>
+            <div className="p-5 space-y-4">
+              <p className="text-sm text-slate-600">
+                Tryout ini akan dihapus permanen dari sistem beserta semua soalnya.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setDeleteId(null)}
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    if (!accessToken || !deleteId) return;
+                    try {
+                      await deleteTryout(accessToken, deleteId);
+                      setDeleteId(null);
+                      loadTryouts();
+                    } catch (e) {
+                      // Kalau gagal, tampilkan error global
+                      setError(e instanceof Error ? e.message : 'Gagal menghapus tryout');
+                      setDeleteId(null);
+                    }
+                  }}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 text-white text-sm font-semibold hover:bg-red-700 transition-colors"
+                >
+                  Hapus
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
