@@ -21,6 +21,7 @@ import { AdminOverviewPage } from './app/(admin)/page.tsx';
 import { AdminQuestionsPage } from './app/(admin)/questions/page.tsx';
 import { AdminSubjectsPage } from './app/(admin)/subjects/page.tsx';
 import { AdminUsersPage } from './app/(admin)/users/page.tsx';
+import { AdminTryoutsPage } from './app/(admin)/tryouts/page.tsx';
 
 export default function App() {
   return (
@@ -76,6 +77,7 @@ export default function App() {
         }
       >
         <Route index element={<AdminOverviewPage />} />
+        <Route path="tryouts" element={<AdminTryoutsPage />} />
         <Route path="questions" element={<AdminQuestionsPage />} />
         <Route path="subjects" element={<AdminSubjectsPage />} />
         <Route path="users" element={<AdminUsersPage />} />

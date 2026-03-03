@@ -36,6 +36,9 @@ export const api = {
   put: <T>(path: string, body?: unknown, token?: string | null) =>
     request<T>("PUT", path, { body, token }),
 
+  patch: <T>(path: string, body?: unknown, token?: string | null) =>
+    request<T>("PATCH", path, { body, token }),
+
   delete: <T>(path: string, token?: string | null) =>
     request<T>("DELETE", path, { token }),
 };
@@ -136,6 +139,60 @@ export async function getTryoutById(token: string, id: string) {
       }>;
     }>;
   }>("/api/v1/tryouts/" + encodeURIComponent(id), token);
+  return res.data;
+}
+
+// ─── Admin: Tryout Management ───────────────────────────────────────────────────
+
+export type TryoutData = {
+  id: string;
+  title: string;
+  type: string;
+  durationMinutes: number;
+  maxAttempts: number | null;
+  isPremium: boolean;
+  isPublished: boolean;
+  isActive?: boolean;
+};
+
+export type CreateTryoutInput = {
+  title: string;
+  type?: "simulation" | "practice";
+  durationMinutes: number;
+  maxAttempts?: number;
+  isPremium?: boolean;
+  isPublished?: boolean;
+};
+
+export type UpdateTryoutInput = Partial<CreateTryoutInput> & {
+  isActive?: boolean;
+};
+
+export async function getAdminTryouts(
+  token: string,
+): Promise<TryoutData[]> {
+  const res = await api.get<TryoutData[]>("/api/v1/admin/tryouts", token);
+  return res.data ?? [];
+}
+
+export async function createTryout(
+  token: string,
+  data: CreateTryoutInput,
+): Promise<TryoutData | undefined> {
+  const res = await api.post<TryoutData>("/api/v1/tryouts", data, token);
+  return res.data;
+}
+
+export async function updateTryout(
+  token: string,
+  id: string,
+  data: UpdateTryoutInput,
+): Promise<TryoutData | undefined> {
+  const res = await api.patch<TryoutData>(
+    `/api/v1/tryouts/${encodeURIComponent(id)}`,
+    data,
+    token,
+  );
   return res.data;
 }
 
