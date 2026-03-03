@@ -6,6 +6,7 @@ import {
   Home,
   LogOut,
   Menu,
+  Trophy,
   User,
   X,
 } from 'lucide-react';
@@ -46,6 +47,7 @@ export function DashboardLayout() {
       { label: 'Dashboard', to: '/dashboard', icon: Home },
       { label: 'Simulation', to: '/tryout', icon: Clock },
       { label: 'Analytics', to: '/analytics', icon: BarChart3 },
+      { label: 'Leaderboard', to: '/leaderboard', icon: Trophy },
       { label: 'Practice (Coming Soon)', to: '/coming-soon', icon: BookOpen },
       { label: 'Profile', to: '/profile', icon: User },
     ],

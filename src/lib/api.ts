@@ -272,3 +272,46 @@ export async function updateMyProfile(
   const res = await api.put<ProfileDetail>("/api/v1/profile/me", data, token);
   return res.data;
 }
+
+// ─── Leaderboard ──────────────────────────────────────────────────────────────
+
+export type LeaderboardFilterType = "OVERALL" | "SUBJECT" | "TRYOUT";
+
+export type LeaderboardSubject = "MATHEMATICS" | "PHYSICS";
+
+export type LeaderboardEntry = {
+  rank: number;
+  userId: string;
+  fullName: string;
+  score: number;
+  avatarUrl: string | null;
+};
+
+export type LeaderboardParams = {
+  filterType: LeaderboardFilterType;
+  subject?: LeaderboardSubject;
+  examId?: string;
+  limit?: number;
+};
+
+export async function getLeaderboard(
+  token: string,
+  params: LeaderboardParams,
+): Promise<LeaderboardEntry[]> {
+  const qs = new URLSearchParams();
+  qs.set("filterType", params.filterType);
+  if (params.filterType === "SUBJECT" && params.subject) {
+    qs.set("subject", params.subject);
+  }
+  if (params.filterType === "TRYOUT" && params.examId) {
+    qs.set("examId", params.examId);
+  }
+  if (params.limit != null) {
+    qs.set("limit", String(params.limit));
+  }
+  const res = await api.get<LeaderboardEntry[]>(
+    `/api/v1/leaderboard?${qs.toString()}`,
+    token,
+  );
+  return res.data ?? [];
+}

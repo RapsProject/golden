@@ -14,6 +14,7 @@ import { ExamResultPage } from './app/(dashboard)/tryout/[id]/result/page.tsx';
 import { ExamPlayPage } from './app/(dashboard)/tryout/[id]/play/page.tsx';
 import { AnalyticsPage } from './app/(dashboard)/analytics/page.tsx';
 import { ProfilePage } from './app/(dashboard)/profile/page.tsx';
+import { LeaderboardPage } from './app/(dashboard)/leaderboard/page.tsx';
 
 export default function App() {
   return (
@@ -45,6 +46,7 @@ export default function App() {
         <Route path="tryout/:id" element={<PreExamPage />} />
         <Route path="tryout/:id/result" element={<ExamResultPage />} />
         <Route path="analytics" element={<AnalyticsPage />} />
+        <Route path="leaderboard" element={<LeaderboardPage />} />
         <Route path="profile" element={<ProfilePage />} />
       </Route>
 
