@@ -11,6 +11,12 @@ import { LeaderboardFilters } from './LeaderboardFilters';
 import { LeaderboardList, ListSkeleton } from './LeaderboardList';
 import { PodiumTop3, PodiumSkeleton } from './PodiumTop3';
 
+function formatOrdinal(n: number): string {
+  const s = ["th", "st", "nd", "rd"];
+  const v = n % 100;
+  return `${n}${s[(v - 20) % 10] || s[v] || s[0]}`;
+}
+
 type Tryout = { id: string; title: string };
 
 export function LeaderboardPage() {
@@ -101,6 +107,40 @@ export function LeaderboardPage() {
 
   const currentUserId = user?.id;
 
+  const currentUserEntry: LeaderboardEntry | undefined = currentUserId
+    ? entries.find((e) => e.userId === currentUserId)
+    : undefined;
+
+  const totalParticipants = entries.length;
+  const top10Entry = entries.find((e) => e.rank === 10);
+
+  let personalInsightMain: string | null = null;
+  let personalInsightDetail: string | null = null;
+
+  if (currentUserEntry && totalParticipants > 0) {
+    personalInsightMain = `You are in the ${formatOrdinal(
+      currentUserEntry.rank,
+    )} place out of ${totalParticipants} participants on this leaderboard.`;
+
+    if (currentUserEntry.rank <= 10) {
+      personalInsightDetail =
+        'Great job! You are already within the top 10 applicants for this filter.';
+    } else if (top10Entry) {
+      const diff = Math.max(0, top10Entry.score - currentUserEntry.score);
+      if (diff > 0) {
+        personalInsightDetail = `You need approximately ${diff.toFixed(
+          1,
+        )} more points to break into the top 10 applicants.`;
+      } else {
+        personalInsightDetail =
+          'You are very close to the top 10 — a small score improvement could move you up.';
+      }
+    } else {
+      personalInsightDetail =
+        'Keep improving your score to climb higher on this leaderboard.';
+    }
+  }
+
   const noDataForFilter = filterType === 'TRYOUT' && !selectedTryoutId;
 
   return (
@@ -157,6 +197,33 @@ export function LeaderboardPage() {
       {/* Main content */}
       {!noDataForFilter && !error && !loading && entries.length > 0 && (
         <>
+          {/* Personal insight for current user */}
+          {currentUserEntry && personalInsightMain && (
+            <div className="bg-brand-dark text-white rounded-2xl px-5 py-4 shadow-sm flex items-center justify-between gap-4">
+              <div>
+                <p className="text-xs uppercase tracking-wide text-brand-light/80">
+                  Personal insight
+                </p>
+                <p className="text-sm font-semibold mt-1">
+                  {personalInsightMain}
+                </p>
+                {personalInsightDetail && (
+                  <p className="text-xs mt-1 text-brand-light/90">
+                    {personalInsightDetail}
+                  </p>
+                )}
+              </div>
+              <div className="text-right">
+                <p className="text-[11px] uppercase tracking-wide text-brand-light/70">
+                  Your score
+                </p>
+                <p className="text-2xl font-semibold leading-none mt-1">
+                  {currentUserEntry.score.toFixed(1)}
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Podium section */}
           <div className="bg-white rounded-2xl border border-brand-light px-4 pb-6 pt-4 shadow-sm">
             <PodiumTop3 entries={entries} currentUserId={currentUserId} />
