@@ -315,3 +315,211 @@ export async function getLeaderboard(
   );
   return res.data ?? [];
 }
+
+// ─── Subjects & Topics ────────────────────────────────────────────────────────
+
+export type SubjectData = {
+  id: string;
+  name: string;
+  description: string | null;
+};
+
+export type TopicData = {
+  id: string;
+  subjectId: string;
+  name: string;
+};
+
+export async function getSubjects(token: string): Promise<SubjectData[]> {
+  const res = await api.get<SubjectData[]>("/api/v1/subjects", token);
+  return res.data ?? [];
+}
+
+export async function createSubject(
+  token: string,
+  data: { name: string; description?: string },
+): Promise<SubjectData | undefined> {
+  const res = await api.post<SubjectData>("/api/v1/subjects", data, token);
+  return res.data;
+}
+
+export async function getTopicsBySubject(
+  token: string,
+  subjectId: string,
+): Promise<TopicData[]> {
+  const res = await api.get<TopicData[]>(
+    `/api/v1/subjects/${encodeURIComponent(subjectId)}/topics`,
+    token,
+  );
+  return res.data ?? [];
+}
+
+export async function createTopic(
+  token: string,
+  subjectId: string,
+  data: { name: string },
+): Promise<TopicData | undefined> {
+  const res = await api.post<TopicData>(
+    `/api/v1/subjects/${encodeURIComponent(subjectId)}/topics`,
+    data,
+    token,
+  );
+  return res.data;
+}
+
+// ─── Admin Questions ──────────────────────────────────────────────────────────
+
+export type QuestionOption = {
+  id: string;
+  sequenceNumber: number;
+  text: string;
+  imageUrl: string | null;
+  isCorrect?: boolean;
+};
+
+export type QuestionData = {
+  id: string;
+  tryoutId: string;
+  subjectId: string;
+  topicId: string | null;
+  sequenceNumber: number;
+  text: string;
+  imageUrl: string | null;
+  explanation: string | null;
+  isActive: boolean;
+  options: QuestionOption[];
+};
+
+export type QuestionFilters = {
+  tryoutId?: string;
+  subjectId?: string;
+  topicId?: string;
+  limit?: number;
+  includeInactive?: boolean;
+};
+
+export type CreateQuestionInput = {
+  tryoutId: string;
+  subjectId: string;
+  topicId?: string;
+  sequenceNumber: number;
+  text: string;
+  imageUrl?: string;
+  explanation?: string;
+  options: { sequenceNumber: number; text: string; imageUrl?: string; isCorrect: boolean }[];
+};
+
+export type UpdateQuestionInput = Partial<Omit<CreateQuestionInput, 'tryoutId'>> & {
+  isActive?: boolean;
+};
+
+export async function getQuestions(
+  token: string,
+  filters?: QuestionFilters,
+): Promise<QuestionData[]> {
+  const qs = new URLSearchParams();
+  if (filters?.tryoutId) qs.set("tryoutId", filters.tryoutId);
+  if (filters?.subjectId) qs.set("subjectId", filters.subjectId);
+  if (filters?.topicId) qs.set("topicId", filters.topicId);
+  if (filters?.limit != null) qs.set("limit", String(filters.limit));
+  if (filters?.includeInactive) qs.set("includeInactive", "true");
+  const query = qs.toString();
+  const res = await api.get<QuestionData[]>(
+    `/api/v1/questions${query ? `?${query}` : ""}`,
+    token,
+  );
+  return res.data ?? [];
+}
+
+export async function getQuestionById(
+  token: string,
+  id: string,
+): Promise<QuestionData | undefined> {
+  const res = await api.get<QuestionData>(
+    `/api/v1/questions/${encodeURIComponent(id)}`,
+    token,
+  );
+  return res.data;
+}
+
+export async function createQuestion(
+  token: string,
+  data: CreateQuestionInput,
+): Promise<QuestionData | undefined> {
+  const res = await api.post<QuestionData>("/api/v1/questions", data, token);
+  return res.data;
+}
+
+export async function updateQuestion(
+  token: string,
+  id: string,
+  data: UpdateQuestionInput,
+): Promise<QuestionData | undefined> {
+  const res = await api.put<QuestionData>(
+    `/api/v1/questions/${encodeURIComponent(id)}`,
+    data,
+    token,
+  );
+  return res.data;
+}
+
+export async function deleteQuestion(token: string, id: string): Promise<void> {
+  await api.delete(`/api/v1/questions/${encodeURIComponent(id)}`, token);
+}
+
+// ─── Admin: Tryouts (for dropdown in question form) ───────────────────────────
+
+export type TryoutOption = {
+  id: string;
+  title: string;
+  type: string;
+  durationMinutes: number;
+  isPremium: boolean;
+  isPublished: boolean;
+};
+
+export async function getTryoutOptions(token: string): Promise<TryoutOption[]> {
+  const res = await api.get<TryoutOption[]>("/api/v1/tryouts", token);
+  return res.data ?? [];
+}
+
+// ─── Admin: Users ─────────────────────────────────────────────────────────────
+
+export type AdminUserData = {
+  id: string;
+  email: string;
+  fullName: string;
+  role: string;
+  dreamMajor: string | null;
+  phoneNumber: string | null;
+  createdAt: string;
+  subscriptions: Array<{
+    id: string;
+    status: string;
+    startDate: string;
+    endDate: string;
+    plan: { id: string; name: string; price: number; durationDays: number };
+  }>;
+};
+
+export type AdminUsersSummary = {
+  totalUsers: number;
+  totalActiveSubscriptions: number;
+  totalAdmins: number;
+  totalStudents: number;
+};
+
+export async function getAdminUsers(token: string): Promise<AdminUserData[]> {
+  const res = await api.get<AdminUserData[]>("/api/v1/admin/users", token);
+  return res.data ?? [];
+}
+
+export async function getAdminUsersSummary(
+  token: string,
+): Promise<AdminUsersSummary | undefined> {
+  const res = await api.get<AdminUsersSummary>(
+    "/api/v1/admin/users/summary",
+    token,
+  );
+  return res.data;
+}
