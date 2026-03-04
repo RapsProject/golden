@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { RequireAuth } from './components/RequireAuth.tsx';
+import { RequireAdmin } from './components/RequireAdmin.tsx';
 import { MarketingLayout } from './app/(marketing)/layout.tsx';
 import MarketingPage from './app/(marketing)/page.tsx';
 import { ComingSoonPage } from './app/(marketing)/coming-soon/page.tsx';
@@ -14,6 +15,13 @@ import { ExamResultPage } from './app/(dashboard)/tryout/[id]/result/page.tsx';
 import { ExamPlayPage } from './app/(dashboard)/tryout/[id]/play/page.tsx';
 import { AnalyticsPage } from './app/(dashboard)/analytics/page.tsx';
 import { ProfilePage } from './app/(dashboard)/profile/page.tsx';
+import { LeaderboardPage } from './app/(dashboard)/leaderboard/page.tsx';
+import { AdminLayout } from './app/(admin)/layout.tsx';
+import { AdminOverviewPage } from './app/(admin)/page.tsx';
+import { AdminQuestionsPage } from './app/(admin)/questions/page.tsx';
+import { AdminSubjectsPage } from './app/(admin)/subjects/page.tsx';
+import { AdminUsersPage } from './app/(admin)/users/page.tsx';
+import { AdminTryoutsPage } from './app/(admin)/tryouts/page.tsx';
 
 export default function App() {
   return (
@@ -45,6 +53,7 @@ export default function App() {
         <Route path="tryout/:id" element={<PreExamPage />} />
         <Route path="tryout/:id/result" element={<ExamResultPage />} />
         <Route path="analytics" element={<AnalyticsPage />} />
+        <Route path="leaderboard" element={<LeaderboardPage />} />
         <Route path="profile" element={<ProfilePage />} />
       </Route>
 
@@ -57,6 +66,22 @@ export default function App() {
           </RequireAuth>
         }
       />
+
+      {/* ── Admin Panel: requires admin role ── */}
+      <Route
+        path="admin"
+        element={
+          <RequireAdmin>
+            <AdminLayout />
+          </RequireAdmin>
+        }
+      >
+        <Route index element={<AdminOverviewPage />} />
+        <Route path="tryouts" element={<AdminTryoutsPage />} />
+        <Route path="questions" element={<AdminQuestionsPage />} />
+        <Route path="subjects" element={<AdminSubjectsPage />} />
+        <Route path="users" element={<AdminUsersPage />} />
+      </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

@@ -208,7 +208,7 @@ export function ProfilePage() {
             value={phoneNumber}
             onChange={(e) => setPhoneNumber(e.target.value)}
             placeholder="08xxxxxxxxxx"
-            pattern="[0-9+\-\s()]*"
+            pattern="[0-9+() -]*"
             className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-primary/30 focus:border-brand-primary"
           />
         </div>

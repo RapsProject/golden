@@ -209,6 +209,10 @@ export function ExamResultPage() {
                     <span className="text-xs text-slate-400">Q{idx + 1}</span>
                   </div>
                 </div>
+                <div className="ml-8 text-xs md:text-sm text-slate-700">
+                  <span className="font-semibold text-slate-600">Your answer:</span>{' '}
+                  <span>{isUnanswered ? '—' : (a.option?.text ?? '—')}</span>
+                </div>
                 {correctOption && (isUnanswered || !isCorrect) && (
                   <div className="ml-8 text-xs md:text-sm text-slate-700">
                     <span className="font-semibold text-brand-primary">Correct answer:</span>{' '}
