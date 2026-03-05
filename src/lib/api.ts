@@ -543,7 +543,10 @@ export type TryoutOption = {
 };
 
 export async function getTryoutOptions(token: string): Promise<TryoutOption[]> {
-  const res = await api.get<TryoutOption[]>("/api/v1/tryouts", token);
+  // Pakai endpoint admin supaya bisa melihat SEMUA tryout
+  // (termasuk draft / belum published dan yang non-active),
+  // sehingga admin tetap bisa menambah/edit soal untuk tryout draft.
+  const res = await api.get<TryoutOption[]>("/api/v1/admin/tryouts", token);
   return res.data ?? [];
 }
 
