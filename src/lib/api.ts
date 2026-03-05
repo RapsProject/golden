@@ -291,17 +291,28 @@ export async function getSession(token: string, sessionId: string) {
   return res.data;
 }
 
+export type UserSessionSummary = {
+  id: string;
+  tryoutId: string;
+  score: number | null;
+  status: string;
+  startTime: string;
+  tryout?: { id: string; title: string; type: string };
+};
+
 export async function getSessions(token: string) {
-  const res = await api.get<
-    Array<{
-      id: string;
-      tryoutId: string;
-      score: number | null;
-      status: string;
-      startTime: string;
-      tryout?: { id: string; title: string; type: string };
-    }>
-  >("/api/v1/sessions", token);
+  const res = await api.get<UserSessionSummary[]>("/api/v1/sessions", token);
+  return res.data ?? [];
+}
+
+export async function getAdminUserSessions(
+  token: string,
+  userId: string,
+): Promise<UserSessionSummary[]> {
+  const res = await api.get<UserSessionSummary[]>(
+    `/api/v1/admin/users/${encodeURIComponent(userId)}/sessions`,
+    token,
+  );
   return res.data ?? [];
 }
 

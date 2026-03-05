@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Users, UserCheck, GraduationCap, Search, AlertCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Users, UserCheck, GraduationCap, Search, AlertCircle, BarChart3 } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
 import {
   getAdminUsers,
@@ -24,6 +25,7 @@ function subBadge(status: string) {
 
 export function AdminUsersPage() {
   const { accessToken } = useAuth();
+  const navigate = useNavigate();
   const [users, setUsers] = useState<AdminUserData[]>([]);
   const [summary, setSummary] = useState<AdminUsersSummary | null>(null);
   const [loading, setLoading] = useState(true);
@@ -126,16 +128,17 @@ export function AdminUsersPage() {
               <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase">Role</th>
               <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase">Subscription</th>
               <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase">Bergabung</th>
+              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase">Detail</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={6} className="text-center py-8 text-slate-500">Memuat…</td>
+                <td colSpan={7} className="text-center py-8 text-slate-500">Memuat…</td>
               </tr>
             ) : filtered.length === 0 ? (
               <tr>
-                <td colSpan={6} className="text-center py-8 text-slate-400">
+                <td colSpan={7} className="text-center py-8 text-slate-400">
                   {search ? 'Tidak ada user yang cocok dengan pencarian.' : 'Belum ada user.'}
                 </td>
               </tr>
@@ -194,6 +197,16 @@ export function AdminUsersPage() {
                     </td>
                     <td className="px-4 py-3 text-slate-500 text-xs whitespace-nowrap">
                       {formatDate(user.createdAt)}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <button
+                        type="button"
+                        onClick={() => navigate(`/admin/users/${user.id}`, { state: { user } })}
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-brand-primary hover:text-brand-dark"
+                      >
+                        <BarChart3 className="h-3.5 w-3.5" />
+                        <span>View detail</span>
+                      </button>
                     </td>
                   </tr>
                 );
