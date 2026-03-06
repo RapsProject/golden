@@ -34,6 +34,7 @@ export function AdminTryoutsPage() {
   const navigate = useNavigate();
 
   const [tryouts, setTryouts] = useState<TryoutData[]>([]);
+  const [filterType, setFilterType] = useState<'all' | 'simulation' | 'practice'>('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -127,6 +128,10 @@ export function AdminTryoutsPage() {
     }
   };
 
+  const filteredTryouts = tryouts.filter((t) =>
+    filterType === 'all' ? true : t.type === filterType,
+  );
+
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
@@ -154,6 +159,35 @@ export function AdminTryoutsPage() {
       )}
 
       <div className="bg-white rounded-2xl border border-brand-light shadow-sm overflow-x-auto">
+        <div className="flex items-center justify-between px-4 pt-3 pb-2 border-b border-slate-100">
+          <div className="text-xs text-slate-500">
+            Filter:
+            <span className="ml-2 font-medium text-slate-700">
+              {filterType === 'all'
+                ? 'Semua tipe'
+                : filterType === 'simulation'
+                ? 'Simulation'
+                : 'Practice'}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="text-xs text-slate-500" htmlFor="tryout-type-filter">
+              Tipe
+            </label>
+            <select
+              id="tryout-type-filter"
+              value={filterType}
+              onChange={(e) =>
+                setFilterType(e.target.value as 'all' | 'simulation' | 'practice')
+              }
+              className="rounded-lg border border-slate-200 px-2 py-1 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+            >
+              <option value="all">Semua</option>
+              <option value="simulation">Simulation</option>
+              <option value="practice">Practice</option>
+            </select>
+          </div>
+        </div>
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-slate-100">
@@ -188,14 +222,14 @@ export function AdminTryoutsPage() {
                   Memuat…
                 </td>
               </tr>
-            ) : tryouts.length === 0 ? (
+            ) : filteredTryouts.length === 0 ? (
               <tr>
                 <td colSpan={8} className="text-center py-8 text-slate-400">
                   Belum ada tryout. Klik &quot;New Tryout&quot; untuk membuat.
                 </td>
               </tr>
             ) : (
-              tryouts.map((t) => (
+              filteredTryouts.map((t) => (
                 <tr
                   key={t.id}
                   className="border-b border-slate-50 hover:bg-slate-50/60 transition-colors"

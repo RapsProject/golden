@@ -10,6 +10,7 @@ import { RegisterPage } from './app/(auth)/register/page.tsx';
 import { DashboardLayout } from './app/(dashboard)/layout.tsx';
 import { DashboardHomePage } from './app/(dashboard)/dashboard/page.tsx';
 import { TryOutListPage } from './app/(dashboard)/tryout/page.tsx';
+import { PracticeListPage } from './app/(dashboard)/practice/page.tsx';
 import { PreExamPage } from './app/(dashboard)/tryout/[id]/page.tsx';
 import { ExamResultPage } from './app/(dashboard)/tryout/[id]/result/page.tsx';
 import { ExamPlayPage } from './app/(dashboard)/tryout/[id]/play/page.tsx';
@@ -21,6 +22,7 @@ import { AdminOverviewPage } from './app/(admin)/page.tsx';
 import { AdminQuestionsPage } from './app/(admin)/questions/page.tsx';
 import { AdminSubjectsPage } from './app/(admin)/subjects/page.tsx';
 import { AdminUsersPage } from './app/(admin)/users/page.tsx';
+import { AdminUserDetailPage } from './app/(admin)/users/[id]/page.tsx';
 import { AdminTryoutsPage } from './app/(admin)/tryouts/page.tsx';
 
 export default function App() {
@@ -50,6 +52,7 @@ export default function App() {
       >
         <Route path="dashboard" element={<DashboardHomePage />} />
         <Route path="tryout" element={<TryOutListPage />} />
+        <Route path="practice" element={<PracticeListPage />} />
         <Route path="tryout/:id" element={<PreExamPage />} />
         <Route path="tryout/:id/result" element={<ExamResultPage />} />
         <Route path="analytics" element={<AnalyticsPage />} />
@@ -81,6 +84,7 @@ export default function App() {
         <Route path="questions" element={<AdminQuestionsPage />} />
         <Route path="subjects" element={<AdminSubjectsPage />} />
         <Route path="users" element={<AdminUsersPage />} />
+        <Route path="users/:id" element={<AdminUserDetailPage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

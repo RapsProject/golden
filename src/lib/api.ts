@@ -266,6 +266,8 @@ export type SessionData = {
   id: string;
   score: number | null;
   status: string;
+  startTime: string;
+  endTime?: string | null;
   tryout: { id: string; title: string; durationMinutes: number };
   answers: SessionAnswer[];
 };
@@ -291,17 +293,28 @@ export async function getSession(token: string, sessionId: string) {
   return res.data;
 }
 
+export type UserSessionSummary = {
+  id: string;
+  tryoutId: string;
+  score: number | null;
+  status: string;
+  startTime: string;
+  tryout?: { id: string; title: string; type: string };
+};
+
 export async function getSessions(token: string) {
-  const res = await api.get<
-    Array<{
-      id: string;
-      tryoutId: string;
-      score: number | null;
-      status: string;
-      startTime: string;
-      tryout?: { id: string; title: string; type: string };
-    }>
-  >("/api/v1/sessions", token);
+  const res = await api.get<UserSessionSummary[]>("/api/v1/sessions", token);
+  return res.data ?? [];
+}
+
+export async function getAdminUserSessions(
+  token: string,
+  userId: string,
+): Promise<UserSessionSummary[]> {
+  const res = await api.get<UserSessionSummary[]>(
+    `/api/v1/admin/users/${encodeURIComponent(userId)}/sessions`,
+    token,
+  );
   return res.data ?? [];
 }
 
@@ -407,6 +420,10 @@ export async function createSubject(
   return res.data;
 }
 
+export async function deleteSubject(token: string, subjectId: string): Promise<void> {
+  await api.delete(`/api/v1/subjects/${encodeURIComponent(subjectId)}`, token);
+}
+
 export async function getTopicsBySubject(
   token: string,
   subjectId: string,
@@ -429,6 +446,17 @@ export async function createTopic(
     token,
   );
   return res.data;
+}
+
+export async function deleteTopic(
+  token: string,
+  subjectId: string,
+  topicId: string,
+): Promise<void> {
+  await api.delete(
+    `/api/v1/subjects/${encodeURIComponent(subjectId)}/topics/${encodeURIComponent(topicId)}`,
+    token,
+  );
 }
 
 // ─── Admin Questions ──────────────────────────────────────────────────────────
@@ -543,7 +571,10 @@ export type TryoutOption = {
 };
 
 export async function getTryoutOptions(token: string): Promise<TryoutOption[]> {
-  const res = await api.get<TryoutOption[]>("/api/v1/tryouts", token);
+  // Pakai endpoint admin supaya bisa melihat SEMUA tryout
+  // (termasuk draft / belum published dan yang non-active),
+  // sehingga admin tetap bisa menambah/edit soal untuk tryout draft.
+  const res = await api.get<TryoutOption[]>("/api/v1/admin/tryouts", token);
   return res.data ?? [];
 }
 
