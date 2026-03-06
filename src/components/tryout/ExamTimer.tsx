@@ -4,11 +4,14 @@ import { cn } from '../../lib/utils';
 
 interface ExamTimerProps {
   totalSeconds: number;
+  initialSecondsLeft?: number;
   onExpire: () => void;
 }
 
-export function ExamTimer({ totalSeconds, onExpire }: ExamTimerProps) {
-  const [secondsLeft, setSecondsLeft] = useState(totalSeconds);
+export function ExamTimer({ totalSeconds, initialSecondsLeft, onExpire }: ExamTimerProps) {
+  const [secondsLeft, setSecondsLeft] = useState(
+    () => initialSecondsLeft ?? totalSeconds,
+  );
   const onExpireRef = useRef(onExpire);
 
   useEffect(() => {

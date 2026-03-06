@@ -266,6 +266,8 @@ export type SessionData = {
   id: string;
   score: number | null;
   status: string;
+  startTime: string;
+  endTime?: string | null;
   tryout: { id: string; title: string; durationMinutes: number };
   answers: SessionAnswer[];
 };

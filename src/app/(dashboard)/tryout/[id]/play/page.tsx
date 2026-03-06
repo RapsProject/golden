@@ -58,6 +58,7 @@ export function ExamPlayPage() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [fatalError, setFatalError] = useState<string | null>(null);
+  const [sessionStartTime, setSessionStartTime] = useState<string | null>(null);
 
   const sessionIdRef = useRef(sessionId);
   useEffect(() => { sessionIdRef.current = sessionId; }, [sessionId]);
@@ -94,6 +95,7 @@ export function ExamPlayPage() {
         setTryout(tryoutData ?? null);
 
         if (sessionData) {
+          setSessionStartTime(sessionData.startTime ?? null);
           const hydratedAnswers: Record<string, string> = {};
           const hydratedMarked: string[] = [];
           for (const a of sessionData.answers) {
@@ -140,6 +142,16 @@ export function ExamPlayPage() {
 
   const currentQuestion = questions[currentQuestionIndex];
   const isLast = currentQuestionIndex === questions.length - 1;
+
+  const totalSeconds = tryout.durationMinutes * 60;
+  const initialSecondsLeft =
+    sessionStartTime != null
+      ? Math.max(
+          totalSeconds -
+            Math.floor((Date.now() - new Date(sessionStartTime).getTime()) / 1000),
+          0,
+        )
+      : totalSeconds;
 
   const handleSelectOption = (questionId: string, optionId: string) => {
     setAnswers((prev) => ({ ...prev, [questionId]: optionId }));
@@ -193,7 +205,8 @@ export function ExamPlayPage() {
           </div>
           <div className="flex-shrink-0">
             <ExamTimer
-              totalSeconds={tryout.durationMinutes * 60}
+              totalSeconds={totalSeconds}
+              initialSecondsLeft={initialSecondsLeft}
               onExpire={handleSubmit}
             />
           </div>
