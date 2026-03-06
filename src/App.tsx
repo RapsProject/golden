@@ -10,6 +10,7 @@ import { RegisterPage } from './app/(auth)/register/page.tsx';
 import { DashboardLayout } from './app/(dashboard)/layout.tsx';
 import { DashboardHomePage } from './app/(dashboard)/dashboard/page.tsx';
 import { TryOutListPage } from './app/(dashboard)/tryout/page.tsx';
+import { PracticeListPage } from './app/(dashboard)/practice/page.tsx';
 import { PreExamPage } from './app/(dashboard)/tryout/[id]/page.tsx';
 import { ExamResultPage } from './app/(dashboard)/tryout/[id]/result/page.tsx';
 import { ExamPlayPage } from './app/(dashboard)/tryout/[id]/play/page.tsx';
@@ -51,6 +52,7 @@ export default function App() {
       >
         <Route path="dashboard" element={<DashboardHomePage />} />
         <Route path="tryout" element={<TryOutListPage />} />
+        <Route path="practice" element={<PracticeListPage />} />
         <Route path="tryout/:id" element={<PreExamPage />} />
         <Route path="tryout/:id/result" element={<ExamResultPage />} />
         <Route path="analytics" element={<AnalyticsPage />} />
