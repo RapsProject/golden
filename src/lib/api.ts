@@ -420,6 +420,10 @@ export async function createSubject(
   return res.data;
 }
 
+export async function deleteSubject(token: string, subjectId: string): Promise<void> {
+  await api.delete(`/api/v1/subjects/${encodeURIComponent(subjectId)}`, token);
+}
+
 export async function getTopicsBySubject(
   token: string,
   subjectId: string,
@@ -442,6 +446,17 @@ export async function createTopic(
     token,
   );
   return res.data;
+}
+
+export async function deleteTopic(
+  token: string,
+  subjectId: string,
+  topicId: string,
+): Promise<void> {
+  await api.delete(
+    `/api/v1/subjects/${encodeURIComponent(subjectId)}/topics/${encodeURIComponent(topicId)}`,
+    token,
+  );
 }
 
 // ─── Admin Questions ──────────────────────────────────────────────────────────

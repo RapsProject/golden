@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Plus, ChevronDown, ChevronUp, X, Save, AlertCircle, BookOpen } from 'lucide-react';
+import { Plus, ChevronDown, ChevronUp, X, Save, AlertCircle, BookOpen, Trash2 } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
 import {
   getSubjects,
   createSubject,
   getTopicsBySubject,
   createTopic,
+  deleteSubject,
+  deleteTopic,
   type SubjectData,
   type TopicData,
 } from '../../../lib/api';
@@ -30,6 +32,15 @@ export function AdminSubjectsPage() {
   const [newTopicName, setNewTopicName] = useState('');
   const [savingTopic, setSavingTopic] = useState(false);
   const [topicError, setTopicError] = useState<string | null>(null);
+
+  // Delete confirmation state
+  const [deleteSubjectId, setDeleteSubjectId] = useState<string | null>(null);
+  const [deleteTopicTarget, setDeleteTopicTarget] = useState<{
+    subjectId: string;
+    topicId: string;
+    topicName: string;
+  } | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const loadSubjects = useCallback(async () => {
     if (!accessToken) return;
@@ -104,6 +115,48 @@ export function AdminSubjectsPage() {
     }
   };
 
+  const handleConfirmDeleteSubject = async () => {
+    if (!accessToken || !deleteSubjectId) return;
+    setDeleting(true);
+    try {
+      await deleteSubject(accessToken, deleteSubjectId);
+      setSubjects((prev) => prev.filter((s) => s.id !== deleteSubjectId));
+      setTopics((prev) => {
+        const { [deleteSubjectId]: _removed, ...rest } = prev;
+        return rest;
+      });
+      setExpanded((prev) => {
+        const { [deleteSubjectId]: _removed, ...rest } = prev;
+        return rest;
+      });
+      setDeleteSubjectId(null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Gagal menghapus subject');
+      setDeleteSubjectId(null);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleConfirmDeleteTopic = async () => {
+    if (!accessToken || !deleteTopicTarget) return;
+    const { subjectId, topicId } = deleteTopicTarget;
+    setDeleting(true);
+    try {
+      await deleteTopic(accessToken, subjectId, topicId);
+      setTopics((prev) => ({
+        ...prev,
+        [subjectId]: (prev[subjectId] ?? []).filter((t) => t.id !== topicId),
+      }));
+      setDeleteTopicTarget(null);
+    } catch (e) {
+      setTopicError(e instanceof Error ? e.message : 'Gagal menghapus topic');
+      setDeleteTopicTarget(null);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
@@ -147,11 +200,12 @@ export function AdminSubjectsPage() {
               key={subject.id}
               className="bg-white rounded-2xl border border-brand-light shadow-sm overflow-hidden"
             >
-              <button
-                onClick={() => toggleExpand(subject.id)}
-                className="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-50/60 transition-colors"
-              >
-                <div className="flex items-center gap-3">
+              <div className="w-full flex items-center justify-between px-5 py-4 hover:bg-slate-50/60 transition-colors">
+                <button
+                  type="button"
+                  onClick={() => toggleExpand(subject.id)}
+                  className="flex items-center gap-3 text-left flex-1"
+                >
                   <div className="p-2 bg-brand-light rounded-xl">
                     <BookOpen className="h-4 w-4 text-brand-primary" />
                   </div>
@@ -161,12 +215,30 @@ export function AdminSubjectsPage() {
                       <div className="text-xs text-slate-500 mt-0.5">{subject.description}</div>
                     )}
                   </div>
+                </button>
+                <div className="flex items-center gap-2 ml-3">
+                  <button
+                    type="button"
+                    onClick={() => setDeleteSubjectId(subject.id)}
+                    className="p-1.5 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+                    title="Hapus subject"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => toggleExpand(subject.id)}
+                    className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 transition-colors"
+                    aria-label={expanded[subject.id] ? 'Collapse' : 'Expand'}
+                  >
+                    {expanded[subject.id] ? (
+                      <ChevronUp className="h-4 w-4" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4" />
+                    )}
+                  </button>
                 </div>
-                {expanded[subject.id]
-                  ? <ChevronUp className="h-4 w-4 text-slate-400" />
-                  : <ChevronDown className="h-4 w-4 text-slate-400" />
-                }
-              </button>
+              </div>
 
               {expanded[subject.id] && (
                 <div className="border-t border-slate-100 px-5 py-4">
@@ -224,9 +296,23 @@ export function AdminSubjectsPage() {
                       {(topics[subject.id] ?? []).map((topic) => (
                         <span
                           key={topic.id}
-                          className="inline-flex items-center px-3 py-1 rounded-full bg-brand-light text-brand-dark text-xs font-medium border border-brand-light"
+                          className="inline-flex items-center px-3 py-1 rounded-full bg-brand-light text-brand-dark text-xs font-medium border border-brand-light gap-1"
                         >
                           {topic.name}
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setDeleteTopicTarget({
+                                subjectId: subject.id,
+                                topicId: topic.id,
+                                topicName: topic.name,
+                              })
+                            }
+                            className="ml-1 p-0.5 rounded-full text-slate-400 hover:bg-red-50 hover:text-red-600 transition-colors"
+                            title="Hapus topic"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
                         </span>
                       ))}
                     </div>
@@ -300,6 +386,79 @@ export function AdminSubjectsPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Subject Modal */}
+      {deleteSubjectId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4">
+            <div className="flex items-center gap-3 p-5 border-b border-slate-100">
+              <div className="p-2 bg-red-50 rounded-xl">
+                <Trash2 className="h-5 w-5 text-red-600" />
+              </div>
+              <h2 className="text-base font-semibold text-slate-900">Hapus subject?</h2>
+            </div>
+            <div className="p-5 space-y-4">
+              <p className="text-sm text-slate-600">
+                Subject ini beserta semua topics dan relasi soalnya akan dihapus dari sistem.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setDeleteSubjectId(null)}
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmDeleteSubject}
+                  disabled={deleting}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 text-white text-sm font-semibold hover:bg-red-700 transition-colors disabled:opacity-60"
+                >
+                  {deleting ? 'Menghapus…' : 'Hapus'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Topic Modal */}
+      {deleteTopicTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4">
+            <div className="flex items-center gap-3 p-5 border-b border-slate-100">
+              <div className="p-2 bg-red-50 rounded-xl">
+                <Trash2 className="h-5 w-5 text-red-600" />
+              </div>
+              <h2 className="text-base font-semibold text-slate-900">Hapus topic?</h2>
+            </div>
+            <div className="p-5 space-y-4">
+              <p className="text-sm text-slate-600">
+                Topic <span className="font-semibold">{deleteTopicTarget.topicName}</span> akan
+                dihapus. Soal yang terkait dengan topic ini akan tetap ada namun tanpa topic.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setDeleteTopicTarget(null)}
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmDeleteTopic}
+                  disabled={deleting}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 text-white text-sm font-semibold hover:bg-red-700 transition-colors disabled:opacity-60"
+                >
+                  {deleting ? 'Menghapus…' : 'Hapus'}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
