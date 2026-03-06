@@ -14,7 +14,9 @@ export function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
 
   const canSubmit = useMemo(
     () => email.length > 3 && password.length > 3 && !loading,
@@ -24,6 +26,7 @@ export function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setInfo(null);
     setLoading(true);
     const { error: signInError } = await signIn(email, password);
     if (signInError) {
@@ -49,6 +52,40 @@ export function LoginPage() {
     }
     setLoading(false);
     navigate('/dashboard');
+  };
+
+  const handleForgotPassword = async () => {
+    setError(null);
+    setInfo(null);
+
+    if (!email || email.length <= 3) {
+      setError('Masukkan email yang valid terlebih dahulu.');
+      return;
+    }
+
+    setResetLoading(true);
+    try {
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(
+        email,
+        {
+          redirectTo: `${window.location.origin}/reset-password`,
+        },
+      );
+
+      if (resetError) {
+        setError(resetError.message);
+      } else {
+        setInfo('Link reset password sudah dikirim ke email kamu.');
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Terjadi kesalahan. Silakan coba lagi.',
+      );
+    } finally {
+      setResetLoading(false);
+    }
   };
 
   return (
@@ -89,6 +126,11 @@ export function LoginPage() {
         <div className="h-px bg-slate-200 flex-1" />
       </div>
 
+      {info && (
+        <p className="text-sm text-emerald-700 mb-3 rounded-lg bg-emerald-50 px-3 py-2">
+          {info}
+        </p>
+      )}
       {error && (
         <p className="text-sm text-red-600 mb-4 rounded-lg bg-red-50 px-3 py-2">
           {error}
@@ -115,10 +157,11 @@ export function LoginPage() {
             </label>
             <button
               type="button"
-              className="text-xs text-brand-primary hover:text-brand-dark"
-              onClick={() => navigate("/coming-soon")}
+              className="text-xs text-brand-primary hover:text-brand-dark disabled:opacity-60"
+              onClick={handleForgotPassword}
+              disabled={resetLoading}
             >
-              Forgot password?
+              {resetLoading ? 'Sending link…' : 'Forgot password?'}
             </button>
           </div>
 
