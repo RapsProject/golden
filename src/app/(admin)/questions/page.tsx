@@ -651,7 +651,7 @@ export function AdminQuestionsPage() {
                   className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-mono resize-y focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
                 />
                 <p className="mt-1 text-xs text-slate-500">
-                  Mendukung LaTeX: <code className="bg-slate-100 px-1 rounded">$rumus$</code> untuk inline, <code className="bg-slate-100 px-1 rounded">$$rumus$$</code> untuk rumus blok (contoh: <code className="bg-slate-100 px-1 rounded">$x^2$</code>, <code className="bg-slate-100 px-1 rounded">$$\frac{1}{2}$$</code>).
+                  Mendukung LaTeX: <code className="bg-slate-100 px-1 rounded">$rumus$</code> untuk inline; <code className="bg-slate-100 px-1 rounded">$$rumus$$</code> atau <code className="bg-slate-100 px-1 rounded">\[rumus\]</code> untuk rumus blok.
                 </p>
               </div>
 
