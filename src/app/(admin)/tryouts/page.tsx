@@ -1,15 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Pencil, Save, ToggleLeft, ToggleRight, X, AlertCircle, Settings2, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Save, ToggleLeft, ToggleRight, X, AlertCircle, Settings2, Trash2, Eye, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
 import {
   getAdminTryouts,
   createTryout,
   updateTryout,
   deleteTryout,
+  getQuestions,
+  getTryoutById,
   type TryoutData,
   type CreateTryoutInput,
+  type QuestionData,
 } from '../../../lib/api';
+import { LatexText } from '../../../components/LatexText';
 
 type FormState = {
   title: string;
@@ -35,6 +39,7 @@ export function AdminTryoutsPage() {
 
   const [tryouts, setTryouts] = useState<TryoutData[]>([]);
   const [filterType, setFilterType] = useState<'all' | 'simulation' | 'practice'>('all');
+  const [searchTitle, setSearchTitle] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -44,6 +49,10 @@ export function AdminTryoutsPage() {
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  const [previewTryout, setPreviewTryout] = useState<TryoutData | null>(null);
+  const [previewQuestions, setPreviewQuestions] = useState<QuestionData[]>([]);
+  const [previewLoading, setPreviewLoading] = useState(false);
 
   const loadTryouts = async () => {
     if (!accessToken) return;
@@ -82,6 +91,48 @@ export function AdminTryoutsPage() {
     });
     setFormError(null);
     setModalOpen(true);
+  };
+
+  const openPreview = async (t: TryoutData) => {
+    setPreviewTryout(t);
+    setPreviewQuestions([]);
+    if (!accessToken) return;
+    setPreviewLoading(true);
+    try {
+      let questions: QuestionData[] = await getQuestions(accessToken, {
+        tryoutId: t.id,
+        limit: 200,
+        includeInactive: true,
+      });
+      if (questions.length === 0) {
+        const tryoutDetail = await getTryoutById(accessToken, t.id);
+        if (tryoutDetail?.questions?.length) {
+          questions = tryoutDetail.questions.map((q) => ({
+            id: q.id,
+            tryoutId: t.id,
+            subjectId: q.subjectId,
+            topicId: q.topicId ?? null,
+            sequenceNumber: q.sequenceNumber,
+            text: q.text,
+            imageUrl: q.imageUrl ?? null,
+            explanation: null,
+            isActive: true,
+            options: q.options.map((o) => ({
+              id: o.id,
+              sequenceNumber: o.sequenceNumber,
+              text: o.text,
+              imageUrl: o.imageUrl ?? null,
+              isCorrect: false,
+            })),
+          }));
+        }
+      }
+      setPreviewQuestions(questions.sort((a, b) => a.sequenceNumber - b.sequenceNumber));
+    } catch {
+      setPreviewQuestions([]);
+    } finally {
+      setPreviewLoading(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -128,9 +179,11 @@ export function AdminTryoutsPage() {
     }
   };
 
-  const filteredTryouts = tryouts.filter((t) =>
-    filterType === 'all' ? true : t.type === filterType,
-  );
+  const filteredTryouts = tryouts.filter((t) => {
+    const typeMatch = filterType === 'all' ? true : t.type === filterType;
+    const titleMatch = !searchTitle.trim() || t.title.toLowerCase().includes(searchTitle.trim().toLowerCase());
+    return typeMatch && titleMatch;
+  });
 
   return (
     <div className="space-y-5">
@@ -159,15 +212,25 @@ export function AdminTryoutsPage() {
       )}
 
       <div className="bg-white rounded-2xl border border-brand-light shadow-sm overflow-x-auto">
-        <div className="flex items-center justify-between px-4 pt-3 pb-2 border-b border-slate-100">
-          <div className="text-xs text-slate-500">
-            Filter:
-            <span className="ml-2 font-medium text-slate-700">
-              {filterType === 'all'
-                ? 'Semua tipe'
-                : filterType === 'simulation'
-                ? 'Simulation'
-                : 'Practice'}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 pt-3 pb-2 border-b border-slate-100">
+          <div className="flex items-center gap-3 flex-1">
+            <input
+              type="search"
+              value={searchTitle}
+              onChange={(e) => setSearchTitle(e.target.value)}
+              placeholder="Cari judul tryout..."
+              className="flex-1 min-w-0 max-w-sm rounded-lg border border-slate-200 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/30 placeholder:text-slate-400"
+              aria-label="Cari judul tryout"
+            />
+            <span className="text-xs text-slate-500 shrink-0">
+              Filter:
+              <span className="ml-2 font-medium text-slate-700">
+                {filterType === 'all'
+                  ? 'Semua tipe'
+                  : filterType === 'simulation'
+                  ? 'Simulation'
+                  : 'Practice'}
+              </span>
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -278,6 +341,14 @@ export function AdminTryoutsPage() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => openPreview(t)}
+                        className="p-1.5 rounded-lg text-slate-500 hover:bg-brand-light hover:text-brand-dark transition-colors"
+                        title="Preview soal & jawaban"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </button>
                       <button
                         type="button"
                         onClick={() => navigate(`/admin/questions?tryoutId=${encodeURIComponent(t.id)}`)}
@@ -482,6 +553,91 @@ export function AdminTryoutsPage() {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Preview Tryout Modal */}
+      {previewTryout && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 overflow-y-auto py-8">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl mx-4 my-auto max-h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between p-5 border-b border-slate-100 shrink-0">
+              <h2 className="text-base font-semibold text-brand-dark">
+                Preview: {previewTryout.title}
+              </h2>
+              <button
+                type="button"
+                onClick={() => setPreviewTryout(null)}
+                className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 transition-colors"
+                aria-label="Tutup"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="p-5 overflow-y-auto flex-1 min-h-0">
+              {previewLoading ? (
+                <p className="text-sm text-slate-500 py-8 text-center">Memuat soal…</p>
+              ) : previewQuestions.length === 0 ? (
+                <p className="text-sm text-slate-500 py-8 text-center">Belum ada soal di tryout ini.</p>
+              ) : (
+                <div className="space-y-6">
+                  {previewQuestions.map((q) => (
+                    <div
+                      key={q.id}
+                      className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 space-y-3"
+                    >
+                      <div className="flex items-start gap-2">
+                        <span className="shrink-0 flex h-7 w-7 items-center justify-center rounded-lg bg-brand-primary/15 text-brand-primary text-xs font-bold">
+                          {q.sequenceNumber}
+                        </span>
+                        <div className="min-w-0 flex-1 text-sm text-slate-800 leading-relaxed">
+                          <LatexText>{q.text}</LatexText>
+                        </div>
+                      </div>
+                      {q.imageUrl && (
+                        <div className="ml-9">
+                          <img src={q.imageUrl} alt="" className="max-w-full h-auto rounded-lg border border-slate-200" />
+                        </div>
+                      )}
+                      <ul className="ml-9 space-y-2">
+                        {q.options
+                          .slice()
+                          .sort((a, b) => a.sequenceNumber - b.sequenceNumber)
+                          .map((opt) => (
+                            <li
+                              key={opt.id}
+                              className={opt.isCorrect
+                                ? 'flex items-center gap-2 rounded-lg border-2 border-green-300 bg-green-50 px-3 py-2 text-sm text-slate-800'
+                                : 'flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700'
+                              }
+                            >
+                              {opt.isCorrect && (
+                                <CheckCircle2 className="h-4 w-4 shrink-0 text-green-600" aria-hidden />
+                              )}
+                              <span className="font-medium text-slate-500 w-5 shrink-0">
+                                {String.fromCharCode(64 + opt.sequenceNumber)}.
+                              </span>
+                              <span className="min-w-0 flex-1">
+                                <LatexText>{opt.text}</LatexText>
+                              </span>
+                              {opt.isCorrect && (
+                                <span className="shrink-0 text-xs font-semibold text-green-700 bg-green-100 px-2 py-0.5 rounded">
+                                  Jawaban benar
+                                </span>
+                              )}
+                            </li>
+                          ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            {!previewLoading && previewQuestions.length > 0 && (
+              <div className="px-5 py-3 border-t border-slate-100 text-xs text-slate-500 shrink-0">
+                Total {previewQuestions.length} soal
+              </div>
+            )}
           </div>
         </div>
       )}
