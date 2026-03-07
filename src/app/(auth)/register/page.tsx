@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Eye, EyeOff } from 'lucide-react';
+import { Chrome, Eye, EyeOff } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
@@ -9,11 +9,12 @@ import { supabase } from '../../../lib/supabase';
 
 export function RegisterPage() {
   const navigate = useNavigate();
-  const { signUp } = useAuth();
+  const { signUp, signInWithGoogle } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -60,6 +61,26 @@ export function RegisterPage() {
     navigate('/dashboard');
   };
 
+  const handleGoogleSignUp = async () => {
+    setError(null);
+    setGoogleLoading(true);
+    try {
+      const { error } = await signInWithGoogle();
+      if (error) {
+        setError(error.message);
+        setGoogleLoading(false);
+      }
+      // Jika berhasil, browser akan redirect ke Google lalu kembali ke app
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Terjadi kesalahan saat sign up dengan Google.',
+      );
+      setGoogleLoading(false);
+    }
+  };
+
   return (
     <div>
       <div className="mb-8">
@@ -77,6 +98,18 @@ export function RegisterPage() {
           Create an account to track your progress and unlock simulations.
         </p>
       </div>
+
+      <Button
+        variant="outline"
+        size="md"
+        className="w-full border-slate-200 text-slate-700 hover:bg-slate-50 mb-6"
+        icon={Chrome}
+        iconPosition="left"
+        onClick={handleGoogleSignUp}
+        disabled={googleLoading || loading}
+      >
+        {googleLoading ? 'Redirecting…' : 'Sign up with Google'}
+      </Button>
 
       {error && (
         <p className="text-sm text-red-600 mb-4 rounded-lg bg-red-50 px-3 py-2">

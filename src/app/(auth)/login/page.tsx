@@ -9,12 +9,13 @@ import { supabase } from '../../../lib/supabase';
 
 export function LoginPage() {
   const navigate = useNavigate();
-  const { signIn } = useAuth();
+  const { signIn, signInWithGoogle } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
 
@@ -52,6 +53,27 @@ export function LoginPage() {
     }
     setLoading(false);
     navigate('/dashboard');
+  };
+
+  const handleGoogleSignIn = async () => {
+    setError(null);
+    setInfo(null);
+    setGoogleLoading(true);
+    try {
+      const { error } = await signInWithGoogle();
+      if (error) {
+        setError(error.message);
+        setGoogleLoading(false);
+      }
+      // Jika berhasil, browser akan redirect ke Google lalu kembali ke app
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Terjadi kesalahan saat login dengan Google.',
+      );
+      setGoogleLoading(false);
+    }
   };
 
   const handleForgotPassword = async () => {
@@ -114,9 +136,10 @@ export function LoginPage() {
         className="w-full border-slate-200 text-slate-700 hover:bg-slate-50"
         icon={Chrome}
         iconPosition="left"
-        onClick={() => navigate("/coming-soon")}
+        onClick={handleGoogleSignIn}
+        disabled={googleLoading || loading}
       >
-        Sign in with Google
+        {googleLoading ? 'Redirecting…' : 'Sign in with Google'}
       </Button>
 
       {/* Divider */}
