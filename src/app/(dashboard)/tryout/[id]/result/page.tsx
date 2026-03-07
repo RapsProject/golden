@@ -13,6 +13,7 @@ import {
   getTryoutById,
   type SessionDataCompleted,
 } from '../../../../../lib/api';
+import { LatexText } from '../../../../../components/LatexText';
 
 export function ExamResultPage() {
   const { id } = useParams<{ id: string }>();
@@ -211,12 +212,12 @@ export function ExamResultPage() {
                 </div>
                 <div className="ml-8 text-xs md:text-sm text-slate-700">
                   <span className="font-semibold text-slate-600">Your answer:</span>{' '}
-                  <span>{isUnanswered ? '—' : (a.option?.text ?? '—')}</span>
+                  <span>{isUnanswered ? '—' : (a.option?.text != null ? <LatexText>{a.option.text}</LatexText> : '—')}</span>
                 </div>
                 {correctOption && (isUnanswered || !isCorrect) && (
                   <div className="ml-8 text-xs md:text-sm text-slate-700">
                     <span className="font-semibold text-brand-primary">Correct answer:</span>{' '}
-                    <span>{correctOption.text}</span>
+                    <span><LatexText>{correctOption.text}</LatexText></span>
                   </div>
                 )}
                 {a.question?.explanation && (
@@ -224,7 +225,7 @@ export function ExamResultPage() {
                     <p className="text-xs font-semibold text-brand-secondary mb-1">
                       EXPLANATION
                     </p>
-                    <p className="text-sm text-slate-700">{a.question.explanation}</p>
+                    <p className="text-sm text-slate-700"><LatexText>{a.question.explanation}</LatexText></p>
                   </div>
                 )}
               </div>

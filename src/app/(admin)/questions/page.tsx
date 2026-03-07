@@ -15,6 +15,7 @@ import {
   type TryoutOption,
   type CreateQuestionInput,
 } from '../../../lib/api';
+import { LatexText } from '../../../components/LatexText';
 
 type OptionDraft = {
   sequenceNumber: number;
@@ -358,7 +359,7 @@ export function AdminQuestionsPage() {
                   <td className="px-4 py-3 text-slate-600">{subjectName(q.subjectId)}</td>
                   <td className="px-4 py-3 text-slate-500">{topicName(q.topicId)}</td>
                   <td className="px-4 py-3 text-slate-700 max-w-[220px]">
-                    <span className="line-clamp-2">{q.text}</span>
+                    <span className="line-clamp-2"><LatexText>{q.text}</LatexText></span>
                   </td>
                   <td className="px-4 py-3 text-slate-500">{q.options.length} pilihan</td>
                   <td className="px-4 py-3">
@@ -532,10 +533,13 @@ export function AdminQuestionsPage() {
                   value={form.text}
                   onChange={(e) => setForm((p) => ({ ...p, text: e.target.value }))}
                   required
-                  rows={3}
-                  placeholder="Tulis soal di sini…"
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+                  rows={4}
+                  placeholder="Tulis soal di sini."
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-mono resize-y focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
                 />
+                <p className="mt-1 text-xs text-slate-500">
+                  Mendukung LaTeX: <code className="bg-slate-100 px-1 rounded">$rumus$</code> untuk inline, <code className="bg-slate-100 px-1 rounded">$$rumus$$</code> untuk rumus blok (contoh: <code className="bg-slate-100 px-1 rounded">$x^2$</code>, <code className="bg-slate-100 px-1 rounded">$$\frac{1}{2}$$</code>).
+                </p>
               </div>
 
               <div>
@@ -554,9 +558,9 @@ export function AdminQuestionsPage() {
                 <textarea
                   value={form.explanation}
                   onChange={(e) => setForm((p) => ({ ...p, explanation: e.target.value }))}
-                  rows={2}
-                  placeholder="Pembahasan jawaban…"
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+                  rows={3}
+                  placeholder="Pembahasan jawaban..."
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm resize-y focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
                 />
               </div>
 
@@ -564,7 +568,7 @@ export function AdminQuestionsPage() {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-xs font-semibold text-slate-600">
-                    Pilihan Jawaban <span className="text-red-500">*</span>
+                    Pilihan Jawaban <span className="text-red-500">*</span> <span className="font-normal text-slate-500"></span>
                   </label>
                   <button
                     type="button"
