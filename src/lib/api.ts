@@ -484,6 +484,7 @@ export type QuestionData = {
 
 export type QuestionFilters = {
   tryoutId?: string;
+  tryoutType?: 'simulation' | 'practice';
   subjectId?: string;
   topicId?: string;
   limit?: number;
@@ -511,6 +512,7 @@ export async function getQuestions(
 ): Promise<QuestionData[]> {
   const qs = new URLSearchParams();
   if (filters?.tryoutId) qs.set("tryoutId", filters.tryoutId);
+  if (filters?.tryoutType) qs.set("tryoutType", filters.tryoutType);
   if (filters?.subjectId) qs.set("subjectId", filters.subjectId);
   if (filters?.topicId) qs.set("topicId", filters.topicId);
   if (filters?.limit != null) qs.set("limit", String(filters.limit));

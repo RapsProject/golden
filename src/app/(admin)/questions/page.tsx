@@ -131,14 +131,19 @@ export function AdminQuestionsPage() {
     if (!accessToken) return;
     setLoading(true);
     try {
+      const questionFilters: Parameters<typeof getQuestions>[1] = {
+        ...(filterSubject ? { subjectId: filterSubject } : {}),
+        ...(filterTopic ? { topicId: filterTopic } : {}),
+        limit: 200,
+        includeInactive: true,
+      };
+      if (filterTryout) {
+        questionFilters.tryoutId = filterTryout;
+      } else if (filterTryoutType === 'simulation' || filterTryoutType === 'practice') {
+        questionFilters.tryoutType = filterTryoutType;
+      }
       const [qs, subs, tryoutList] = await Promise.all([
-        getQuestions(accessToken, {
-          ...(filterTryout ? { tryoutId: filterTryout } : {}),
-          ...(filterSubject ? { subjectId: filterSubject } : {}),
-          ...(filterTopic ? { topicId: filterTopic } : {}),
-          limit: 200,
-          includeInactive: true,
-        }),
+        getQuestions(accessToken, questionFilters),
         getSubjects(accessToken),
         getTryoutOptions(accessToken),
       ]);
@@ -150,7 +155,7 @@ export function AdminQuestionsPage() {
     } finally {
       setLoading(false);
     }
-  }, [accessToken, filterTryout, filterSubject, filterTopic]);
+  }, [accessToken, filterTryout, filterTryoutType, filterSubject, filterTopic]);
 
   useEffect(() => { loadData(); }, [loadData]);
 
