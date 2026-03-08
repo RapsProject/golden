@@ -1,9 +1,9 @@
 // import { useEffect, useMemo, useState } from 'react';
 import { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
-import { BarChart3, ChevronRight, Clock } from 'lucide-react';
+import { BarChart3, ChevronRight, Clock, Lock } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
-import { getSessions } from '../../../lib/api';
+import { getMyProfile, getSessions } from '../../../lib/api';
 
 type SessionSummary = {
   id: string;
@@ -37,9 +37,33 @@ export function AnalyticsPage() {
   const [sessions, setSessions] = useState<SessionSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [canAccess, setCanAccess] = useState<boolean | null>(null);
+
+  // Cek subscription: hanya Premium/Ultimate yang boleh akses
+  useEffect(() => {
+    if (!accessToken) {
+      setCanAccess(false);
+      return;
+    }
+    let cancelled = false;
+    getMyProfile(accessToken)
+      .then((profile) => {
+        if (cancelled) return;
+        const activeSub = profile?.subscriptions?.[0];
+        const planName = activeSub?.plan?.name;
+        const allowed =
+          activeSub?.status === 'active' &&
+          (planName === 'Premium' || planName === 'Ultimate');
+        setCanAccess(!!allowed);
+      })
+      .catch(() => {
+        if (!cancelled) setCanAccess(false);
+      });
+    return () => { cancelled = true; };
+  }, [accessToken]);
 
   useEffect(() => {
-    if (!accessToken) return;
+    if (!accessToken || canAccess !== true) return;
     let cancelled = false;
     getSessions(accessToken)
       .then((data) => {
@@ -61,7 +85,7 @@ export function AnalyticsPage() {
         if (!cancelled) setLoading(false);
       });
     return () => { cancelled = true; };
-  }, [accessToken]);
+  }, [accessToken, canAccess]);
 
   // const stats = useMemo(() => {
   //   if (sessions.length === 0) {
@@ -146,7 +170,15 @@ export function AnalyticsPage() {
   //   };
   // }, [sessions]);
 
-  return (
+  if (canAccess === null) {
+    return (
+      <div className="flex items-center justify-center min-h-[200px]">
+        <p className="text-slate-500">Memuat…</p>
+      </div>
+    );
+  }
+
+  const pageContent = (
     <div className="space-y-6">
       <div className="bg-white rounded-2xl border border-brand-light p-5 md:p-6 shadow-sm">
         <div className="flex items-center gap-3 mb-1">
@@ -365,4 +397,37 @@ export function AnalyticsPage() {
       </div>
     </div>
   );
+
+  // Free user: tampilkan halaman blur + overlay notifikasi
+  if (canAccess === false) {
+    return (
+      <div className="relative min-h-[300px]">
+        <div className="blur-md pointer-events-none select-none">
+          {pageContent}
+        </div>
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl border border-brand-light p-6 md:p-8 shadow-xl text-center max-w-md mx-4">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-amber-100 text-amber-600 mb-4">
+              <Lock className="h-7 w-7" />
+            </div>
+            <h2 className="text-xl font-serif font-bold text-brand-dark mb-2">
+              Halaman ini hanya dapat diakses oleh langganan Premium atau Ultimate
+            </h2>
+            <p className="text-slate-600 mb-6">
+              Upgrade akun Anda untuk melihat riwayat attempt dan statistik lengkap.
+            </p>
+            <button
+              type="button"
+              onClick={() => navigate('/profile')}
+              className="px-4 py-2 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-dark transition-colors"
+            >
+              Lihat Profile & Upgrade
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return pageContent;
 }

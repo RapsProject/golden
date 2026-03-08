@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Lock } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
 import {
   getLeaderboard,
+  getMyProfile,
   getTryouts,
   type LeaderboardEntry,
   type LeaderboardFilterType,
@@ -20,7 +23,32 @@ function formatOrdinal(n: number): string {
 type Tryout = { id: string; title: string };
 
 export function LeaderboardPage() {
+  const navigate = useNavigate();
   const { accessToken, user } = useAuth();
+
+  // ── Subscription: hanya Premium/Ultimate yang boleh akses ──────────────────
+  const [canAccess, setCanAccess] = useState<boolean | null>(null);
+  useEffect(() => {
+    if (!accessToken) {
+      setCanAccess(false);
+      return;
+    }
+    let cancelled = false;
+    getMyProfile(accessToken)
+      .then((profile) => {
+        if (cancelled) return;
+        const activeSub = profile?.subscriptions?.[0];
+        const planName = activeSub?.plan?.name;
+        const allowed =
+          activeSub?.status === 'active' &&
+          (planName === 'Premium' || planName === 'Ultimate');
+        setCanAccess(!!allowed);
+      })
+      .catch(() => {
+        if (!cancelled) setCanAccess(false);
+      });
+    return () => { cancelled = true; };
+  }, [accessToken]);
 
   // ── Filter state ──────────────────────────────────────────────────────────
   const [filterType, setFilterType] = useState<LeaderboardFilterType>('OVERALL');
@@ -38,7 +66,7 @@ export function LeaderboardPage() {
 
   // Load tryout list once (used only when filterType === 'TRYOUT')
   useEffect(() => {
-    if (!accessToken) return;
+    if (!accessToken || canAccess !== true) return;
     let cancelled = false;
     setTryoutsLoading(true);
     getTryouts(accessToken)
@@ -52,11 +80,11 @@ export function LeaderboardPage() {
         if (!cancelled) setTryoutsLoading(false);
       });
     return () => { cancelled = true; };
-  }, [accessToken]);
+  }, [accessToken, canAccess]);
 
   // ── Fetch leaderboard whenever filters change ─────────────────────────────
   useEffect(() => {
-    if (!accessToken) return;
+    if (!accessToken || canAccess !== true) return;
     // Gate: don't fetch TRYOUT without a valid examId
     if (filterType === 'TRYOUT' && !selectedTryoutId) {
       setEntries([]);
@@ -84,7 +112,7 @@ export function LeaderboardPage() {
       });
 
     return () => { cancelled = true; };
-  }, [accessToken, filterType, subject, selectedTryoutId]);
+  }, [accessToken, canAccess, filterType, subject, selectedTryoutId]);
 
   // ── Filter change handlers (with reset logic) ─────────────────────────────
   function handleFilterTypeChange(f: LeaderboardFilterType) {
@@ -143,7 +171,15 @@ export function LeaderboardPage() {
 
   const noDataForFilter = filterType === 'TRYOUT' && !selectedTryoutId;
 
-  return (
+  if (canAccess === null) {
+    return (
+      <div className="flex items-center justify-center min-h-[200px]">
+        <p className="text-slate-500">Memuat…</p>
+      </div>
+    );
+  }
+
+  const pageContent = (
     <div className="space-y-6">
       {/* Header + Filters */}
       <LeaderboardFilters
@@ -244,4 +280,37 @@ export function LeaderboardPage() {
       )}
     </div>
   );
+
+  // Free user: tampilkan halaman blur + overlay notifikasi
+  if (canAccess === false) {
+    return (
+      <div className="relative min-h-[300px]">
+        <div className="blur-md pointer-events-none select-none">
+          {pageContent}
+        </div>
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl border border-brand-light p-6 md:p-8 shadow-xl text-center max-w-md mx-4">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-amber-100 text-amber-600 mb-4">
+              <Lock className="h-7 w-7" />
+            </div>
+            <h2 className="text-xl font-serif font-bold text-brand-dark mb-2">
+              Halaman ini hanya dapat diakses oleh langganan Premium atau Ultimate
+            </h2>
+            <p className="text-slate-600 mb-6">
+              Upgrade akun Anda untuk melihat peringkat dan bersaing dengan peserta lain.
+            </p>
+            <button
+              type="button"
+              onClick={() => navigate('/profile')}
+              className="px-4 py-2 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-dark transition-colors"
+            >
+              Lihat Profile & Upgrade
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return pageContent;
 }

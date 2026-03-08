@@ -45,7 +45,7 @@ export function DashboardLayout() {
     navigate('/login');
   };
 
-  // Cek role user sekali saat ada accessToken; kalau admin, tampilkan tombol Admin
+  // Cek role user sekali saat ada accessToken
   useEffect(() => {
     if (!accessToken) {
       setIsAdmin(false);
@@ -55,9 +55,6 @@ export function DashboardLayout() {
       .then((profile) => {
         const isAdminRole = profile?.role === 'admin';
         setIsAdmin(isAdminRole);
-        if (isAdminRole) {
-          console.log('[DashboardLayout] user is admin, enabling Admin menu');
-        }
       })
       .catch(() => {
         setIsAdmin(false);

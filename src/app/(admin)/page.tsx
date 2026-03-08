@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { BookOpen, Users, UserCheck, GraduationCap } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { getAdminUsersSummary, type AdminUsersSummary } from '../../lib/api';
@@ -72,24 +73,30 @@ export function AdminOverviewPage() {
       <div className="bg-white rounded-2xl border border-brand-light p-6 shadow-sm">
         <h2 className="text-base font-semibold text-brand-dark mb-2">Quick Actions</h2>
         <div className="flex flex-wrap gap-3 mt-3">
-          <a
-            href="/admin/questions"
+          <Link
+            to="/admin/tryouts"
+            className="px-4 py-2 rounded-xl bg-brand-primary text-white text-sm font-medium hover:bg-brand-dark transition-colors"
+          >
+            Kelola Tryout
+          </Link>
+          <Link
+            to="/admin/questions"
             className="px-4 py-2 rounded-xl bg-brand-primary text-white text-sm font-medium hover:bg-brand-dark transition-colors"
           >
             Kelola Questions
-          </a>
-          <a
-            href="/admin/subjects"
+          </Link>
+          <Link
+            to="/admin/subjects"
             className="px-4 py-2 rounded-xl bg-brand-primary text-white text-sm font-medium hover:bg-brand-dark transition-colors"
           >
             Kelola Subjects & Topics
-          </a>
-          <a
-            href="/admin/users"
+          </Link>
+          <Link
+            to="/admin/users"
             className="px-4 py-2 rounded-xl bg-brand-primary text-white text-sm font-medium hover:bg-brand-dark transition-colors"
           >
             Lihat Users
-          </a>
+          </Link>
         </div>
       </div>
     </div>
