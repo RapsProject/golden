@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, X, Save, AlertCircle } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, X, Save, AlertCircle, ChevronDown } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
 import {
   getQuestions,
@@ -15,6 +16,7 @@ import {
   type TryoutOption,
   type CreateQuestionInput,
 } from '../../../lib/api';
+import { LatexText } from '../../../components/LatexText';
 
 type OptionDraft = {
   sequenceNumber: number;
@@ -72,6 +74,8 @@ function formToPayload(form: FormState): CreateQuestionInput {
 
 export function AdminQuestionsPage() {
   const { accessToken } = useAuth();
+  const location = useLocation();
+  const tryoutIdFromUrl = new URLSearchParams(location.search).get('tryoutId') ?? '';
 
   const [questions, setQuestions] = useState<QuestionData[]>([]);
   const [subjects, setSubjects] = useState<SubjectData[]>([]);
@@ -80,11 +84,38 @@ export function AdminQuestionsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // filters
-  const [filterTryout, setFilterTryout] = useState('');
+  // filters (filter tryout diisi dari URL bila ada ?tryoutId=)
+  const [filterTryoutType, setFilterTryoutType] = useState<'all' | 'simulation' | 'practice'>('all');
+  const [filterTryout, setFilterTryout] = useState(tryoutIdFromUrl);
+  const [tryoutSearchInput, setTryoutSearchInput] = useState('');
+  const [tryoutDropdownOpen, setTryoutDropdownOpen] = useState(false);
+  const tryoutDropdownRef = useRef<HTMLDivElement>(null);
   const [filterSubject, setFilterSubject] = useState('');
   const [filterTopic, setFilterTopic] = useState('');
   const [filterTopics, setFilterTopics] = useState<TopicData[]>([]);
+
+  useEffect(() => {
+    if (tryoutIdFromUrl) setFilterTryout(tryoutIdFromUrl);
+  }, [tryoutIdFromUrl]);
+
+  // Set search input to selected tryout title when tryouts load and filterTryout is set
+  useEffect(() => {
+    if (filterTryout && tryouts.length > 0) {
+      const selected = tryouts.find((t) => t.id === filterTryout);
+      if (selected) setTryoutSearchInput(selected.title);
+    }
+  }, [filterTryout, tryouts.length]);
+
+  // Close tryout dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (tryoutDropdownRef.current && !tryoutDropdownRef.current.contains(e.target as Node)) {
+        setTryoutDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // modal state
   const [modalOpen, setModalOpen] = useState(false);
@@ -100,14 +131,19 @@ export function AdminQuestionsPage() {
     if (!accessToken) return;
     setLoading(true);
     try {
+      const questionFilters: Parameters<typeof getQuestions>[1] = {
+        ...(filterSubject ? { subjectId: filterSubject } : {}),
+        ...(filterTopic ? { topicId: filterTopic } : {}),
+        limit: 200,
+        includeInactive: true,
+      };
+      if (filterTryout) {
+        questionFilters.tryoutId = filterTryout;
+      } else if (filterTryoutType === 'simulation' || filterTryoutType === 'practice') {
+        questionFilters.tryoutType = filterTryoutType;
+      }
       const [qs, subs, tryoutList] = await Promise.all([
-        getQuestions(accessToken, {
-          ...(filterTryout ? { tryoutId: filterTryout } : {}),
-          ...(filterSubject ? { subjectId: filterSubject } : {}),
-          ...(filterTopic ? { topicId: filterTopic } : {}),
-          limit: 200,
-          includeInactive: true,
-        }),
+        getQuestions(accessToken, questionFilters),
         getSubjects(accessToken),
         getTryoutOptions(accessToken),
       ]);
@@ -119,7 +155,7 @@ export function AdminQuestionsPage() {
     } finally {
       setLoading(false);
     }
-  }, [accessToken, filterTryout, filterSubject, filterTopic]);
+  }, [accessToken, filterTryout, filterTryoutType, filterSubject, filterTopic]);
 
   useEffect(() => { loadData(); }, [loadData]);
 
@@ -275,19 +311,97 @@ export function AdminQuestionsPage() {
 
       {/* Filters */}
       <div className="bg-white rounded-2xl border border-brand-light p-4 shadow-sm">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <div>
-            <label className="block text-xs font-medium text-slate-500 mb-1">Filter Tryout</label>
+            <label className="block text-xs font-medium text-slate-500 mb-1">Tipe</label>
             <select
-              value={filterTryout}
-              onChange={(e) => setFilterTryout(e.target.value)}
+              value={filterTryoutType}
+              onChange={(e) => {
+                setFilterTryoutType(e.target.value as 'all' | 'simulation' | 'practice');
+                setFilterTryout('');
+                setTryoutSearchInput('');
+                setTryoutDropdownOpen(false);
+              }}
               className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
             >
-              <option value="">Semua Tryout</option>
-              {tryouts.map((t) => (
-                <option key={t.id} value={t.id}>{t.title}</option>
-              ))}
+              <option value="all">Semua</option>
+              <option value="simulation">Tryout (Simulation)</option>
+              <option value="practice">Practice</option>
             </select>
+          </div>
+          <div className="relative" ref={tryoutDropdownRef}>
+            <label className="block text-xs font-medium text-slate-500 mb-1">Filter Tryout / Practice</label>
+            <div className="relative">
+              <input
+                type="text"
+                value={tryoutSearchInput}
+                onChange={(e) => {
+                  setTryoutSearchInput(e.target.value);
+                  setTryoutDropdownOpen(true);
+                  if (filterTryout) setFilterTryout('');
+                }}
+                onFocus={() => setTryoutDropdownOpen(true)}
+                placeholder="Ketik judul tryout atau practice..."
+                className="w-full rounded-xl border border-slate-200 pl-3 pr-9 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/30 placeholder:text-slate-400"
+                aria-label="Cari dan pilih tryout atau practice"
+                aria-expanded={tryoutDropdownOpen}
+                aria-autocomplete="list"
+              />
+              <button
+                type="button"
+                onClick={() => setTryoutDropdownOpen((v) => !v)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 rounded"
+                aria-label={tryoutDropdownOpen ? 'Tutup daftar' : 'Buka daftar'}
+              >
+                <ChevronDown className={`h-4 w-4 transition-transform ${tryoutDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+            </div>
+            {tryoutDropdownOpen && (
+              <ul
+                className="absolute z-10 mt-1 w-full max-h-56 overflow-auto rounded-xl border border-slate-200 bg-white shadow-lg py-1 text-sm"
+                role="listbox"
+              >
+                <li
+                  role="option"
+                  className="px-3 py-2 cursor-pointer text-slate-600 hover:bg-slate-50"
+                  onClick={() => {
+                    setFilterTryout('');
+                    setTryoutSearchInput('');
+                    setTryoutDropdownOpen(false);
+                  }}
+                >
+                  Semua Tryout / Practice
+                </li>
+                {(() => {
+                  const byType = tryouts.filter((t) => filterTryoutType === 'all' || t.type === filterTryoutType);
+                  const filtered = byType.filter((t) =>
+                    !tryoutSearchInput.trim() || t.title.toLowerCase().includes(tryoutSearchInput.trim().toLowerCase())
+                  );
+                  return (
+                    <>
+                      {filtered.map((t) => (
+                        <li
+                          key={t.id}
+                          role="option"
+                          className={`px-3 py-2 cursor-pointer hover:bg-slate-50 ${filterTryout === t.id ? 'bg-brand-light text-brand-dark font-medium' : 'text-slate-800'}`}
+                          onClick={() => {
+                            setFilterTryout(t.id);
+                            setTryoutSearchInput(t.title);
+                            setTryoutDropdownOpen(false);
+                          }}
+                        >
+                          {t.title}
+                          <span className="ml-2 text-xs text-slate-500 capitalize">({t.type})</span>
+                        </li>
+                      ))}
+                      {byType.length > 0 && filtered.length === 0 && (
+                        <li className="px-3 py-2 text-slate-500 italic">Tidak ada yang cocok</li>
+                      )}
+                    </>
+                  );
+                })()}
+              </ul>
+            )}
           </div>
           <div>
             <label className="block text-xs font-medium text-slate-500 mb-1">Filter Subject</label>
@@ -358,7 +472,7 @@ export function AdminQuestionsPage() {
                   <td className="px-4 py-3 text-slate-600">{subjectName(q.subjectId)}</td>
                   <td className="px-4 py-3 text-slate-500">{topicName(q.topicId)}</td>
                   <td className="px-4 py-3 text-slate-700 max-w-[220px]">
-                    <span className="line-clamp-2">{q.text}</span>
+                    <span className="line-clamp-2"><LatexText>{q.text}</LatexText></span>
                   </td>
                   <td className="px-4 py-3 text-slate-500">{q.options.length} pilihan</td>
                   <td className="px-4 py-3">
@@ -532,10 +646,13 @@ export function AdminQuestionsPage() {
                   value={form.text}
                   onChange={(e) => setForm((p) => ({ ...p, text: e.target.value }))}
                   required
-                  rows={3}
-                  placeholder="Tulis soal di sini…"
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+                  rows={4}
+                  placeholder="Tulis soal di sini."
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-mono resize-y focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
                 />
+                <p className="mt-1 text-xs text-slate-500">
+                  Mendukung LaTeX: <code className="bg-slate-100 px-1 rounded">$rumus$</code> untuk inline; <code className="bg-slate-100 px-1 rounded">$$rumus$$</code> atau <code className="bg-slate-100 px-1 rounded">\[rumus\]</code> untuk rumus blok.
+                </p>
               </div>
 
               <div>
@@ -554,9 +671,9 @@ export function AdminQuestionsPage() {
                 <textarea
                   value={form.explanation}
                   onChange={(e) => setForm((p) => ({ ...p, explanation: e.target.value }))}
-                  rows={2}
-                  placeholder="Pembahasan jawaban…"
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+                  rows={3}
+                  placeholder="Pembahasan jawaban..."
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm resize-y focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
                 />
               </div>
 
@@ -564,7 +681,7 @@ export function AdminQuestionsPage() {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-xs font-semibold text-slate-600">
-                    Pilihan Jawaban <span className="text-red-500">*</span>
+                    Pilihan Jawaban <span className="text-red-500">*</span> <span className="font-normal text-slate-500"></span>
                   </label>
                   <button
                     type="button"

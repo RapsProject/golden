@@ -7,6 +7,8 @@ import { ComingSoonPage } from './app/(marketing)/coming-soon/page.tsx';
 import { AuthLayout } from './app/(auth)/layout.tsx';
 import { LoginPage } from './app/(auth)/login/page.tsx';
 import { RegisterPage } from './app/(auth)/register/page.tsx';
+import { ResetPasswordPage } from './app/(auth)/reset-password/page.tsx';
+import { GoogleCallbackPage } from './app/(auth)/google-callback/page.tsx';
 import { DashboardLayout } from './app/(dashboard)/layout.tsx';
 import { DashboardHomePage } from './app/(dashboard)/dashboard/page.tsx';
 import { TryOutListPage } from './app/(dashboard)/tryout/page.tsx';
@@ -40,6 +42,8 @@ export default function App() {
       <Route element={<AuthLayout />}>
         <Route path="login" element={<LoginPage />} />
         <Route path="register" element={<RegisterPage />} />
+        <Route path="reset-password" element={<ResetPasswordPage />} />
+        <Route path="auth/callback" element={<GoogleCallbackPage />} />
       </Route>
 
       {/* ── Dashboard (sidebar layout, requires auth) ── */}

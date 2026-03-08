@@ -1,6 +1,7 @@
 import { Flag } from 'lucide-react';
 import type { Question } from '../../lib/mockData';
 import { cn } from '../../lib/utils';
+import { LatexText } from '../LatexText';
 
 const OPTION_LABELS = ['A', 'B', 'C', 'D'];
 
@@ -61,9 +62,9 @@ export function QuestionCard({
 
       {/* Question body */}
       <div className="px-5 py-5 flex-1">
-        <p className="text-base md:text-lg text-slate-900 leading-relaxed mb-6">
-          {question.text}
-        </p>
+        <div className="text-base md:text-lg text-slate-900 leading-relaxed mb-6">
+          <LatexText className="contents">{question.text}</LatexText>
+        </div>
 
         {/* Options */}
         <div className="space-y-3">
@@ -93,7 +94,7 @@ export function QuestionCard({
                   {OPTION_LABELS[idx]}
                 </span>
                 <span className={cn('text-sm md:text-base', isSelected ? 'text-brand-dark font-medium' : 'text-slate-700')}>
-                  {option.text}
+                  <LatexText className="contents">{option.text}</LatexText>
                 </span>
               </button>
             );
