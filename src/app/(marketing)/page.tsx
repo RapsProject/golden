@@ -10,22 +10,18 @@ import { FAQ } from "../../components/sections/FAQ";
 export default function MarketingPage() {
   const navigate = useNavigate();
   const goRegister = () => navigate("/register");
-  const goComingSoon = () => navigate("/coming-soon");
 
   return (
     <>
       <Hero
         onNavigateRegister={goRegister}
-        onNavigateComingSoon={goComingSoon}
+        onNavigateComingSoon={() => navigate("/coming-soon")}
       />
       <ProblemStatement />
       <InteractiveDemo />
       <Features />
       {/* <Testimonials /> */}
-      <Pricing
-        onNavigateRegister={goRegister}
-        onNavigateComingSoon={goComingSoon}
-      />
+      <Pricing onNavigateRegister={goRegister} />
       <FAQ />
     </>
   );

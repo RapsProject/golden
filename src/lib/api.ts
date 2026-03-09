@@ -318,6 +318,21 @@ export async function getAdminUserSessions(
   return res.data ?? [];
 }
 
+// ─── Subscription plans ──────────────────────────────────────────────────────
+
+export type SubscriptionPlan = {
+  id: string;
+  name: string;
+  price: number;
+  durationDays: number;
+  isActive: boolean;
+};
+
+export async function getSubscriptionPlans(): Promise<SubscriptionPlan[]> {
+  const res = await api.get<SubscriptionPlan[]>("/api/v1/plans");
+  return res.data ?? [];
+}
+
 // ─── Profile ──────────────────────────────────────────────────────────────────
 
 export type ProfileDetail = {

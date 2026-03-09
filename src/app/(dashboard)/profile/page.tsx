@@ -1,7 +1,13 @@
 import { useEffect, useState } from 'react';
-import { BookOpen, CheckCircle2, Phone, Save, User } from 'lucide-react';
+import { BookOpen, CheckCircle2, CreditCard, Phone, Save, User } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
-import { getMyProfile, updateMyProfile, type ProfileDetail } from '../../../lib/api';
+import {
+  getMyProfile,
+  getSubscriptionPlans,
+  updateMyProfile,
+  type ProfileDetail,
+  type SubscriptionPlan,
+} from '../../../lib/api';
 
 const DREAM_MAJORS = [
   "Geological Engineering (FITB)",
@@ -58,6 +64,8 @@ export function ProfilePage() {
 
   const [phoneNumber, setPhoneNumber] = useState('');
   const [dreamMajor, setDreamMajor] = useState('');
+  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
+  const [plansLoading, setPlansLoading] = useState(true);
 
   useEffect(() => {
     if (!accessToken) return;
@@ -79,6 +87,20 @@ export function ProfilePage() {
       });
     return () => { cancelled = true; };
   }, [accessToken]);
+
+  useEffect(() => {
+    let cancelled = false;
+    getSubscriptionPlans()
+      .then((data) => {
+        if (!cancelled) {
+          setPlans((data ?? []).filter((p) => p.name !== 'Free'));
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setPlansLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, []);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,6 +129,15 @@ export function ProfilePage() {
 
   const avatarUrl = authUser?.user_metadata?.avatar_url as string | undefined;
   const activeSub = profile?.subscriptions?.[0];
+
+  // Urutan plan: Free < Premium < Ultimate. Hanya tampilkan opsi upgrade ke plan di atas saat ini.
+  const PLAN_ORDER = ['Free', 'Premium', 'Ultimate'] as const;
+  const currentPlanName = activeSub?.plan?.name ?? 'Free';
+  const currentLevel = PLAN_ORDER.indexOf(currentPlanName as (typeof PLAN_ORDER)[number]);
+  const upgradePlans = plans.filter(
+    (p) => PLAN_ORDER.indexOf(p.name as (typeof PLAN_ORDER)[number]) > currentLevel
+  );
+  const isHighestPlan = currentPlanName === 'Ultimate';
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -177,9 +208,56 @@ export function ProfilePage() {
                 {formatDate(activeSub.endDate)}
               </div>
             </div>
-          </div>
         </div>
+      </div>
       )}
+
+      {/* Upgrade subscription */}
+      <div className="bg-white rounded-2xl border border-brand-light p-5 shadow-sm">
+        <h2 className="text-base font-semibold text-brand-dark mb-1 flex items-center gap-2">
+          <CreditCard className="h-5 w-5 text-brand-primary" />
+          Upgrade subscription
+        </h2>
+        <p className="text-sm text-slate-500 mb-4">
+          {isHighestPlan
+            ? 'Anda sudah pada plan tertinggi.'
+            : 'Akses penuh Analytics, Leaderboard, dan bank soal lengkap.'}
+        </p>
+        {plansLoading ? (
+          <p className="text-sm text-slate-400 py-2">Memuat paket…</p>
+        ) : isHighestPlan ? (
+          <p className="text-sm text-slate-600 py-2">
+            Tidak ada opsi upgrade—plan Ultimate sudah mencakup semua fitur.
+          </p>
+        ) : upgradePlans.length === 0 ? (
+          <p className="text-sm text-slate-500 py-2">Tidak ada paket berbayar tersedia.</p>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2">
+            {upgradePlans.map((plan) => (
+              <div
+                key={plan.id}
+                className="rounded-xl border border-brand-light p-4 hover:border-brand-primary/50 transition-colors"
+              >
+                <div className="font-semibold text-brand-dark">{plan.name}</div>
+                <div className="mt-1 text-lg font-bold text-brand-primary">
+                  {plan.price === 0
+                    ? 'Gratis'
+                    : `IDR ${(plan.price / 1000).toFixed(0)}K`}
+                </div>
+                <div className="text-xs text-slate-500 mt-0.5">
+                  {plan.durationDays} hari
+                </div>
+                <a
+                  href="/#pricing"
+                  className="mt-3 block w-full rounded-lg bg-brand-primary py-2.5 text-center text-sm font-semibold text-white hover:bg-brand-dark transition-colors"
+                >
+                  Upgrade
+                </a>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Editable fields */}
       <form

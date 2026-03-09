@@ -3,39 +3,39 @@ import { Button } from "../ui/Button";
 
 const plans = [
   {
-    name: "Starter",
+    name: "Free",
     price: "Free",
     description:
-      "Try out the experience with limited questions and basic analytics.",
+      "Coba pengalaman dengan soal terbatas. Tanpa akses Analytics & Leaderboard.",
     features: [
-      "Access to selected AqTest-style questions",
-      "Basic timer mode",
-      "Email support",
+      "Akses soal AqTest terpilih",
+      "Mode timer dasar",
+      "Dukungan email",
     ],
     highlighted: false,
   },
   {
-    name: "IUP Focus",
+    name: "Premium",
     price: "IDR 349K",
     description:
-      "Best for serious candidates targeting the next IUP ITB intake.",
+      "Cocok untuk persiapan serius menuju IUP ITB.",
     features: [
-      "Full AqTest question bank",
-      "Real-time simulation & analytics",
-      "Strategy modules from IUP ITB students",
-      "Progress tracking across subjects",
+      "Bank soal AqTest lengkap",
+      "Simulasi real-time & Analytics",
+      "Leaderboard & pelacakan progres",
+      "Modul strategi dari mahasiswa IUP ITB",
     ],
     highlighted: true,
   },
   {
-    name: "Mentorship",
+    name: "Ultimate",
     price: "IDR 599K",
     description:
-      "Includes everything in IUP Focus plus group mentoring sessions.",
+      "Semua fitur Premium plus mentoring grup.",
     features: [
-      "All IUP Focus features",
-      "Weekly group Q&A with mentors",
-      "Review of your performance profile",
+      "Semua fitur Premium",
+      "Sesi Q&A grup mingguan dengan mentor",
+      "Review profil performa Anda",
     ],
     highlighted: false,
   },
@@ -43,13 +43,9 @@ const plans = [
 
 interface PricingProps {
   onNavigateRegister?: () => void;
-  onNavigateComingSoon?: () => void;
 }
 
-export function Pricing({
-  onNavigateRegister,
-  onNavigateComingSoon,
-}: PricingProps) {
+export function Pricing({ onNavigateRegister }: PricingProps) {
   return (
     <section id="pricing" className="py-20 md:py-24 bg-brand-dark">
       <Container>
@@ -104,11 +100,7 @@ export function Pricing({
                 variant="primary"
                 size="md"
                 className="w-full bg-white text-brand-dark hover:bg-brand-secondary hover:text-white"
-                onClick={
-                  plan.name === "Starter"
-                    ? onNavigateRegister
-                    : onNavigateComingSoon
-                }
+                onClick={onNavigateRegister}
               >
                 Choose Plan
               </Button>
