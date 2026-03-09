@@ -5,6 +5,7 @@ import { QuestionCard } from '../../../../../components/tryout/QuestionCard';
 import { NavigationPalette } from '../../../../../components/tryout/NavigationPalette';
 import { useAuth } from '../../../../../contexts/AuthContext';
 import {
+  getMyProfile,
   getTryoutById,
   saveAnswer,
   submitSession,
@@ -15,6 +16,22 @@ import type { Question } from '../../../../../lib/mockData';
 
 function sessionStorageKey(tryoutId: string) {
   return `tryout_session_${tryoutId}`;
+}
+
+function getUserTier(planName?: string): 'free' | 'premium' | 'ultimate' {
+  const normalized = planName?.trim().toLowerCase();
+  if (normalized === 'ultimate') return 'ultimate';
+  if (normalized === 'premium') return 'premium';
+  return 'free';
+}
+
+function canAccessTryout(
+  tryout: { isPremium: boolean; isUltimate: boolean },
+  tier: 'free' | 'premium' | 'ultimate',
+) {
+  if (tier === 'ultimate') return true;
+  if (tier === 'premium') return !tryout.isUltimate || tryout.isPremium;
+  return !tryout.isPremium && !tryout.isUltimate;
 }
 
 function mapToQuestion(
@@ -69,6 +86,19 @@ export function ExamPlayPage() {
 
     (async () => {
       try {
+        const [tryoutData, profile] = await Promise.all([
+          getTryoutById(accessToken, id),
+          getMyProfile(accessToken),
+        ]);
+        if (cancelled) return;
+
+        const tier = getUserTier(profile?.subscriptions?.[0]?.plan?.name);
+        if (!tryoutData || !canAccessTryout(tryoutData, tier)) {
+          setFatalError('Akses tryout ini memerlukan subscription yang sesuai.');
+          setLoading(false);
+          return;
+        }
+
         let resolvedSessionId = sessionId;
 
         if (!resolvedSessionId) {
@@ -85,14 +115,14 @@ export function ExamPlayPage() {
 
         sessionStorage.setItem(sessionStorageKey(id), resolvedSessionId);
 
-        const [tryoutData, sessionData] = await Promise.all([
-          getTryoutById(accessToken, id),
+        const [resolvedTryoutData, sessionData] = await Promise.all([
+          Promise.resolve(tryoutData),
           getSession(accessToken, resolvedSessionId),
         ]);
 
         if (cancelled) return;
 
-        setTryout(tryoutData ?? null);
+        setTryout(resolvedTryoutData ?? null);
 
         if (sessionData) {
           setSessionStartTime(sessionData.startTime ?? null);

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
-import { getTryouts, getSessions } from '../../../lib/api';
+import { getMyProfile, getSessions, getTryouts } from '../../../lib/api';
 
 type PracticeItem = {
   id: string;
@@ -11,6 +11,22 @@ type PracticeItem = {
   status: 'not-started' | 'completed';
   score?: number;
 };
+
+function getUserTier(planName?: string): 'free' | 'premium' | 'ultimate' {
+  const normalized = planName?.trim().toLowerCase();
+  if (normalized === 'ultimate') return 'ultimate';
+  if (normalized === 'premium') return 'premium';
+  return 'free';
+}
+
+function canAccessTryout(
+  tryout: { isPremium: boolean; isUltimate: boolean },
+  tier: 'free' | 'premium' | 'ultimate',
+) {
+  if (tier === 'ultimate') return true;
+  if (tier === 'premium') return !tryout.isUltimate || tryout.isPremium;
+  return !tryout.isPremium && !tryout.isUltimate;
+}
 
 export function PracticeListPage() {
   const navigate = useNavigate();
@@ -24,13 +40,17 @@ export function PracticeListPage() {
     let cancelled = false;
     (async () => {
       try {
-        const [list, sessions] = await Promise.all([
+        const [list, sessions, profile] = await Promise.all([
           getTryouts(accessToken),
           getSessions(accessToken),
+          getMyProfile(accessToken),
         ]);
         if (cancelled) return;
 
-        const practiceTryouts = (list ?? []).filter((t) => t.type === 'practice');
+        const tier = getUserTier(profile?.subscriptions?.[0]?.plan?.name);
+        const practiceTryouts = (list ?? [])
+          .filter((t) => t.type === 'practice')
+          .filter((t) => canAccessTryout(t, tier));
 
         const byTryout = new Map<string, { score: number }>();
         const sorted = (sessions ?? []).filter(

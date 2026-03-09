@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
-import { getTryouts, getSessions } from '../../../lib/api';
+import { getMyProfile, getSessions, getTryouts } from '../../../lib/api';
 
 type TryoutItem = {
   id: string;
@@ -12,6 +12,22 @@ type TryoutItem = {
   status: 'not-started' | 'completed';
   score?: number;
 };
+
+function getUserTier(planName?: string): 'free' | 'premium' | 'ultimate' {
+  const normalized = planName?.trim().toLowerCase();
+  if (normalized === 'ultimate') return 'ultimate';
+  if (normalized === 'premium') return 'premium';
+  return 'free';
+}
+
+function canAccessTryout(
+  tryout: { isPremium: boolean; isUltimate: boolean },
+  tier: 'free' | 'premium' | 'ultimate',
+) {
+  if (tier === 'ultimate') return true;
+  if (tier === 'premium') return !tryout.isUltimate || tryout.isPremium;
+  return !tryout.isPremium && !tryout.isUltimate;
+}
 
 export function TryOutListPage() {
   const navigate = useNavigate();
@@ -25,11 +41,13 @@ export function TryOutListPage() {
     let cancelled = false;
     (async () => {
       try {
-        const [list, sessions] = await Promise.all([
+        const [list, sessions, profile] = await Promise.all([
           getTryouts(accessToken),
           getSessions(accessToken),
+          getMyProfile(accessToken),
         ]);
         if (cancelled) return;
+        const tier = getUserTier(profile?.subscriptions?.[0]?.plan?.name);
         const byTryout = new Map<string, { score: number }>();
         const sorted = (sessions ?? []).filter((s) => s.status === 'completed' && s.score != null);
         sorted.sort((a, b) => new Date(b.startTime ?? 0).getTime() - new Date(a.startTime ?? 0).getTime());
@@ -37,15 +55,18 @@ export function TryOutListPage() {
           if (!byTryout.has(s.tryoutId)) byTryout.set(s.tryoutId, { score: s.score! });
         }
         setTryouts(
-          (list ?? []).map((t) => ({
-            id: t.id,
-            title: t.title,
-            type: t.type,
-            durationMinutes: t.durationMinutes,
-            totalQuestions: undefined,
-            status: byTryout.has(t.id) ? 'completed' : 'not-started',
-            score: byTryout.get(t.id)?.score,
-          }))
+          (list ?? [])
+            .filter((t) => t.type === 'simulation')
+            .filter((t) => canAccessTryout(t, tier))
+            .map((t) => ({
+              id: t.id,
+              title: t.title,
+              type: t.type,
+              durationMinutes: t.durationMinutes,
+              totalQuestions: undefined,
+              status: byTryout.has(t.id) ? 'completed' : 'not-started',
+              score: byTryout.get(t.id)?.score,
+            }))
         );
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : 'Failed to load tryouts');
@@ -57,6 +78,8 @@ export function TryOutListPage() {
       cancelled = true;
     };
   }, [accessToken]);
+
+  const hasTryouts = useMemo(() => tryouts.length > 0, [tryouts]);
 
   if (loading) {
     return (
@@ -102,43 +125,49 @@ export function TryOutListPage() {
         </p>
       </div>
 
-      <div className="grid gap-5 md:grid-cols-2">
-        {tryouts.map((tryout) => (
-          <div
-            key={tryout.id}
-            className="bg-white rounded-2xl border border-brand-light shadow-sm p-5 flex flex-col gap-4"
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h2 className="text-base font-semibold text-brand-dark">{tryout.title}</h2>
-                <p className="text-xs text-slate-500 mt-1 capitalize">{tryout.type}</p>
-              </div>
-              {tryout.status === 'completed' && tryout.score != null ? (
-                <span className="shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full bg-brand-secondary/20 text-brand-dark">
-                  Score: {tryout.score}
-                </span>
-              ) : (
-                <span className="shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">
-                  Not Started
-                </span>
-              )}
-            </div>
-
-            <div className="flex items-center gap-4 text-xs text-slate-500">
-              {tryout.totalQuestions != null && <span>{tryout.totalQuestions} questions</span>}
-              <span>{tryout.durationMinutes} minutes</span>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => navigate(`/tryout/${tryout.id}`)}
-              className="mt-auto w-full py-2.5 rounded-lg bg-brand-primary text-white text-sm font-semibold hover:bg-brand-dark transition-colors"
+      {!hasTryouts ? (
+        <div className="rounded-2xl border border-dashed border-brand-light bg-white p-6 text-sm text-slate-600">
+          No simulations are available yet. Please check back later.
+        </div>
+      ) : (
+        <div className="grid gap-5 md:grid-cols-2">
+          {tryouts.map((tryout) => (
+            <div
+              key={tryout.id}
+              className="bg-white rounded-2xl border border-brand-light shadow-sm p-5 flex flex-col gap-4"
             >
-              View Details
-            </button>
-          </div>
-        ))}
-      </div>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h2 className="text-base font-semibold text-brand-dark">{tryout.title}</h2>
+                  <p className="text-xs text-slate-500 mt-1 capitalize">{tryout.type}</p>
+                </div>
+                {tryout.status === 'completed' && tryout.score != null ? (
+                  <span className="shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full bg-brand-secondary/20 text-brand-dark">
+                    Score: {tryout.score}
+                  </span>
+                ) : (
+                  <span className="shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">
+                    Not Started
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-4 text-xs text-slate-500">
+                {tryout.totalQuestions != null && <span>{tryout.totalQuestions} questions</span>}
+                <span>{tryout.durationMinutes} minutes</span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => navigate(`/tryout/${tryout.id}`)}
+                className="mt-auto w-full py-2.5 rounded-lg bg-brand-primary text-white text-sm font-semibold hover:bg-brand-dark transition-colors"
+              >
+                View Details
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

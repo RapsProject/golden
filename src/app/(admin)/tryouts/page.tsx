@@ -70,6 +70,7 @@ type FormState = {
   durationMinutes: string;
   maxAttempts: string;
   isPremium: boolean;
+  isUltimate: boolean;
   isPublished: boolean;
 };
 
@@ -79,6 +80,7 @@ const emptyForm = (): FormState => ({
   durationMinutes: '120',
   maxAttempts: '',
   isPremium: false,
+  isUltimate: false,
   isPublished: false,
 });
 
@@ -145,6 +147,7 @@ export function AdminTryoutsPage() {
       durationMinutes: String(t.durationMinutes),
       maxAttempts: t.maxAttempts != null ? String(t.maxAttempts) : '',
       isPremium: t.isPremium,
+      isUltimate: t.isUltimate,
       isPublished: t.isPublished,
     });
     setFormError(null);
@@ -350,6 +353,7 @@ export function AdminTryoutsPage() {
       durationMinutes: Number(form.durationMinutes),
       ...(form.maxAttempts ? { maxAttempts: Number(form.maxAttempts) } : {}),
       isPremium: form.isPremium,
+      isUltimate: form.isUltimate,
       isPublished: form.isPublished,
     };
 
@@ -505,10 +509,19 @@ export function AdminTryoutsPage() {
                     {t.maxAttempts != null ? t.maxAttempts : <span className="text-slate-300">—</span>}
                   </td>
                   <td className="px-4 py-3 text-slate-600">
-                    {t.isPremium ? (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-                        Premium
-                      </span>
+                    {t.isPremium || t.isUltimate ? (
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {t.isPremium ? (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                            Premium
+                          </span>
+                        ) : null}
+                        {t.isUltimate ? (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-violet-50 text-violet-700 border border-violet-200">
+                            Ultimate
+                          </span>
+                        ) : null}
+                      </div>
                     ) : (
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200">
                         Free
@@ -676,7 +689,16 @@ export function AdminTryoutsPage() {
                       onChange={(e) => setForm((p) => ({ ...p, isPremium: e.target.checked }))}
                       className="accent-brand-primary w-4 h-4"
                     />
-                    <span>Premium only</span>
+                    <span>Premium</span>
+                  </label>
+                  <label className="inline-flex items-center gap-2 text-xs text-slate-700">
+                    <input
+                      type="checkbox"
+                      checked={form.isUltimate}
+                      onChange={(e) => setForm((p) => ({ ...p, isUltimate: e.target.checked }))}
+                      className="accent-brand-primary w-4 h-4"
+                    />
+                    <span>Ultimate</span>
                   </label>
                   <label className="inline-flex items-center gap-2 text-xs text-slate-700">
                     <input

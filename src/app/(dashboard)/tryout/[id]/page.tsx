@@ -2,7 +2,23 @@ import { useEffect, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { AlertTriangle, Clock, FileText, ShieldAlert } from 'lucide-react';
 import { useAuth } from '../../../../contexts/AuthContext';
-import { getTryoutById, startSession } from '../../../../lib/api';
+import { getMyProfile, getTryoutById, startSession } from '../../../../lib/api';
+
+function getUserTier(planName?: string): 'free' | 'premium' | 'ultimate' {
+  const normalized = planName?.trim().toLowerCase();
+  if (normalized === 'ultimate') return 'ultimate';
+  if (normalized === 'premium') return 'premium';
+  return 'free';
+}
+
+function canAccessTryout(
+  tryout: { isPremium: boolean; isUltimate: boolean },
+  tier: 'free' | 'premium' | 'ultimate',
+) {
+  if (tier === 'ultimate') return true;
+  if (tier === 'premium') return !tryout.isUltimate || tryout.isPremium;
+  return !tryout.isPremium && !tryout.isUltimate;
+}
 
 export function PreExamPage() {
   const { id } = useParams<{ id: string }>();
@@ -16,9 +32,16 @@ export function PreExamPage() {
   useEffect(() => {
     if (!id || !accessToken) return;
     let cancelled = false;
-    getTryoutById(accessToken, id)
-      .then((data) => {
-        if (!cancelled) setTryout(data ?? null);
+    Promise.all([getTryoutById(accessToken, id), getMyProfile(accessToken)])
+      .then(([data, profile]) => {
+        if (cancelled) return;
+        const tier = getUserTier(profile?.subscriptions?.[0]?.plan?.name);
+        if (data && canAccessTryout(data, tier)) {
+          setTryout(data);
+          return;
+        }
+        setTryout(null);
+        setError('Akses tryout ini memerlukan subscription yang sesuai.');
       })
       .catch((e) => {
         if (!cancelled) setError(e instanceof Error ? e.message : 'Failed to load');

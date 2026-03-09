@@ -109,6 +109,7 @@ export async function getTryouts(token: string) {
       durationMinutes: number;
       maxAttempts: number | null;
       isPremium: boolean;
+      isUltimate: boolean;
       isPublished: boolean;
     }>
   >("/api/v1/tryouts", token);
@@ -123,6 +124,7 @@ export async function getTryoutById(token: string, id: string) {
     durationMinutes: number;
     maxAttempts: number | null;
     isPremium: boolean;
+    isUltimate: boolean;
     isPublished: boolean;
     questions?: Array<{
       id: string;
@@ -151,6 +153,7 @@ export type TryoutData = {
   durationMinutes: number;
   maxAttempts: number | null;
   isPremium: boolean;
+  isUltimate: boolean;
   isPublished: boolean;
   isActive?: boolean;
 };
@@ -161,6 +164,7 @@ export type CreateTryoutInput = {
   durationMinutes: number;
   maxAttempts?: number;
   isPremium?: boolean;
+  isUltimate?: boolean;
   isPublished?: boolean;
 };
 
