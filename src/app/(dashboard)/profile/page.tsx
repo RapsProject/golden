@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { BookOpen, CheckCircle2, CreditCard, Phone, Save, User } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import {
   getMyProfile,
@@ -247,12 +248,12 @@ export function ProfilePage() {
                 <div className="text-xs text-slate-500 mt-0.5">
                   {plan.durationDays} hari
                 </div>
-                <a
-                  href="/#pricing"
+                <Link
+                  to="/subscription"
                   className="mt-3 block w-full rounded-lg bg-brand-primary py-2.5 text-center text-sm font-semibold text-white hover:bg-brand-dark transition-colors"
                 >
                   Upgrade
-                </a>
+                </Link>
               </div>
             ))}
           </div>

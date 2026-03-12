@@ -19,6 +19,7 @@ import { ExamPlayPage } from './app/(dashboard)/tryout/[id]/play/page.tsx';
 import { AnalyticsPage } from './app/(dashboard)/analytics/page.tsx';
 import { ProfilePage } from './app/(dashboard)/profile/page.tsx';
 import { LeaderboardPage } from './app/(dashboard)/leaderboard/page.tsx';
+import { SubscriptionPage } from './app/(dashboard)/subscription/page.tsx';
 import { AdminLayout } from './app/(admin)/layout.tsx';
 import { AdminOverviewPage } from './app/(admin)/page.tsx';
 import { AdminQuestionsPage } from './app/(admin)/questions/page.tsx';
@@ -62,6 +63,7 @@ export default function App() {
         <Route path="analytics" element={<AnalyticsPage />} />
         <Route path="leaderboard" element={<LeaderboardPage />} />
         <Route path="profile" element={<ProfilePage />} />
+        <Route path="subscription" element={<SubscriptionPage />} />
       </Route>
 
       {/* ── Exam Play: full-screen, requires auth ── */}
