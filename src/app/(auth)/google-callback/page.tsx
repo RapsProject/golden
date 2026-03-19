@@ -29,7 +29,12 @@ export function GoogleCallbackPage() {
             );
           }
 
-          navigate('/dashboard', { replace: true });
+          const createdAt = new Date(session.user.created_at).getTime();
+          const isNewUser = Date.now() - createdAt < 5 * 60 * 1000;
+          navigate('/dashboard', {
+            replace: true,
+            state: isNewUser ? { isNewUser: true } : undefined,
+          });
         } else if (isMounted) {
           navigate('/login', { replace: true });
         }
