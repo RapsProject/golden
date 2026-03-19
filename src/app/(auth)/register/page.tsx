@@ -58,7 +58,7 @@ export function RegisterPage() {
       }
     }
     setLoading(false);
-    navigate('/dashboard');
+    navigate('/dashboard', { state: { isNewUser: true } });
   };
 
   const handleGoogleSignUp = async () => {

@@ -11,11 +11,12 @@ import {
   X,
   ShieldCheck,
 } from 'lucide-react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '../../lib/utils';
 import { Button } from '../../components/ui/Button';
 import { useAuth } from '../../contexts/AuthContext';
 import { getMyProfile } from '../../lib/api';
+import { OnboardingModal } from '../../components/OnboardingModal';
 
 type NavItem = {
   label: string;
@@ -25,9 +26,13 @@ type NavItem = {
 
 export function DashboardLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user: authUser, signOut, accessToken } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(
+    () => !!(location.state as { isNewUser?: boolean } | null)?.isNewUser
+  );
 
   const user = useMemo(
     () => ({
@@ -196,6 +201,13 @@ export function DashboardLayout() {
           </div>
         )}
       </div>
+
+      {showOnboarding && accessToken && (
+        <OnboardingModal
+          accessToken={accessToken}
+          onClose={() => setShowOnboarding(false)}
+        />
+      )}
     </div>
   );
 }

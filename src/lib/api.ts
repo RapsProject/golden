@@ -47,7 +47,7 @@ export const api = {
 
 export async function syncProfile(
   token: string,
-  body?: { email?: string; full_name?: string },
+  body?: { email?: string; full_name?: string; school_origin?: string },
 ) {
   const res = await api.post<{ id: string; email: string; fullName: string }>(
     "/api/v1/auth/sync",
@@ -347,6 +347,7 @@ export type ProfileDetail = {
   dailyTargetQuestions: number;
   phoneNumber: string | null;
   dreamMajor: string | null;
+  schoolOrigin: string | null;
   subscriptions: Array<{
     id: string;
     status: string;
@@ -363,7 +364,7 @@ export async function getMyProfile(token: string) {
 
 export async function updateMyProfile(
   token: string,
-  data: { phoneNumber?: string; dreamMajor?: string; fullName?: string },
+  data: { phoneNumber?: string; dreamMajor?: string; fullName?: string; schoolOrigin?: string },
 ) {
   const res = await api.put<ProfileDetail>("/api/v1/profile/me", data, token);
   return res.data;
@@ -608,6 +609,7 @@ export type AdminUserData = {
   role: string;
   dreamMajor: string | null;
   phoneNumber: string | null;
+  schoolOrigin: string | null;
   createdAt: string;
   subscriptions: Array<{
     id: string;
