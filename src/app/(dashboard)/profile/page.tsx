@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BookOpen, CheckCircle2, CreditCard, Phone, Save, School, User } from 'lucide-react';
+import { BookOpen, CheckCircle2, CreditCard, Phone, Save, School, User, UserPen } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import {
@@ -63,6 +63,7 @@ export function ProfilePage() {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [fullName, setFullName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [dreamMajor, setDreamMajor] = useState('');
   const [schoolOrigin, setSchoolOrigin] = useState('');
@@ -76,6 +77,7 @@ export function ProfilePage() {
       .then((data) => {
         if (!cancelled && data) {
           setProfile(data);
+          setFullName(data.fullName);
           setPhoneNumber(data.phoneNumber ?? '');
           setDreamMajor(data.dreamMajor ?? '');
           setSchoolOrigin(data.schoolOrigin ?? '');
@@ -112,8 +114,16 @@ export function ProfilePage() {
     setError(null);
     setSaveSuccess(false);
     try {
-      const updated = await updateMyProfile(accessToken, { phoneNumber, dreamMajor, schoolOrigin });
-      if (updated) setProfile(updated);
+      const updated = await updateMyProfile(accessToken, {
+        fullName: fullName.trim() || undefined,
+        phoneNumber,
+        dreamMajor,
+        schoolOrigin,
+      });
+      if (updated) {
+        setProfile(updated);
+        setFullName(updated.fullName);
+      }
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch (e) {
@@ -123,7 +133,7 @@ export function ProfilePage() {
     }
   };
 
-  const displayName = profile?.fullName ?? authUser?.email ?? 'User';
+  const displayName = fullName || profile?.fullName || authUser?.email || 'User';
   const initials = displayName
     .split(' ')
     .slice(0, 2)
@@ -278,6 +288,20 @@ export function ProfilePage() {
             Profile berhasil disimpan!
           </div>
         )}
+
+        <div>
+          <label className="flex items-center gap-1.5 text-sm font-medium text-slate-700 mb-1.5">
+            <UserPen className="h-4 w-4 text-brand-primary" />
+            Nama Lengkap
+          </label>
+          <input
+            type="text"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            placeholder="Nama lengkap kamu"
+            className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-primary/30 focus:border-brand-primary"
+          />
+        </div>
 
         <div>
           <label className="flex items-center gap-1.5 text-sm font-medium text-slate-700 mb-1.5">
