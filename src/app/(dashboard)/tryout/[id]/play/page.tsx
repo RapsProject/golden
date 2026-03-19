@@ -39,15 +39,17 @@ function mapToQuestion(
     id: string;
     sequenceNumber: number;
     text: string;
+    imageUrl: string | null;
     subjectId: string;
-    options: Array<{ id: string; sequenceNumber: number; text: string }>;
+    options: Array<{ id: string; sequenceNumber: number; text: string; imageUrl: string | null }>;
   }
 ): Question {
   return {
     id: q.id,
     subject: 'Simulation',
     text: q.text,
-    options: q.options.map((o) => ({ id: o.id, text: o.text })),
+    imageUrl: q.imageUrl ?? undefined,
+    options: q.options.map((o) => ({ id: o.id, text: o.text, imageUrl: o.imageUrl ?? undefined })),
     correctOptionId: '',
     explanation: '',
   };

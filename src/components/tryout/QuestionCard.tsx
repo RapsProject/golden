@@ -2,6 +2,7 @@ import { Flag } from 'lucide-react';
 import type { Question } from '../../lib/mockData';
 import { cn } from '../../lib/utils';
 import { LatexText } from '../LatexText';
+import { QuestionTextRenderer } from '../QuestionTextRenderer';
 
 const OPTION_LABELS = ['A', 'B', 'C', 'D'];
 
@@ -62,9 +63,11 @@ export function QuestionCard({
 
       {/* Question body */}
       <div className="px-5 py-5 flex-1">
-        <div className="text-base md:text-lg text-slate-900 leading-relaxed mb-6">
-          <LatexText className="contents">{question.text}</LatexText>
-        </div>
+        <QuestionTextRenderer
+          text={question.text}
+          imageUrl={question.imageUrl}
+          className="text-base md:text-lg text-slate-900 leading-relaxed mb-6"
+        />
 
         {/* Options */}
         <div className="space-y-3">
@@ -76,7 +79,7 @@ export function QuestionCard({
                 type="button"
                 onClick={() => onSelectOption(question.id, option.id)}
                 className={cn(
-                  'w-full flex items-center gap-4 rounded-xl border-2 px-4 py-3.5 text-left transition-all',
+                  'w-full flex items-start gap-4 rounded-xl border-2 px-4 py-3.5 text-left transition-all',
                   isSelected
                     ? 'border-brand-primary bg-brand-light shadow-sm'
                     : 'border-slate-200 bg-white hover:border-brand-secondary hover:bg-brand-light/40'
@@ -93,9 +96,20 @@ export function QuestionCard({
                 >
                   {OPTION_LABELS[idx]}
                 </span>
-                <span className={cn('text-sm md:text-base', isSelected ? 'text-brand-dark font-medium' : 'text-slate-700')}>
-                  <LatexText className="contents">{option.text}</LatexText>
-                </span>
+                <div className="min-w-0">
+                  {option.text ? (
+                    <span className={cn('text-sm md:text-base', isSelected ? 'text-brand-dark font-medium' : 'text-slate-700')}>
+                      <LatexText className="contents">{option.text}</LatexText>
+                    </span>
+                  ) : null}
+                  {option.imageUrl ? (
+                    <img
+                      src={option.imageUrl}
+                      alt={`Option ${OPTION_LABELS[idx]}`}
+                      className="mt-2 max-h-32 max-w-full rounded-lg border border-slate-200 bg-slate-50 object-contain"
+                    />
+                  ) : null}
+                </div>
               </button>
             );
           })}

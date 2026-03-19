@@ -172,9 +172,7 @@ export type UpdateTryoutInput = Partial<CreateTryoutInput> & {
   isActive?: boolean;
 };
 
-export async function getAdminTryouts(
-  token: string,
-): Promise<TryoutData[]> {
+export async function getAdminTryouts(token: string): Promise<TryoutData[]> {
   const res = await api.get<TryoutData[]>("/api/v1/admin/tryouts", token);
   return res.data ?? [];
 }
@@ -200,10 +198,7 @@ export async function updateTryout(
   return res.data;
 }
 
-export async function deleteTryout(
-  token: string,
-  id: string,
-): Promise<void> {
+export async function deleteTryout(token: string, id: string): Promise<void> {
   await api.delete(`/api/v1/admin/tryouts/${encodeURIComponent(id)}`, token);
 }
 
@@ -364,7 +359,12 @@ export async function getMyProfile(token: string) {
 
 export async function updateMyProfile(
   token: string,
-  data: { phoneNumber?: string; dreamMajor?: string; fullName?: string; schoolOrigin?: string },
+  data: {
+    phoneNumber?: string;
+    dreamMajor?: string;
+    fullName?: string;
+    schoolOrigin?: string;
+  },
 ) {
   const res = await api.put<ProfileDetail>("/api/v1/profile/me", data, token);
   return res.data;
@@ -440,7 +440,10 @@ export async function createSubject(
   return res.data;
 }
 
-export async function deleteSubject(token: string, subjectId: string): Promise<void> {
+export async function deleteSubject(
+  token: string,
+  subjectId: string,
+): Promise<void> {
   await api.delete(`/api/v1/subjects/${encodeURIComponent(subjectId)}`, token);
 }
 
@@ -504,7 +507,7 @@ export type QuestionData = {
 
 export type QuestionFilters = {
   tryoutId?: string;
-  tryoutType?: 'simulation' | 'practice';
+  tryoutType?: "simulation" | "practice";
   subjectId?: string;
   topicId?: string;
   limit?: number;
@@ -519,10 +522,17 @@ export type CreateQuestionInput = {
   text: string;
   imageUrl?: string;
   explanation?: string;
-  options: { sequenceNumber: number; text: string; imageUrl?: string; isCorrect: boolean }[];
+  options: {
+    sequenceNumber: number;
+    text: string;
+    imageUrl?: string;
+    isCorrect: boolean;
+  }[];
 };
 
-export type UpdateQuestionInput = Partial<Omit<CreateQuestionInput, 'tryoutId'>> & {
+export type UpdateQuestionInput = Partial<
+  Omit<CreateQuestionInput, "tryoutId">
+> & {
   isActive?: boolean;
 };
 

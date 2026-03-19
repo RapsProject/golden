@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Pencil, Save, ToggleLeft, ToggleRight, X, AlertCircle, Settings2, Trash2, Eye, CheckCircle2 } from 'lucide-react';
+import { Plus, Pencil, Save, ToggleLeft, ToggleRight, X, AlertCircle, Settings2, Trash2, Eye, CheckCircle2, Upload, Link, ImageIcon } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
+import { QuestionTextRenderer } from '../../../components/QuestionTextRenderer';
 import {
   getAdminTryouts,
   createTryout,
@@ -113,6 +114,100 @@ export function AdminTryoutsPage() {
   const [questionSaving, setQuestionSaving] = useState(false);
   const [questionFormError, setQuestionFormError] = useState<string | null>(null);
   const [deleteQuestionId, setDeleteQuestionId] = useState<string | null>(null);
+  const [qImageUploading, setQImageUploading] = useState(false);
+  const qImageFileRef = useRef<HTMLInputElement>(null);
+  const [qOptionImageUploading, setQOptionImageUploading] = useState<number | null>(null);
+  const qOptionFileRef = useRef<HTMLInputElement>(null);
+  const qCurrentOptionIdxRef = useRef<number>(-1);
+
+  const API_BASE = (import.meta.env.VITE_API_BASE_URL as string) ?? '';
+
+  const uploadQImageFile = async (file: File): Promise<string | null> => {
+    if (file.size > 100 * 1024) {
+      setQuestionFormError(`Ukuran gambar terlalu besar. Maksimal 100KB (${(file.size / 1024).toFixed(1)}KB).`);
+      return null;
+    }
+    if (!accessToken) { setQuestionFormError('Sesi tidak ditemukan. Silakan login ulang.'); return null; }
+    setQImageUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch(`${API_BASE}/api/v1/upload/image`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${accessToken}` },
+        body: formData,
+      });
+      const json = await res.json();
+      if (!res.ok) { setQuestionFormError(json?.message ?? 'Gagal mengupload gambar.'); return null; }
+      return (json?.data?.url as string) ?? null;
+    } catch {
+      setQuestionFormError('Gagal mengupload gambar. Periksa koneksi ke server.');
+      return null;
+    } finally {
+      setQImageUploading(false);
+    }
+  };
+
+  const handleQTextareaPaste = async (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const imageItem = Array.from(e.clipboardData.items).find((item) => item.type.startsWith('image/'));
+    if (!imageItem) return;
+    e.preventDefault();
+    const file = imageItem.getAsFile();
+    if (!file) return;
+    const url = await uploadQImageFile(file);
+    if (url) setQuestionForm((p) => ({ ...p, imageUrl: url }));
+  };
+
+  const handleQImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const url = await uploadQImageFile(file);
+    if (url) setQuestionForm((p) => ({ ...p, imageUrl: url }));
+    e.target.value = '';
+  };
+
+  const uploadQOptionImage = async (file: File, idx: number): Promise<void> => {
+    if (file.size > 100 * 1024) {
+      setQuestionFormError(`Ukuran gambar pilihan ${String.fromCharCode(65 + idx)} terlalu besar. Maks 100KB (${(file.size / 1024).toFixed(1)}KB).`);
+      return;
+    }
+    if (!accessToken) { setQuestionFormError('Sesi tidak ditemukan.'); return; }
+    setQOptionImageUploading(idx);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch(`${API_BASE}/api/v1/upload/image`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${accessToken}` },
+        body: formData,
+      });
+      const json = await res.json();
+      if (!res.ok) { setQuestionFormError(json?.message ?? 'Gagal mengupload gambar pilihan.'); return; }
+      const url = (json?.data?.url as string) ?? '';
+      if (url) updateQuestionOption(idx, 'imageUrl', url);
+    } catch {
+      setQuestionFormError('Gagal mengupload gambar pilihan. Periksa koneksi ke server.');
+    } finally {
+      setQOptionImageUploading(null);
+    }
+  };
+
+  const handleQOptionFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    const idx = qCurrentOptionIdxRef.current;
+    if (!file || idx < 0) return;
+    await uploadQOptionImage(file, idx);
+    e.target.value = '';
+  };
+
+  const handleQOptionPaste = async (e: React.ClipboardEvent<HTMLInputElement>, idx: number) => {
+    const imageItem = Array.from(e.clipboardData.items).find((item) => item.type.startsWith('image/'));
+    if (!imageItem) return;
+    e.preventDefault();
+    const file = imageItem.getAsFile();
+    if (!file) return;
+    await uploadQOptionImage(file, idx);
+  };
 
   const loadTryouts = async () => {
     if (!accessToken) return;
@@ -239,6 +334,8 @@ export function AdminTryoutsPage() {
     setQuestionForm(emptyQuestionForm(previewTryout.id));
     setQuestionFormError(null);
     setQuestionFormTopics([]);
+    setQImageUploading(false);
+    setQOptionImageUploading(null);
     setQuestionFormOpen(true);
     if (accessToken) {
       getSubjects(accessToken).then(setQuestionSubjects).catch(() => setQuestionSubjects([]));
@@ -246,6 +343,8 @@ export function AdminTryoutsPage() {
   };
 
   const openEditQuestion = async (q: QuestionData) => {
+    setQImageUploading(false);
+    setQOptionImageUploading(null);
     setQuestionEditingId(q.id);
     setQuestionForm({
       tryoutId: q.tryoutId,
@@ -305,8 +404,8 @@ export function AdminTryoutsPage() {
       setQuestionFormError('Minimal satu pilihan harus ditandai sebagai jawaban benar.');
       return;
     }
-    if (questionForm.options.some((o) => !o.text.trim())) {
-      setQuestionFormError('Semua pilihan harus diisi.');
+    if (questionForm.options.some((o) => !o.text.trim() && !o.imageUrl.trim())) {
+      setQuestionFormError('Semua pilihan harus diisi (teks atau gambar).');
       return;
     }
     setQuestionSaving(true);
@@ -844,7 +943,12 @@ export function AdminTryoutsPage() {
                           {q.sequenceNumber}
                         </span>
                         <div className="min-w-0 flex-1 text-sm text-slate-800 leading-relaxed">
-                          <LatexText>{q.text}</LatexText>
+                          <QuestionTextRenderer
+                            text={q.text}
+                            imageUrl={q.imageUrl}
+                            className="text-sm text-slate-800 leading-relaxed"
+                            imgClassName="mt-3 max-h-56 max-w-full rounded-lg border border-slate-200 bg-white object-contain"
+                          />
                         </div>
                         <div className="flex items-center gap-1 shrink-0">
                           <button
@@ -865,11 +969,6 @@ export function AdminTryoutsPage() {
                           </button>
                         </div>
                       </div>
-                      {q.imageUrl && (
-                        <div className="ml-9">
-                          <img src={q.imageUrl} alt="" className="max-w-full h-auto rounded-lg border border-slate-200" />
-                        </div>
-                      )}
                       <ul className="ml-9 space-y-2">
                         {q.options
                           .slice()
@@ -878,21 +977,33 @@ export function AdminTryoutsPage() {
                             <li
                               key={opt.id}
                               className={opt.isCorrect
-                                ? 'flex items-center gap-2 rounded-lg border-2 border-green-300 bg-green-50 px-3 py-2 text-sm text-slate-800'
-                                : 'flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700'
+                                ? 'flex items-start gap-2 rounded-lg border-2 border-green-300 bg-green-50 px-3 py-2 text-sm text-slate-800'
+                                : 'flex items-start gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700'
                               }
                             >
                               {opt.isCorrect && (
-                                <CheckCircle2 className="h-4 w-4 shrink-0 text-green-600" aria-hidden />
+                                <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5 text-green-600" aria-hidden />
                               )}
-                              <span className="font-medium text-slate-500 w-5 shrink-0">
+                              <span className="font-medium text-slate-500 w-5 shrink-0 mt-0.5">
                                 {String.fromCharCode(64 + opt.sequenceNumber)}.
                               </span>
-                              <span className="min-w-0 flex-1">
-                                <LatexText>{opt.text}</LatexText>
-                              </span>
+                              <div className="min-w-0 flex-1">
+                                {opt.text ? (
+                                  <span><LatexText>{opt.text}</LatexText></span>
+                                ) : null}
+                                {opt.imageUrl ? (
+                                  <img
+                                    src={opt.imageUrl}
+                                    alt={`Pilihan ${String.fromCharCode(64 + opt.sequenceNumber)}`}
+                                    className="mt-1.5 max-h-28 max-w-full rounded-lg border border-slate-200 bg-slate-50 object-contain"
+                                  />
+                                ) : null}
+                                {!opt.text && !opt.imageUrl ? (
+                                  <span className="text-slate-400 italic text-xs">—</span>
+                                ) : null}
+                              </div>
                               {opt.isCorrect && (
-                                <span className="shrink-0 text-xs font-semibold text-green-700 bg-green-100 px-2 py-0.5 rounded">
+                                <span className="shrink-0 text-xs font-semibold text-green-700 bg-green-100 px-2 py-0.5 rounded mt-0.5">
                                   Jawaban benar
                                 </span>
                               )}
@@ -1033,18 +1144,68 @@ export function AdminTryoutsPage() {
                 <textarea
                   value={questionForm.text}
                   onChange={(e) => setQuestionForm((p) => ({ ...p, text: e.target.value }))}
+                  onPaste={handleQTextareaPaste}
                   required
                   rows={4}
-                  placeholder="Tulis soal di sini."
+                  placeholder="Tulis soal di sini. Paste gambar langsung ke sini untuk menambahkan gambar."
                   className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-mono resize-y focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
                 />
                 <p className="mt-1 text-xs text-slate-500">
                   LaTeX: <code className="bg-slate-100 px-1 rounded">$rumus$</code> inline; <code className="bg-slate-100 px-1 rounded">$$rumus$$</code> atau <code className="bg-slate-100 px-1 rounded">\[rumus\]</code> blok.
+                  {' '}Kamu juga bisa <strong>paste gambar</strong> langsung ke kolom ini.
+                  {' '}Gunakan <code className="bg-slate-100 px-1 rounded">[img]</code> di teks untuk menempatkan gambar inline.
                 </p>
               </div>
 
+              {/* Image section */}
               <div>
-                <label className="block text-xs font-medium text-slate-600 mb-1">Image URL (opsional)</label>
+                <label className="flex items-center gap-1 text-xs font-medium text-slate-600 mb-1">
+                  <ImageIcon className="h-3.5 w-3.5" /> Gambar Soal (opsional)
+                </label>
+                <div
+                  className="mb-2 flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500 hover:border-brand-primary/40 hover:bg-brand-primary/5 transition-colors cursor-pointer"
+                  onClick={() => qImageFileRef.current?.click()}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={async (e) => {
+                    e.preventDefault();
+                    const file = Array.from(e.dataTransfer.files).find((f) => f.type.startsWith('image/'));
+                    if (!file) return;
+                    const url = await uploadQImageFile(file);
+                    if (url) setQuestionForm((p) => ({ ...p, imageUrl: url }));
+                  }}
+                >
+                  {qImageUploading ? (
+                    <span className="flex items-center gap-2 text-brand-primary font-medium">
+                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                      </svg>
+                      Mengupload…
+                    </span>
+                  ) : (
+                    <>
+                      <Upload className="h-4 w-4 shrink-0" />
+                      <span>Klik untuk pilih file, atau drag &amp; drop. Maks 100KB.</span>
+                    </>
+                  )}
+                </div>
+                <input ref={qImageFileRef} type="file" accept="image/*" className="hidden" onChange={handleQImageFileChange} />
+                {questionForm.imageUrl && !qImageUploading && (
+                  <div className="mb-2 relative inline-block rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
+                    <img src={questionForm.imageUrl} alt="Preview soal" className="max-h-40 max-w-full object-contain block" />
+                    <button
+                      type="button"
+                      onClick={() => setQuestionForm((p) => ({ ...p, imageUrl: '' }))}
+                      className="absolute top-1 right-1 rounded-full bg-white/80 p-0.5 text-slate-500 hover:bg-red-50 hover:text-red-500 border border-slate-200 transition-colors"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                )}
+                <div className="flex items-center gap-1.5 mb-1">
+                  <Link className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                  <span className="text-xs text-slate-400">Atau masukkan URL gambar secara manual:</span>
+                </div>
                 <input
                   type="url"
                   value={questionForm.imageUrl}
@@ -1072,31 +1233,85 @@ export function AdminTryoutsPage() {
                     <Plus className="h-3.5 w-3.5" /> Tambah pilihan
                   </button>
                 </div>
-                <div className="space-y-2">
+
+                {/* Hidden file input shared across all options */}
+                <input ref={qOptionFileRef} type="file" accept="image/*" className="hidden" onChange={handleQOptionFileChange} />
+
+                <div className="space-y-3">
                   {questionForm.options.map((opt, idx) => (
-                    <div key={idx} className="flex items-start gap-2">
-                      <span className="mt-2 text-xs font-semibold text-slate-400 w-5 shrink-0 text-center">{String.fromCharCode(65 + idx)}.</span>
-                      <input
-                        type="text"
-                        value={opt.text}
-                        onChange={(e) => updateQuestionOption(idx, 'text', e.target.value)}
-                        placeholder={`Pilihan ${String.fromCharCode(65 + idx)}`}
-                        className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
-                      />
-                      <label className="flex items-center gap-1.5 mt-2 cursor-pointer">
+                    <div key={idx} className="rounded-xl border border-slate-200 bg-slate-50/50 p-2.5 space-y-2">
+                      {/* Row 1: label + text + correct + remove */}
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold text-slate-400 w-5 shrink-0 text-center">{String.fromCharCode(65 + idx)}.</span>
                         <input
-                          type="checkbox"
-                          checked={opt.isCorrect}
-                          onChange={(e) => updateQuestionOption(idx, 'isCorrect', e.target.checked)}
-                          className="accent-brand-primary w-4 h-4"
+                          type="text"
+                          value={opt.text}
+                          onChange={(e) => updateQuestionOption(idx, 'text', e.target.value)}
+                          onPaste={(e) => handleQOptionPaste(e, idx)}
+                          placeholder={`Teks pilihan ${String.fromCharCode(65 + idx)} (atau paste gambar di sini)`}
+                          className="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
                         />
-                        <span className="text-xs text-green-600 font-medium whitespace-nowrap">Benar</span>
-                      </label>
-                      {questionForm.options.length > 2 && (
-                        <button type="button" onClick={() => removeQuestionOption(idx)} className="mt-2 p-1 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500">
-                          <X className="h-3.5 w-3.5" />
-                        </button>
-                      )}
+                        <label className="flex items-center gap-1 cursor-pointer shrink-0">
+                          <input
+                            type="checkbox"
+                            checked={opt.isCorrect}
+                            onChange={(e) => updateQuestionOption(idx, 'isCorrect', e.target.checked)}
+                            className="accent-brand-primary w-4 h-4"
+                          />
+                          <span className="text-xs text-green-600 font-medium">Benar</span>
+                        </label>
+                        {questionForm.options.length > 2 && (
+                          <button type="button" onClick={() => removeQuestionOption(idx)} className="p-1 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500 shrink-0">
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                      </div>
+                      {/* Row 2: image section */}
+                      <div className="pl-7">
+                        {opt.imageUrl ? (
+                          <div className="flex items-start gap-2">
+                            <div className="relative inline-block rounded-lg overflow-hidden border border-slate-200 bg-white">
+                              {qOptionImageUploading === idx ? (
+                                <div className="flex items-center justify-center gap-1.5 h-16 w-24 text-xs text-brand-primary">
+                                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                                  </svg>
+                                </div>
+                              ) : (
+                                <img src={opt.imageUrl} alt={`Pilihan ${String.fromCharCode(65 + idx)}`} className="max-h-24 max-w-[160px] object-contain block" />
+                              )}
+                              <button type="button" onClick={() => updateQuestionOption(idx, 'imageUrl', '')} className="absolute top-0.5 right-0.5 rounded-full bg-white/80 p-0.5 text-slate-500 hover:bg-red-50 hover:text-red-500 border border-slate-200">
+                                <X className="h-3 w-3" />
+                              </button>
+                            </div>
+                            <div className="flex flex-col gap-1">
+                              <button type="button" onClick={() => { qCurrentOptionIdxRef.current = idx; qOptionFileRef.current?.click(); }} className="text-xs text-brand-primary hover:text-brand-dark flex items-center gap-1">
+                                <Upload className="h-3 w-3" /> Ganti gambar
+                              </button>
+                              <input type="url" value={opt.imageUrl} onChange={(e) => updateQuestionOption(idx, 'imageUrl', e.target.value)} placeholder="URL gambar…" className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-brand-primary/30 w-48" />
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            {qOptionImageUploading === idx ? (
+                              <span className="flex items-center gap-1.5 text-xs text-brand-primary">
+                                <svg className="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24" fill="none">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                                </svg>
+                                Mengupload…
+                              </span>
+                            ) : (
+                              <button type="button" onClick={() => { qCurrentOptionIdxRef.current = idx; qOptionFileRef.current?.click(); }} className="flex items-center gap-1 text-xs text-slate-500 hover:text-brand-primary transition-colors">
+                                <ImageIcon className="h-3.5 w-3.5" /> Tambah gambar
+                              </button>
+                            )}
+                            <span className="text-slate-300 text-xs">|</span>
+                            <input type="url" value={opt.imageUrl} onChange={(e) => updateQuestionOption(idx, 'imageUrl', e.target.value)} placeholder="atau paste URL gambar…" className="flex-1 rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-brand-primary/30" />
+                          </div>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
