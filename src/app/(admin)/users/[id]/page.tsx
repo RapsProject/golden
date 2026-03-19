@@ -5,7 +5,7 @@ import {
   useNavigate,
   useParams,
 } from 'react-router-dom';
-import { BarChart3, ChevronLeft, Clock, Mail, Phone, GraduationCap, User as UserIcon } from 'lucide-react';
+import { BarChart3, ChevronLeft, Clock, Mail, Phone, GraduationCap, School, User as UserIcon } from 'lucide-react';
 import { useAuth } from '../../../../contexts/AuthContext';
 import {
   getAdminUserSessions,
@@ -152,6 +152,12 @@ export function AdminUserDetailPage() {
               {user?.role ?? 'user'}
             </span>
           </div>
+          {user?.schoolOrigin && (
+            <div className="inline-flex items-center gap-1 text-slate-600">
+              <School className="h-3 w-3 text-brand-primary" />
+              <span>{user.schoolOrigin}</span>
+            </div>
+          )}
           {user?.dreamMajor && (
             <div className="inline-flex items-center gap-1 text-slate-600">
               <GraduationCap className="h-3 w-3 text-brand-primary" />

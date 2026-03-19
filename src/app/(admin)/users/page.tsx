@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, UserCheck, GraduationCap, Search, AlertCircle, BarChart3 } from 'lucide-react';
+import { Users, UserCheck, GraduationCap, Search, AlertCircle, BarChart3, School } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
 import {
   getAdminUsers,
@@ -57,7 +57,8 @@ export function AdminUsersPage() {
       !q ||
       u.fullName.toLowerCase().includes(q) ||
       u.email.toLowerCase().includes(q) ||
-      (u.dreamMajor ?? '').toLowerCase().includes(q)
+      (u.dreamMajor ?? '').toLowerCase().includes(q) ||
+      (u.schoolOrigin ?? '').toLowerCase().includes(q)
     );
   });
 
@@ -111,7 +112,7 @@ export function AdminUsersPage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Cari nama, email, jurusan impian…"
+            placeholder="Cari nama, email, asal sekolah, jurusan impian…"
             className="w-full rounded-xl border border-slate-200 pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
           />
         </div>
@@ -124,6 +125,7 @@ export function AdminUsersPage() {
             <tr className="border-b border-slate-100">
               <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase">Nama</th>
               <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase">Email</th>
+              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase">Asal Sekolah</th>
               <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase">Jurusan Impian</th>
               <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase">Role</th>
               <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase">Subscription</th>
@@ -134,11 +136,11 @@ export function AdminUsersPage() {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={7} className="text-center py-8 text-slate-500">Memuat…</td>
+                <td colSpan={8} className="text-center py-8 text-slate-500">Memuat…</td>
               </tr>
             ) : filtered.length === 0 ? (
               <tr>
-                <td colSpan={7} className="text-center py-8 text-slate-400">
+                <td colSpan={8} className="text-center py-8 text-slate-400">
                   {search ? 'Tidak ada user yang cocok dengan pencarian.' : 'Belum ada user.'}
                 </td>
               </tr>
@@ -163,6 +165,16 @@ export function AdminUsersPage() {
                       </div>
                     </td>
                     <td className="px-4 py-3 text-slate-500">{user.email}</td>
+                    <td className="px-4 py-3 text-slate-500 max-w-[160px]">
+                      {user.schoolOrigin ? (
+                        <span className="inline-flex items-center gap-1 line-clamp-1">
+                          <School className="h-3.5 w-3.5 shrink-0 text-brand-primary" />
+                          <span className="line-clamp-1">{user.schoolOrigin}</span>
+                        </span>
+                      ) : (
+                        <span className="text-slate-300">—</span>
+                      )}
+                    </td>
                     <td className="px-4 py-3 text-slate-500 max-w-[180px]">
                       <span className="line-clamp-1">{user.dreamMajor ?? <span className="text-slate-300">—</span>}</span>
                     </td>
