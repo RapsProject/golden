@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, X, Save, AlertCircle, ChevronDown } from 'lucide-react';
+import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, X, Save, AlertCircle, ChevronDown, Upload, Link, ImageIcon } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
+
+const API_BASE = (import.meta.env.VITE_API_BASE_URL as string) ?? '';
 import {
   getQuestions,
   getSubjects,
@@ -124,8 +126,110 @@ export function AdminQuestionsPage() {
   const [formTopics, setFormTopics] = useState<TopicData[]>([]);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [imageUploading, setImageUploading] = useState(false);
+  const imageFileRef = useRef<HTMLInputElement>(null);
+  const [optionImageUploading, setOptionImageUploading] = useState<number | null>(null);
+  const optionFileRef = useRef<HTMLInputElement>(null);
+  const currentOptionIdxRef = useRef<number>(-1);
 
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+
+  const uploadImageFile = async (file: File): Promise<string | null> => {
+    const MAX_SIZE = 100 * 1024;
+    if (file.size > MAX_SIZE) {
+      setFormError(`Ukuran gambar terlalu besar. Maksimal 100KB (ukuran saat ini: ${(file.size / 1024).toFixed(1)}KB).`);
+      return null;
+    }
+    if (!accessToken) {
+      setFormError('Sesi tidak ditemukan. Silakan login ulang.');
+      return null;
+    }
+    setImageUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch(`${API_BASE}/api/v1/upload/image`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${accessToken}` },
+        body: formData,
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        setFormError(json?.message ?? 'Gagal mengupload gambar.');
+        return null;
+      }
+      return (json?.data?.url as string) ?? null;
+    } catch (e) {
+      setFormError('Gagal mengupload gambar. Periksa koneksi ke server.');
+      return null;
+    } finally {
+      setImageUploading(false);
+    }
+  };
+
+  const handleTextareaPaste = async (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const items = Array.from(e.clipboardData.items);
+    const imageItem = items.find((item) => item.type.startsWith('image/'));
+    if (!imageItem) return;
+    e.preventDefault();
+    const file = imageItem.getAsFile();
+    if (!file) return;
+    const url = await uploadImageFile(file);
+    if (url) setForm((p) => ({ ...p, imageUrl: url }));
+  };
+
+  const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const url = await uploadImageFile(file);
+    if (url) setForm((p) => ({ ...p, imageUrl: url }));
+    e.target.value = '';
+  };
+
+  const uploadOptionImage = async (file: File, idx: number): Promise<void> => {
+    const MAX_SIZE = 100 * 1024;
+    if (file.size > MAX_SIZE) {
+      setFormError(`Ukuran gambar pilihan ${String.fromCharCode(65 + idx)} terlalu besar. Maksimal 100KB (${(file.size / 1024).toFixed(1)}KB).`);
+      return;
+    }
+    if (!accessToken) { setFormError('Sesi tidak ditemukan. Silakan login ulang.'); return; }
+    setOptionImageUploading(idx);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch(`${API_BASE}/api/v1/upload/image`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${accessToken}` },
+        body: formData,
+      });
+      const json = await res.json();
+      if (!res.ok) { setFormError(json?.message ?? 'Gagal mengupload gambar pilihan.'); return; }
+      const url = (json?.data?.url as string) ?? '';
+      if (url) updateOption(idx, 'imageUrl', url);
+    } catch {
+      setFormError('Gagal mengupload gambar pilihan. Periksa koneksi ke server.');
+    } finally {
+      setOptionImageUploading(null);
+    }
+  };
+
+  const handleOptionFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    const idx = currentOptionIdxRef.current;
+    if (!file || idx < 0) return;
+    await uploadOptionImage(file, idx);
+    e.target.value = '';
+  };
+
+  const handleOptionPaste = async (e: React.ClipboardEvent<HTMLInputElement>, idx: number) => {
+    const items = Array.from(e.clipboardData.items);
+    const imageItem = items.find((item) => item.type.startsWith('image/'));
+    if (!imageItem) return;
+    e.preventDefault();
+    const file = imageItem.getAsFile();
+    if (!file) return;
+    await uploadOptionImage(file, idx);
+  };
 
   const loadData = useCallback(async () => {
     if (!accessToken) return;
@@ -211,8 +315,8 @@ export function AdminQuestionsPage() {
       setFormError('Minimal satu pilihan harus ditandai sebagai jawaban benar.');
       return;
     }
-    if (form.options.some((o) => !o.text.trim())) {
-      setFormError('Semua pilihan harus diisi.');
+    if (form.options.some((o) => !o.text.trim() && !o.imageUrl.trim())) {
+      setFormError('Semua pilihan harus diisi (teks atau gambar).');
       return;
     }
 
@@ -645,18 +749,84 @@ export function AdminQuestionsPage() {
                 <textarea
                   value={form.text}
                   onChange={(e) => setForm((p) => ({ ...p, text: e.target.value }))}
+                  onPaste={handleTextareaPaste}
                   required
                   rows={4}
-                  placeholder="Tulis soal di sini."
+                  placeholder="Tulis soal di sini. Paste gambar langsung di sini untuk menambahkan gambar."
                   className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-mono resize-y focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
                 />
                 <p className="mt-1 text-xs text-slate-500">
                   Mendukung LaTeX: <code className="bg-slate-100 px-1 rounded">$rumus$</code> untuk inline; <code className="bg-slate-100 px-1 rounded">$$rumus$$</code> atau <code className="bg-slate-100 px-1 rounded">\[rumus\]</code> untuk rumus blok.
+                  {' '}Kamu juga bisa <strong>paste gambar</strong> langsung ke kolom ini.
                 </p>
               </div>
 
+              {/* Image section */}
               <div>
-                <label className="block text-xs font-medium text-slate-600 mb-1">Image URL (opsional)</label>
+                <label className="flex items-center gap-1 text-xs font-medium text-slate-600 mb-1">
+                  <ImageIcon className="h-3.5 w-3.5" /> Gambar Soal (opsional)
+                </label>
+
+                {/* Upload / paste area */}
+                <div
+                  className="mb-2 flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500 hover:border-brand-primary/40 hover:bg-brand-primary/5 transition-colors cursor-pointer"
+                  onClick={() => imageFileRef.current?.click()}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={async (e) => {
+                    e.preventDefault();
+                    const file = Array.from(e.dataTransfer.files).find((f) => f.type.startsWith('image/'));
+                    if (!file) return;
+                    const url = await uploadImageFile(file);
+                    if (url) setForm((p) => ({ ...p, imageUrl: url }));
+                  }}
+                >
+                  {imageUploading ? (
+                    <span className="flex items-center gap-2 text-brand-primary font-medium">
+                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                      </svg>
+                      Mengupload…
+                    </span>
+                  ) : (
+                    <>
+                      <Upload className="h-4 w-4 shrink-0" />
+                      <span>Klik untuk pilih file, atau <strong>paste gambar</strong> dari clipboard ke kolom soal. Maks 100KB.</span>
+                    </>
+                  )}
+                </div>
+                <input
+                  ref={imageFileRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageFileChange}
+                />
+
+                {/* Image preview */}
+                {form.imageUrl && !imageUploading && (
+                  <div className="mb-2 relative inline-block rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
+                    <img
+                      src={form.imageUrl}
+                      alt="Preview soal"
+                      className="max-h-40 max-w-full object-contain block"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setForm((p) => ({ ...p, imageUrl: '' }))}
+                      className="absolute top-1 right-1 rounded-full bg-white/80 p-0.5 text-slate-500 hover:bg-red-50 hover:text-red-500 border border-slate-200 transition-colors"
+                      title="Hapus gambar"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                )}
+
+                {/* URL input as fallback */}
+                <div className="flex items-center gap-1.5 mb-1">
+                  <Link className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                  <span className="text-xs text-slate-400">Atau masukkan URL gambar secara manual:</span>
+                </div>
                 <input
                   type="url"
                   value={form.imageUrl}
@@ -691,37 +861,131 @@ export function AdminQuestionsPage() {
                     <Plus className="h-3.5 w-3.5" /> Tambah pilihan
                   </button>
                 </div>
-                <div className="space-y-2">
+                {/* Hidden file input shared across all options */}
+                <input
+                  ref={optionFileRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleOptionFileChange}
+                />
+
+                <div className="space-y-3">
                   {form.options.map((opt, idx) => (
-                    <div key={idx} className="flex items-start gap-2">
-                      <span className="mt-2 text-xs font-semibold text-slate-400 w-5 shrink-0 text-center">
-                        {String.fromCharCode(65 + idx)}.
-                      </span>
-                      <input
-                        type="text"
-                        value={opt.text}
-                        onChange={(e) => updateOption(idx, 'text', e.target.value)}
-                        placeholder={`Pilihan ${String.fromCharCode(65 + idx)}`}
-                        className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
-                      />
-                      <label className="flex items-center gap-1.5 mt-2 cursor-pointer">
+                    <div
+                      key={idx}
+                      className="rounded-xl border border-slate-200 bg-slate-50/50 p-2.5 space-y-2"
+                    >
+                      {/* Row 1: label + text + correct + remove */}
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold text-slate-400 w-5 shrink-0 text-center">
+                          {String.fromCharCode(65 + idx)}.
+                        </span>
                         <input
-                          type="checkbox"
-                          checked={opt.isCorrect}
-                          onChange={(e) => updateOption(idx, 'isCorrect', e.target.checked)}
-                          className="accent-brand-primary w-4 h-4"
+                          type="text"
+                          value={opt.text}
+                          onChange={(e) => updateOption(idx, 'text', e.target.value)}
+                          onPaste={(e) => handleOptionPaste(e, idx)}
+                          placeholder={`Teks pilihan ${String.fromCharCode(65 + idx)} (atau paste gambar di sini)`}
+                          className="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
                         />
-                        <span className="text-xs text-green-600 font-medium whitespace-nowrap">Benar</span>
-                      </label>
-                      {form.options.length > 2 && (
-                        <button
-                          type="button"
-                          onClick={() => removeOption(idx)}
-                          className="mt-2 p-1 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors"
-                        >
-                          <X className="h-3.5 w-3.5" />
-                        </button>
-                      )}
+                        <label className="flex items-center gap-1 cursor-pointer shrink-0">
+                          <input
+                            type="checkbox"
+                            checked={opt.isCorrect}
+                            onChange={(e) => updateOption(idx, 'isCorrect', e.target.checked)}
+                            className="accent-brand-primary w-4 h-4"
+                          />
+                          <span className="text-xs text-green-600 font-medium">Benar</span>
+                        </label>
+                        {form.options.length > 2 && (
+                          <button
+                            type="button"
+                            onClick={() => removeOption(idx)}
+                            className="p-1 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors shrink-0"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Row 2: image section */}
+                      <div className="pl-7">
+                        {opt.imageUrl ? (
+                          /* Preview + controls when image exists */
+                          <div className="flex items-start gap-2">
+                            <div className="relative inline-block rounded-lg overflow-hidden border border-slate-200 bg-white">
+                              {optionImageUploading === idx ? (
+                                <div className="flex items-center justify-center gap-1.5 h-16 w-24 text-xs text-brand-primary">
+                                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                                  </svg>
+                                </div>
+                              ) : (
+                                <img
+                                  src={opt.imageUrl}
+                                  alt={`Pilihan ${String.fromCharCode(65 + idx)}`}
+                                  className="max-h-24 max-w-[160px] object-contain block"
+                                />
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => updateOption(idx, 'imageUrl', '')}
+                                className="absolute top-0.5 right-0.5 rounded-full bg-white/80 p-0.5 text-slate-500 hover:bg-red-50 hover:text-red-500 border border-slate-200 transition-colors"
+                                title="Hapus gambar"
+                              >
+                                <X className="h-3 w-3" />
+                              </button>
+                            </div>
+                            <div className="flex flex-col gap-1">
+                              <button
+                                type="button"
+                                onClick={() => { currentOptionIdxRef.current = idx; optionFileRef.current?.click(); }}
+                                className="text-xs text-brand-primary hover:text-brand-dark flex items-center gap-1"
+                              >
+                                <Upload className="h-3 w-3" /> Ganti gambar
+                              </button>
+                              <input
+                                type="url"
+                                value={opt.imageUrl}
+                                onChange={(e) => updateOption(idx, 'imageUrl', e.target.value)}
+                                placeholder="URL gambar…"
+                                className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-brand-primary/30 w-48"
+                              />
+                            </div>
+                          </div>
+                        ) : (
+                          /* Compact add-image bar when no image */
+                          <div className="flex items-center gap-2">
+                            {optionImageUploading === idx ? (
+                              <span className="flex items-center gap-1.5 text-xs text-brand-primary">
+                                <svg className="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24" fill="none">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                                </svg>
+                                Mengupload…
+                              </span>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => { currentOptionIdxRef.current = idx; optionFileRef.current?.click(); }}
+                                className="flex items-center gap-1 text-xs text-slate-500 hover:text-brand-primary transition-colors"
+                              >
+                                <ImageIcon className="h-3.5 w-3.5" /> Tambah gambar
+                              </button>
+                            )}
+                            <span className="text-slate-300 text-xs">|</span>
+                            <input
+                              type="url"
+                              value={opt.imageUrl}
+                              onChange={(e) => updateOption(idx, 'imageUrl', e.target.value)}
+                              placeholder="atau paste URL gambar…"
+                              className="flex-1 rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+                            />
+                          </div>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
