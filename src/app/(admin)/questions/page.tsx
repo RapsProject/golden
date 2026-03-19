@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, X, Save, AlertCircle, ChevronDown } from 'lucide-react';
+import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, X, Save, AlertCircle, ChevronDown, Upload, Link, ImageIcon } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
+
+const API_BASE = (import.meta.env.VITE_API_BASE_URL as string) ?? '';
 import {
   getQuestions,
   getSubjects,
@@ -124,8 +126,62 @@ export function AdminQuestionsPage() {
   const [formTopics, setFormTopics] = useState<TopicData[]>([]);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [imageUploading, setImageUploading] = useState(false);
+  const imageFileRef = useRef<HTMLInputElement>(null);
 
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+
+  const uploadImageFile = async (file: File): Promise<string | null> => {
+    const MAX_SIZE = 100 * 1024;
+    if (file.size > MAX_SIZE) {
+      setFormError(`Ukuran gambar terlalu besar. Maksimal 100KB (ukuran saat ini: ${(file.size / 1024).toFixed(1)}KB).`);
+      return null;
+    }
+    if (!accessToken) {
+      setFormError('Sesi tidak ditemukan. Silakan login ulang.');
+      return null;
+    }
+    setImageUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch(`${API_BASE}/api/v1/upload/image`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${accessToken}` },
+        body: formData,
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        setFormError(json?.message ?? 'Gagal mengupload gambar.');
+        return null;
+      }
+      return (json?.data?.url as string) ?? null;
+    } catch (e) {
+      setFormError('Gagal mengupload gambar. Periksa koneksi ke server.');
+      return null;
+    } finally {
+      setImageUploading(false);
+    }
+  };
+
+  const handleTextareaPaste = async (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const items = Array.from(e.clipboardData.items);
+    const imageItem = items.find((item) => item.type.startsWith('image/'));
+    if (!imageItem) return;
+    e.preventDefault();
+    const file = imageItem.getAsFile();
+    if (!file) return;
+    const url = await uploadImageFile(file);
+    if (url) setForm((p) => ({ ...p, imageUrl: url }));
+  };
+
+  const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const url = await uploadImageFile(file);
+    if (url) setForm((p) => ({ ...p, imageUrl: url }));
+    e.target.value = '';
+  };
 
   const loadData = useCallback(async () => {
     if (!accessToken) return;
@@ -645,18 +701,84 @@ export function AdminQuestionsPage() {
                 <textarea
                   value={form.text}
                   onChange={(e) => setForm((p) => ({ ...p, text: e.target.value }))}
+                  onPaste={handleTextareaPaste}
                   required
                   rows={4}
-                  placeholder="Tulis soal di sini."
+                  placeholder="Tulis soal di sini. Paste gambar langsung di sini untuk menambahkan gambar."
                   className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-mono resize-y focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
                 />
                 <p className="mt-1 text-xs text-slate-500">
                   Mendukung LaTeX: <code className="bg-slate-100 px-1 rounded">$rumus$</code> untuk inline; <code className="bg-slate-100 px-1 rounded">$$rumus$$</code> atau <code className="bg-slate-100 px-1 rounded">\[rumus\]</code> untuk rumus blok.
+                  {' '}Kamu juga bisa <strong>paste gambar</strong> langsung ke kolom ini.
                 </p>
               </div>
 
+              {/* Image section */}
               <div>
-                <label className="block text-xs font-medium text-slate-600 mb-1">Image URL (opsional)</label>
+                <label className="flex items-center gap-1 text-xs font-medium text-slate-600 mb-1">
+                  <ImageIcon className="h-3.5 w-3.5" /> Gambar Soal (opsional)
+                </label>
+
+                {/* Upload / paste area */}
+                <div
+                  className="mb-2 flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500 hover:border-brand-primary/40 hover:bg-brand-primary/5 transition-colors cursor-pointer"
+                  onClick={() => imageFileRef.current?.click()}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={async (e) => {
+                    e.preventDefault();
+                    const file = Array.from(e.dataTransfer.files).find((f) => f.type.startsWith('image/'));
+                    if (!file) return;
+                    const url = await uploadImageFile(file);
+                    if (url) setForm((p) => ({ ...p, imageUrl: url }));
+                  }}
+                >
+                  {imageUploading ? (
+                    <span className="flex items-center gap-2 text-brand-primary font-medium">
+                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                      </svg>
+                      Mengupload…
+                    </span>
+                  ) : (
+                    <>
+                      <Upload className="h-4 w-4 shrink-0" />
+                      <span>Klik untuk pilih file, atau <strong>paste gambar</strong> dari clipboard ke kolom soal. Maks 100KB.</span>
+                    </>
+                  )}
+                </div>
+                <input
+                  ref={imageFileRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleImageFileChange}
+                />
+
+                {/* Image preview */}
+                {form.imageUrl && !imageUploading && (
+                  <div className="mb-2 relative inline-block rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
+                    <img
+                      src={form.imageUrl}
+                      alt="Preview soal"
+                      className="max-h-40 max-w-full object-contain block"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setForm((p) => ({ ...p, imageUrl: '' }))}
+                      className="absolute top-1 right-1 rounded-full bg-white/80 p-0.5 text-slate-500 hover:bg-red-50 hover:text-red-500 border border-slate-200 transition-colors"
+                      title="Hapus gambar"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                )}
+
+                {/* URL input as fallback */}
+                <div className="flex items-center gap-1.5 mb-1">
+                  <Link className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                  <span className="text-xs text-slate-400">Atau masukkan URL gambar secara manual:</span>
+                </div>
                 <input
                   type="url"
                   value={form.imageUrl}
