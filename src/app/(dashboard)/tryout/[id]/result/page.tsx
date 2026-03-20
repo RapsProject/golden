@@ -1,19 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 import {
   Navigate,
   useNavigate,
   useParams,
   useLocation,
-} from "react-router-dom";
-import { CheckCircle2, XCircle, MinusCircle } from "lucide-react";
-import { useAuth } from "../../../../../contexts/AuthContext";
+} from 'react-router-dom';
+import { CheckCircle2, XCircle, MinusCircle } from 'lucide-react';
+import { useAuth } from '../../../../../contexts/AuthContext';
 import {
   getSessions,
   getSession,
   getTryoutById,
   type SessionDataCompleted,
-} from "../../../../../lib/api";
-import { LatexText } from "../../../../../components/LatexText";
+} from '../../../../../lib/api';
+import { LatexText } from '../../../../../components/LatexText';
 
 export function ExamResultPage() {
   const { id } = useParams<{ id: string }>();
@@ -28,9 +28,7 @@ export function ExamResultPage() {
   const stateResult = locationState?.submitResult;
   const stateSessionId = locationState?.sessionId;
 
-  const [result, setResult] = useState<SessionDataCompleted | null>(
-    stateResult ?? null,
-  );
+  const [result, setResult] = useState<SessionDataCompleted | null>(stateResult ?? null);
   const [loading, setLoading] = useState(!stateResult);
   const [notFound, setNotFound] = useState(false);
   const [totalQuestions, setTotalQuestions] = useState<number | null>(null);
@@ -45,7 +43,7 @@ export function ExamResultPage() {
         if (stateSessionId) {
           const sessionData = await getSession(accessToken, stateSessionId);
           if (cancelled || !sessionData) return;
-          if (sessionData.status !== "completed") {
+          if (sessionData.status !== 'completed') {
             if (!cancelled) setNotFound(true);
             return;
           }
@@ -56,11 +54,10 @@ export function ExamResultPage() {
         // Priority 2: find the latest completed session for this tryoutId
         const sessions = await getSessions(accessToken);
         const completed = sessions
-          .filter((s) => s.tryoutId === id && s.status === "completed")
+          .filter((s) => s.tryoutId === id && s.status === 'completed')
           .sort(
             (a, b) =>
-              new Date(b.startTime ?? 0).getTime() -
-              new Date(a.startTime ?? 0).getTime(),
+              new Date(b.startTime ?? 0).getTime() - new Date(a.startTime ?? 0).getTime()
           );
 
         if (completed.length === 0) {
@@ -72,7 +69,7 @@ export function ExamResultPage() {
         const sessionData = await getSession(accessToken, latest.id);
         if (cancelled || !sessionData) return;
 
-        if (sessionData.status !== "completed") {
+        if (sessionData.status !== 'completed') {
           if (!cancelled) setNotFound(true);
           return;
         }
@@ -85,9 +82,7 @@ export function ExamResultPage() {
       }
     })();
 
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [id, accessToken, stateResult, stateSessionId]);
 
   // Load total number of questions for this tryout,
@@ -152,15 +147,22 @@ export function ExamResultPage() {
       : answers.length;
 
   const unanswered = Math.max(0, baseTotal - correct - wrong);
+
+  // Prefer the server-stored score so it matches what the analytics page shows.
+  // Only fall back to a client-side calculation when the server score is absent.
   const scoreDisplay =
-    baseTotal > 0 ? Math.round((correct / baseTotal) * 1000) : 0;
+    result.score != null
+      ? result.score
+      : baseTotal > 0
+        ? Math.round((correct / baseTotal) * 100)
+        : 0;
 
   const scoreColor =
-    scoreDisplay >= 700
-      ? "text-brand-primary"
-      : scoreDisplay >= 500
-        ? "text-yellow-600"
-        : "text-red-600";
+    scoreDisplay >= 70
+      ? 'text-brand-primary'
+      : scoreDisplay >= 50
+        ? 'text-yellow-600'
+        : 'text-red-600';
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -174,12 +176,10 @@ export function ExamResultPage() {
         <div className={`text-6xl md:text-7xl font-bold mb-1 ${scoreColor}`}>
           {scoreDisplay}
         </div>
-        <div className="text-slate-500 text-sm mb-8">out of 1000</div>
+        <div className="text-slate-500 text-sm mb-8">out of 100</div>
         <div className="grid grid-cols-3 gap-4">
           <div className="bg-brand-light rounded-xl p-4">
-            <div className="text-2xl font-bold text-brand-primary">
-              {correct}
-            </div>
+            <div className="text-2xl font-bold text-brand-primary">{correct}</div>
             <div className="text-xs text-slate-600 mt-1">Correct</div>
           </div>
           <div className="bg-red-50 rounded-xl p-4">
@@ -187,9 +187,7 @@ export function ExamResultPage() {
             <div className="text-xs text-slate-600 mt-1">Wrong</div>
           </div>
           <div className="bg-slate-50 rounded-xl p-4">
-            <div className="text-2xl font-bold text-slate-500">
-              {unanswered}
-            </div>
+            <div className="text-2xl font-bold text-slate-500">{unanswered}</div>
             <div className="text-xs text-slate-600 mt-1">Unanswered</div>
           </div>
         </div>
@@ -197,9 +195,7 @@ export function ExamResultPage() {
 
       <div className="bg-white rounded-2xl border border-brand-light shadow-sm overflow-hidden">
         <div className="px-5 py-4 border-b border-brand-light">
-          <h2 className="text-base font-semibold text-brand-dark">
-            Answer Review
-          </h2>
+          <h2 className="text-base font-semibold text-brand-dark">Answer Review</h2>
         </div>
         <div className="divide-y divide-brand-light">
           {answers.map((a, idx) => {
@@ -223,27 +219,13 @@ export function ExamResultPage() {
                   </div>
                 </div>
                 <div className="ml-8 text-xs md:text-sm text-slate-700">
-                  <span className="font-semibold text-slate-600">
-                    Your answer:
-                  </span>{" "}
-                  <span>
-                    {isUnanswered ? (
-                      "—"
-                    ) : a.option?.text != null ? (
-                      <LatexText>{a.option.text}</LatexText>
-                    ) : (
-                      "—"
-                    )}
-                  </span>
+                  <span className="font-semibold text-slate-600">Your answer:</span>{' '}
+                  <span>{isUnanswered ? '—' : (a.option?.text != null ? <LatexText>{a.option.text}</LatexText> : '—')}</span>
                 </div>
                 {correctOption && (isUnanswered || !isCorrect) && (
                   <div className="ml-8 text-xs md:text-sm text-slate-700">
-                    <span className="font-semibold text-brand-primary">
-                      Correct answer:
-                    </span>{" "}
-                    <span>
-                      <LatexText>{correctOption.text}</LatexText>
-                    </span>
+                    <span className="font-semibold text-brand-primary">Correct answer:</span>{' '}
+                    <span><LatexText>{correctOption.text}</LatexText></span>
                   </div>
                 )}
                 {a.question?.explanation && (
@@ -251,9 +233,7 @@ export function ExamResultPage() {
                     <p className="text-xs font-semibold text-brand-secondary mb-1">
                       EXPLANATION
                     </p>
-                    <p className="text-sm text-slate-700">
-                      <LatexText>{a.question.explanation}</LatexText>
-                    </p>
+                    <p className="text-sm text-slate-700"><LatexText>{a.question.explanation}</LatexText></p>
                   </div>
                 )}
               </div>
@@ -262,20 +242,29 @@ export function ExamResultPage() {
         </div>
       </div>
 
-      <div className="flex gap-3 pb-6">
+      <div className="flex flex-col gap-3 pb-6">
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={() => navigate('/tryout')}
+            className="flex-1 py-3 rounded-xl border border-brand-primary text-brand-primary text-sm font-semibold hover:bg-brand-secondary/20 transition-colors"
+          >
+            Back to Simulations
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate('/dashboard')}
+            className="flex-1 py-3 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-dark transition-colors"
+          >
+            Go to Dashboard
+          </button>
+        </div>
         <button
           type="button"
-          onClick={() => navigate("/tryout")}
-          className="flex-1 py-3 rounded-xl border border-brand-primary text-brand-primary text-sm font-semibold hover:bg-brand-light transition-colors"
+          onClick={() => navigate('/analytics')}
+          className="w-full py-3 rounded-xl border border-slate-600 text-slate-600 text-sm font-semibold hover:bg-slate-50 transition-colors"
         >
-          Back to Simulations
-        </button>
-        <button
-          type="button"
-          onClick={() => navigate("/dashboard")}
-          className="flex-1 py-3 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-dark transition-colors"
-        >
-          Go to Dashboard
+          Back to Analytics
         </button>
       </div>
     </div>

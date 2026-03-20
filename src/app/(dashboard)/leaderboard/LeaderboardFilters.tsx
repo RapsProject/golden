@@ -1,4 +1,5 @@
 import type { LeaderboardFilterType, LeaderboardSubject } from '../../../lib/api';
+import { DREAM_MAJORS } from '../../../lib/constants';
 
 type Tryout = {
   id: string;
@@ -11,15 +12,18 @@ type Props = {
   selectedTryoutId: string | null;
   tryouts: Tryout[];
   tryoutsLoading: boolean;
+  selectedDreamMajor: string | null;
   onFilterTypeChange: (f: LeaderboardFilterType) => void;
   onSubjectChange: (s: LeaderboardSubject) => void;
   onTryoutChange: (id: string) => void;
+  onDreamMajorChange: (major: string) => void;
 };
 
 const FILTER_TABS: { label: string; value: LeaderboardFilterType }[] = [
   { label: 'Overall Average', value: 'OVERALL' },
   { label: 'By Subject', value: 'SUBJECT' },
   { label: 'Specific Tryout', value: 'TRYOUT' },
+  { label: 'By Dream Major', value: 'DREAM_MAJOR' },
 ];
 
 export function LeaderboardFilters({
@@ -28,9 +32,11 @@ export function LeaderboardFilters({
   selectedTryoutId,
   tryouts,
   tryoutsLoading,
+  selectedDreamMajor,
   onFilterTypeChange,
   onSubjectChange,
   onTryoutChange,
+  onDreamMajorChange,
 }: Props) {
   return (
     <div className="bg-white rounded-2xl border border-brand-light p-5 md:p-6 shadow-sm space-y-4">
@@ -107,6 +113,30 @@ export function LeaderboardFilters({
               ))}
             </select>
           )}
+        </div>
+      )}
+
+      {/* Secondary filter: dream major select */}
+      {filterType === 'DREAM_MAJOR' && (
+        <div className="max-w-sm">
+          <label htmlFor="dream-major-select" className="block text-xs font-medium text-slate-500 mb-1">
+            Pilih Jurusan Impian IUP ITB
+          </label>
+          <select
+            id="dream-major-select"
+            value={selectedDreamMajor ?? ''}
+            onChange={(e) => {
+              if (e.target.value) onDreamMajorChange(e.target.value);
+            }}
+            className="w-full border border-brand-light rounded-lg px-3 py-2 text-sm text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary"
+          >
+            <option value="">— Pilih Jurusan Impian —</option>
+            {DREAM_MAJORS.map((major) => (
+              <option key={major} value={major}>
+                {major}
+              </option>
+            ))}
+          </select>
         </div>
       )}
     </div>

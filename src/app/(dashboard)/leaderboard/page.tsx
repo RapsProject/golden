@@ -54,6 +54,7 @@ export function LeaderboardPage() {
   const [filterType, setFilterType] = useState<LeaderboardFilterType>('OVERALL');
   const [subject, setSubject] = useState<LeaderboardSubject>('MATHEMATICS');
   const [selectedTryoutId, setSelectedTryoutId] = useState<string | null>(null);
+  const [selectedDreamMajor, setSelectedDreamMajor] = useState<string | null>(null);
 
   // ── Data state ────────────────────────────────────────────────────────────
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
@@ -91,6 +92,12 @@ export function LeaderboardPage() {
       setLoading(false);
       return;
     }
+    // Gate: don't fetch DREAM_MAJOR without a selected major
+    if (filterType === 'DREAM_MAJOR' && !selectedDreamMajor) {
+      setEntries([]);
+      setLoading(false);
+      return;
+    }
 
     let cancelled = false;
     setLoading(true);
@@ -100,6 +107,7 @@ export function LeaderboardPage() {
       filterType,
       subject: filterType === 'SUBJECT' ? subject : undefined,
       examId: filterType === 'TRYOUT' ? selectedTryoutId ?? undefined : undefined,
+      dreamMajor: filterType === 'DREAM_MAJOR' ? selectedDreamMajor ?? undefined : undefined,
     })
       .then((data) => {
         if (!cancelled) setEntries(data);
@@ -112,23 +120,15 @@ export function LeaderboardPage() {
       });
 
     return () => { cancelled = true; };
-  }, [accessToken, canAccess, filterType, subject, selectedTryoutId]);
+  }, [accessToken, canAccess, filterType, subject, selectedTryoutId, selectedDreamMajor]);
 
   // ── Filter change handlers (with reset logic) ─────────────────────────────
   function handleFilterTypeChange(f: LeaderboardFilterType) {
     if (f === filterType) return;
     setFilterType(f);
-    if (f === 'OVERALL') {
-      // clear secondary filters
-      setSelectedTryoutId(null);
-    }
-    if (f === 'SUBJECT') {
-      // default subject already set; no reset needed
-      setSelectedTryoutId(null);
-    }
-    if (f === 'TRYOUT') {
-      // reset to "choose" state — fetch is gated until selection is made
-      setSelectedTryoutId(null);
+    setSelectedTryoutId(null);
+    setSelectedDreamMajor(null);
+    if (f === 'TRYOUT' || f === 'DREAM_MAJOR') {
       setEntries([]);
     }
   }
@@ -169,7 +169,9 @@ export function LeaderboardPage() {
     }
   }
 
-  const noDataForFilter = filterType === 'TRYOUT' && !selectedTryoutId;
+  const noDataForFilter =
+    (filterType === 'TRYOUT' && !selectedTryoutId) ||
+    (filterType === 'DREAM_MAJOR' && !selectedDreamMajor);
 
   if (canAccess === null) {
     return (
@@ -188,16 +190,20 @@ export function LeaderboardPage() {
         selectedTryoutId={selectedTryoutId}
         tryouts={tryouts}
         tryoutsLoading={tryoutsLoading}
+        selectedDreamMajor={selectedDreamMajor}
         onFilterTypeChange={handleFilterTypeChange}
         onSubjectChange={(s) => setSubject(s)}
         onTryoutChange={(id) => setSelectedTryoutId(id)}
+        onDreamMajorChange={(major) => setSelectedDreamMajor(major)}
       />
 
-      {/* Prompt to select a tryout first */}
+      {/* Prompt to select a filter first */}
       {noDataForFilter && (
         <div className="bg-white rounded-2xl border border-brand-light p-8 text-center shadow-sm">
           <p className="text-slate-500 text-sm">
-            Please select a tryout above to view the rankings.
+            {filterType === 'DREAM_MAJOR'
+              ? 'Pilih dream major di atas untuk melihat peringkat.'
+              : 'Please select a tryout above to view the rankings.'}
           </p>
         </div>
       )}
