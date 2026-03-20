@@ -1,6 +1,14 @@
-// import { useEffect, useMemo, useState } from 'react';
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 import { BarChart3, ChevronRight, Clock, Lock } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { getMyProfile, getSessions } from '../../../lib/api';
@@ -14,6 +22,14 @@ type SessionSummary = {
   tryout?: { id: string; title: string; type: string };
 };
 
+type ChartPoint = {
+  idx: number;
+  label: string;
+  fullTitle: string;
+  score: number;
+  date: string;
+};
+
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('id-ID', {
     day: 'numeric',
@@ -24,11 +40,49 @@ function formatDate(dateStr: string): string {
   });
 }
 
+function formatShortDate(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString('id-ID', {
+    day: 'numeric',
+    month: 'short',
+  });
+}
+
 function scoreColor(score: number | null): string {
   if (score == null) return 'text-slate-400';
-  if (score >= 700) return 'text-brand-primary';
-  if (score >= 500) return 'text-yellow-600';
+  if (score >= 70) return 'text-brand-primary';
+  if (score >= 50) return 'text-yellow-600';
   return 'text-red-600';
+}
+
+function truncateLabel(title: string, maxLen = 14): string {
+  return title.length > maxLen ? `${title.slice(0, maxLen)}…` : title;
+}
+
+type TooltipPayloadItem = {
+  value: number;
+  payload: ChartPoint;
+};
+
+type CustomTooltipProps = {
+  active?: boolean;
+  payload?: TooltipPayloadItem[];
+};
+
+function CustomTooltip({ active, payload }: CustomTooltipProps) {
+  if (!active || !payload || payload.length === 0) return null;
+  const point = payload[0].payload;
+  return (
+    <div className="bg-white border border-brand-light rounded-xl shadow-lg px-4 py-3 text-sm">
+      <p className="font-semibold text-brand-dark truncate max-w-[200px]">
+        {point.fullTitle}
+      </p>
+      <p className="text-slate-500 text-xs mt-0.5">{point.date}</p>
+      <p className="mt-1.5 text-brand-primary font-bold text-base">
+        Nilai: {point.score}
+        <span className="text-slate-400 font-normal text-xs"> / 100</span>
+      </p>
+    </div>
+  );
 }
 
 export function AnalyticsPage() {
@@ -87,88 +141,29 @@ export function AnalyticsPage() {
     return () => { cancelled = true; };
   }, [accessToken, canAccess]);
 
-  // const stats = useMemo(() => {
-  //   if (sessions.length === 0) {
-  //     return {
-  //       totalAttempts: 0,
-  //       avgScore: null as number | null,
-  //       bestScore: null as number | null,
-  //       perTryout: [] as Array<{
-  //         tryoutId: string;
-  //         title: string;
-  //         attempts: number;
-  //         bestScore: number | null;
-  //         lastScore: number | null;
-  //       }>,
-  //     };
-  //   }
+  // Statistik ringkasan
+  const stats = useMemo(() => {
+    const scored = sessions.filter((s) => s.score != null);
+    if (scored.length === 0) return { totalAttempts: sessions.length, avgScore: null, bestScore: null };
+    const allScores = scored.map((s) => s.score as number);
+    const avgScore = Math.round(allScores.reduce((sum, v) => sum + v, 0) / allScores.length);
+    const bestScore = Math.max(...allScores);
+    return { totalAttempts: sessions.length, avgScore, bestScore };
+  }, [sessions]);
 
-  //   const byTryout = new Map<
-  //     string,
-  //     {
-  //       tryoutId: string;
-  //       title: string;
-  //       attempts: number;
-  //       bestScore: number | null;
-  //       lastScore: number | null;
-  //       lastStart: number;
-  //     }
-  //   >();
-
-  //   for (const s of sessions) {
-  //     const key = s.tryoutId;
-  //     const existing = byTryout.get(key);
-  //     const startTs = new Date(s.startTime).getTime();
-  //     const title = s.tryout?.title ?? s.tryoutId;
-  //     const score = s.score;
-
-  //     if (!existing) {
-  //       byTryout.set(key, {
-  //         tryoutId: key,
-  //         title,
-  //         attempts: 1,
-  //         bestScore: score,
-  //         lastScore: score,
-  //         lastStart: startTs,
-  //       });
-  //     } else {
-  //       existing.attempts += 1;
-  //       if (score != null && (existing.bestScore == null || score > existing.bestScore)) {
-  //         existing.bestScore = score;
-  //       }
-  //       if (startTs > existing.lastStart) {
-  //         existing.lastStart = startTs;
-  //         existing.lastScore = score;
-  //       }
-  //     }
-  //   }
-
-  //   // Urutkan dari yang paling lama ke yang terbaru,
-  //   // supaya tryout terakhir dikerjakan selalu berada di paling kanan grafik.
-  //   const perTryout = Array.from(byTryout.values()).sort(
-  //     (a, b) => a.lastStart - b.lastStart,
-  //   );
-
-  //   const allScores: number[] = [];
-  //   let bestScore: number | null = null;
-  //   for (const s of sessions) {
-  //     if (s.score != null) {
-  //       allScores.push(s.score);
-  //       if (bestScore == null || s.score > bestScore) bestScore = s.score;
-  //     }
-  //   }
-  //   const avgScore =
-  //     allScores.length > 0
-  //       ? Math.round(allScores.reduce((sum, v) => sum + v, 0) / allScores.length)
-  //       : null;
-
-  //   return {
-  //     totalAttempts: sessions.length,
-  //     avgScore,
-  //     bestScore,
-  //     perTryout: perTryout.map(({ lastStart, ...rest }) => rest),
-  //   };
-  // }, [sessions]);
+  // Data untuk grafik — setiap sesi diurutkan dari terlama ke terbaru
+  const chartData = useMemo<ChartPoint[]>(() => {
+    return [...sessions]
+      .filter((s) => s.score != null)
+      .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
+      .map((s, i) => ({
+        idx: i,
+        label: truncateLabel(s.tryout?.title ?? s.tryoutId),
+        fullTitle: s.tryout?.title ?? s.tryoutId,
+        score: s.score as number,
+        date: formatShortDate(s.startTime),
+      }));
+  }, [sessions]);
 
   if (canAccess === null) {
     return (
@@ -180,6 +175,7 @@ export function AnalyticsPage() {
 
   const pageContent = (
     <div className="space-y-6">
+      {/* Header */}
       <div className="bg-white rounded-2xl border border-brand-light p-5 md:p-6 shadow-sm">
         <div className="flex items-center gap-3 mb-1">
           <BarChart3 className="h-6 w-6 text-brand-primary" />
@@ -192,8 +188,8 @@ export function AnalyticsPage() {
         </p>
       </div>
 
-      {/* Ringkasan statistik nilai */}
-      {/* {!loading && !error && sessions.length > 0 && (
+      {/* Stat cards */}
+      {!loading && !error && sessions.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-white rounded-2xl border border-brand-light p-4 shadow-sm">
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
@@ -205,7 +201,7 @@ export function AnalyticsPage() {
           </div>
           <div className="bg-white rounded-2xl border border-brand-light p-4 shadow-sm">
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-              Rata-rata Skor
+              Rata-rata Nilai
             </p>
             <p className="mt-1 text-2xl font-bold text-brand-dark">
               {stats.avgScore != null ? stats.avgScore : '—'}
@@ -213,137 +209,63 @@ export function AnalyticsPage() {
           </div>
           <div className="bg-white rounded-2xl border border-brand-light p-4 shadow-sm">
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-              Skor Terbaik
+              Nilai Terbaik
             </p>
             <p className="mt-1 text-2xl font-bold text-brand-dark">
               {stats.bestScore != null ? stats.bestScore : '—'}
             </p>
           </div>
         </div>
-      )} */}
+      )}
 
-      {/* Statistik per tryout + grafik garis */}
-      {/* {!loading && !error && stats.perTryout.length > 0 && (
-        <div className="bg-white rounded-2xl border border-brand-light p-5 shadow-sm">
-          <h2 className="text-sm font-semibold text-brand-dark mb-3">
-            Grafik Skor per Tryout
-          </h2> */}
-
-          {/* Grafik garis sederhana (last score per tryout) */}
-          {/* <div className="w-full h-40 mb-4 relative">
-            <svg viewBox="0 0 100 100" className="w-full h-full text-brand-primary">
-              <line x1="5" y1="5" x2="5" y2="95" stroke="#94a3b8" strokeWidth="0.6" />
-              <line x1="5" y1="95" x2="98" y2="95" stroke="#94a3b8" strokeWidth="0.6" />
-
-              {[0, 25, 50, 75, 100].map((y) => (
-                <line
-                  // eslint-disable-next-line react/no-array-index-key
-                  key={y}
-                  x1="5"
-                  x2="98"
-                  y1={y}
-                  y2={y}
-                  stroke="#e2e8f0"
-                  strokeWidth="0.3"
-                />
-              ))} */}
-
-              {/* Label sumbu Y (0 dan skor maksimum) */}
-              {/* {stats.bestScore != null && (
-                <>
-                  <text x="1" y="95" fontSize="4" fill="#64748b">
-                    0
-                  </text>
-                  <text x="1" y="8" fontSize="4" fill="#64748b">
-                    {stats.bestScore}
-                  </text>
-                </>
-              )} */}
-
-              {/* {stats.perTryout.length > 0 && (() => {
-                const maxScore = stats.bestScore != null ? stats.bestScore : 1;
-                const points = stats.perTryout.map((t, index) => {
-                  const x =
-                    stats.perTryout.length === 1
-                      ? 50
-                      : (index / (stats.perTryout.length - 1)) * 90 + 8; // padding kiri/kanan
-                  const score = t.lastScore ?? t.bestScore ?? 0;
-                  const ratio = maxScore ? score / maxScore : 0;
-                  const y = 95 - ratio * 85; // area grafis antara 10..95
-                  return { x, y, title: t.title, score };
-                });
-
-                const path =
-                  points.length > 1
-                    ? points
-                        .map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`)
-                        .join(' ')
-                    : '';
-
-                return (
-                  <g>
-                    {path && (
-                      <path
-                        d={path}
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    )}
-                    {points.map((p, i) => (
-                      <circle
-                        // eslint-disable-next-line react/no-array-index-key
-                        key={i}
-                        cx={p.x}
-                        cy={p.y}
-                        r="1.5"
-                        fill="white"
-                        stroke="currentColor"
-                        strokeWidth="0.8"
-                      >
-                        <title>
-                          {p.title} – Skor {p.score}
-                        </title>
-                      </circle>
-                    ))}
-                  </g>
-                );
-              })()}
-            </svg>
-          </div> */}
-
-          {/* Label sumbu X (nama tryout) */}
-          {/* <div className="flex justify-between text-[10px] md:text-[11px] text-slate-500 mb-2">
-            {stats.perTryout.map((t) => (
-              <span key={t.tryoutId} className="truncate max-w-[60px]">
-                {t.title}
-              </span>
-            ))}
-          </div> */}
-
-          {/* Ringkasan angka kecil di bawah grafik */}
-          {/* <div className="space-y-2 mt-2">
-            {stats.perTryout.map((t) => (
-              <div
-                key={`${t.tryoutId}-summary`}
-                className="flex items-center justify-between text-[11px] md:text-xs text-slate-600"
-              >
-                <div className="min-w-0">
-                  <p className="truncate">{t.title}</p>
-                  <p className="text-[11px] text-slate-400">
-                    {t.attempts} attempt{t.attempts > 1 ? 's' : ''} · Last{' '}
-                    {t.lastScore != null ? t.lastScore : '—'} · Best{' '}
-                    {t.bestScore != null ? t.bestScore : '—'}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
+      {/* Grafik progress nilai */}
+      {!loading && !error && chartData.length > 0 && (
+        <div className="bg-white rounded-2xl border border-brand-light p-5 md:p-6 shadow-sm">
+          <h2 className="text-sm font-semibold text-brand-dark mb-4">
+            Grafik Progress Nilai
+          </h2>
+          <ResponsiveContainer width="100%" height={220}>
+            <LineChart
+              data={chartData}
+              margin={{ top: 8, right: 16, left: 0, bottom: 40 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+              <XAxis
+                dataKey="idx"
+                type="number"
+                domain={[0, chartData.length - 1]}
+                ticks={chartData.map((_, i) => i)}
+                tickFormatter={(val: number) => chartData[val]?.label ?? ''}
+                tick={{ fontSize: 11, fill: '#64748b' }}
+                tickLine={false}
+                axisLine={{ stroke: '#e2e8f0' }}
+                angle={-35}
+                textAnchor="end"
+                interval={0}
+              />
+              <YAxis
+                domain={[0, 100]}
+                ticks={[0, 25, 50, 75, 100]}
+                tick={{ fontSize: 11, fill: '#64748b' }}
+                tickLine={false}
+                axisLine={false}
+                width={32}
+              />
+              <Tooltip content={CustomTooltip} cursor={{ stroke: '#e2e8f0', strokeWidth: 1 }} />
+              <Line
+                type="monotone"
+                dataKey="score"
+                stroke="#16a34a"
+                strokeWidth={2}
+                dot={{ r: 5, fill: '#ffffff', stroke: '#16a34a', strokeWidth: 2 }}
+                activeDot={{ r: 7, fill: '#16a34a', stroke: '#ffffff', strokeWidth: 2 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
-      )} */}
+      )}
 
+      {/* Daftar sesi */}
       <div className="bg-white rounded-2xl border border-brand-light shadow-sm overflow-hidden">
         {loading ? (
           <div className="p-8 text-center text-slate-500 text-sm">Loading data…</div>
