@@ -8,7 +8,6 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-  type TooltipProps,
 } from "recharts";
 import { BarChart3, ChevronRight, Clock, Lock } from "lucide-react";
 import { useAuth } from "../../../contexts/AuthContext";
@@ -59,9 +58,14 @@ function truncateLabel(title: string, maxLen = 14): string {
   return title.length > maxLen ? `${title.slice(0, maxLen)}…` : title;
 }
 
-function CustomTooltip({ active, payload }: TooltipProps<number, string>) {
+type CustomTooltipProps = {
+  active?: boolean;
+  payload?: readonly { payload: ChartPoint }[];
+};
+
+function CustomTooltip({ active, payload }: CustomTooltipProps) {
   if (!active || !payload || payload.length === 0) return null;
-  const point = payload[0]?.payload as ChartPoint | undefined;
+  const point = payload[0]?.payload;
   if (!point) return null;
   return (
     <div className="bg-white border border-brand-light rounded-xl shadow-lg px-4 py-3 text-sm max-w-[260px]">
@@ -263,7 +267,8 @@ export function AnalyticsPage() {
                 width={32}
               />
               <Tooltip
-                content={CustomTooltip}
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                content={CustomTooltip as any}
                 cursor={{ stroke: "#e2e8f0", strokeWidth: 1 }}
               />
               <Line
