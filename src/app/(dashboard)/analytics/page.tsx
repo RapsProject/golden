@@ -146,7 +146,8 @@ export function AnalyticsPage() {
     const scored = sessions.filter((s) => s.score != null);
     if (scored.length === 0) return { totalAttempts: sessions.length, avgScore: null, bestScore: null };
     const allScores = scored.map((s) => s.score as number);
-    const avgScore = Math.round(allScores.reduce((sum, v) => sum + v, 0) / allScores.length);
+    const raw = allScores.reduce((sum, v) => sum + v, 0) / allScores.length;
+    const avgScore = Math.round(raw * 100) / 100;
     const bestScore = Math.max(...allScores);
     return { totalAttempts: sessions.length, avgScore, bestScore };
   }, [sessions]);
