@@ -372,7 +372,7 @@ export async function updateMyProfile(
 
 // ─── Leaderboard ──────────────────────────────────────────────────────────────
 
-export type LeaderboardFilterType = "OVERALL" | "SUBJECT" | "TRYOUT";
+export type LeaderboardFilterType = "OVERALL" | "SUBJECT" | "TRYOUT" | "DREAM_MAJOR";
 
 export type LeaderboardSubject = "MATHEMATICS" | "PHYSICS";
 
@@ -388,6 +388,7 @@ export type LeaderboardParams = {
   filterType: LeaderboardFilterType;
   subject?: LeaderboardSubject;
   examId?: string;
+  dreamMajor?: string;
   limit?: number;
 };
 
@@ -403,6 +404,9 @@ export async function getLeaderboard(
   if (params.filterType === "TRYOUT" && params.examId) {
     qs.set("examId", params.examId);
   }
+  if (params.filterType === "DREAM_MAJOR" && params.dreamMajor) {
+    qs.set("dreamMajor", params.dreamMajor);
+  }
   if (params.limit != null) {
     qs.set("limit", String(params.limit));
   }
@@ -410,6 +414,11 @@ export async function getLeaderboard(
     `/api/v1/leaderboard?${qs.toString()}`,
     token,
   );
+  return res.data ?? [];
+}
+
+export async function getDreamMajors(token: string): Promise<string[]> {
+  const res = await api.get<string[]>("/api/v1/leaderboard/dream-majors", token);
   return res.data ?? [];
 }
 

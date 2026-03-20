@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   CartesianGrid,
   Line,
@@ -8,10 +8,10 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-} from 'recharts';
-import { BarChart3, ChevronRight, Clock, Lock } from 'lucide-react';
-import { useAuth } from '../../../contexts/AuthContext';
-import { getMyProfile, getSessions } from '../../../lib/api';
+} from "recharts";
+import { BarChart3, ChevronRight, Clock, Lock } from "lucide-react";
+import { useAuth } from "../../../contexts/AuthContext";
+import { getMyProfile, getSessions } from "../../../lib/api";
 
 type SessionSummary = {
   id: string;
@@ -31,27 +31,27 @@ type ChartPoint = {
 };
 
 function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('id-ID', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+  return new Date(dateStr).toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 }
 
 function formatShortDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('id-ID', {
-    day: 'numeric',
-    month: 'short',
+  return new Date(dateStr).toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "short",
   });
 }
 
 function scoreColor(score: number | null): string {
-  if (score == null) return 'text-slate-400';
-  if (score >= 70) return 'text-brand-primary';
-  if (score >= 50) return 'text-yellow-600';
-  return 'text-red-600';
+  if (score == null) return "text-slate-400";
+  if (score >= 70) return "text-brand-primary";
+  if (score >= 50) return "text-yellow-600";
+  return "text-red-600";
 }
 
 function truncateLabel(title: string, maxLen = 14): string {
@@ -72,8 +72,8 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
   if (!active || !payload || payload.length === 0) return null;
   const point = payload[0].payload;
   return (
-    <div className="bg-white border border-brand-light rounded-xl shadow-lg px-4 py-3 text-sm">
-      <p className="font-semibold text-brand-dark truncate max-w-[200px]">
+    <div className="bg-white border border-brand-light rounded-xl shadow-lg px-4 py-3 text-sm max-w-[260px]">
+      <p className="font-semibold text-brand-dark break-words">
         {point.fullTitle}
       </p>
       <p className="text-slate-500 text-xs mt-0.5">{point.date}</p>
@@ -106,14 +106,16 @@ export function AnalyticsPage() {
         const activeSub = profile?.subscriptions?.[0];
         const planName = activeSub?.plan?.name;
         const allowed =
-          activeSub?.status === 'active' &&
-          (planName === 'Premium' || planName === 'Ultimate');
+          activeSub?.status === "active" &&
+          (planName === "Premium" || planName === "Ultimate");
         setCanAccess(!!allowed);
       })
       .catch(() => {
         if (!cancelled) setCanAccess(false);
       });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [accessToken]);
 
   useEffect(() => {
@@ -123,28 +125,36 @@ export function AnalyticsPage() {
       .then((data) => {
         if (!cancelled) {
           const completed = data
-            .filter((s) => s.status === 'completed')
+            .filter((s) => s.status === "completed")
             .sort(
               (a, b) =>
-                new Date(b.startTime).getTime() - new Date(a.startTime).getTime()
+                new Date(b.startTime).getTime() -
+                new Date(a.startTime).getTime(),
             );
           setSessions(completed);
         }
       })
       .catch((e) => {
         if (!cancelled)
-          setError(e instanceof Error ? e.message : 'Failed to load analytics');
+          setError(e instanceof Error ? e.message : "Failed to load analytics");
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [accessToken, canAccess]);
 
   // Statistik ringkasan
   const stats = useMemo(() => {
     const scored = sessions.filter((s) => s.score != null);
-    if (scored.length === 0) return { totalAttempts: sessions.length, avgScore: null, bestScore: null };
+    if (scored.length === 0)
+      return {
+        totalAttempts: sessions.length,
+        avgScore: null,
+        bestScore: null,
+      };
     const allScores = scored.map((s) => s.score as number);
     const raw = allScores.reduce((sum, v) => sum + v, 0) / allScores.length;
     const avgScore = Math.round(raw * 100) / 100;
@@ -156,7 +166,10 @@ export function AnalyticsPage() {
   const chartData = useMemo<ChartPoint[]>(() => {
     return [...sessions]
       .filter((s) => s.score != null)
-      .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime())
+      .sort(
+        (a, b) =>
+          new Date(a.startTime).getTime() - new Date(b.startTime).getTime(),
+      )
       .map((s, i) => ({
         idx: i,
         label: truncateLabel(s.tryout?.title ?? s.tryoutId),
@@ -185,7 +198,8 @@ export function AnalyticsPage() {
           </h1>
         </div>
         <p className="text-sm text-slate-500">
-          Riwayat semua attempt simulation kamu. Klik untuk melihat pembahasan lengkap.
+          Riwayat semua attempt simulation kamu. Klik untuk melihat pembahasan
+          lengkap.
         </p>
       </div>
 
@@ -205,7 +219,7 @@ export function AnalyticsPage() {
               Rata-rata Nilai
             </p>
             <p className="mt-1 text-2xl font-bold text-brand-dark">
-              {stats.avgScore != null ? stats.avgScore : '—'}
+              {stats.avgScore != null ? stats.avgScore : "—"}
             </p>
           </div>
           <div className="bg-white rounded-2xl border border-brand-light p-4 shadow-sm">
@@ -213,7 +227,7 @@ export function AnalyticsPage() {
               Nilai Terbaik
             </p>
             <p className="mt-1 text-2xl font-bold text-brand-dark">
-              {stats.bestScore != null ? stats.bestScore : '—'}
+              {stats.bestScore != null ? stats.bestScore : "—"}
             </p>
           </div>
         </div>
@@ -230,16 +244,20 @@ export function AnalyticsPage() {
               data={chartData}
               margin={{ top: 8, right: 16, left: 0, bottom: 40 }}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="#e2e8f0"
+                vertical={false}
+              />
               <XAxis
                 dataKey="idx"
                 type="number"
-                domain={[0, chartData.length - 1]}
+                domain={[-0.2, chartData.length - 1]}
                 ticks={chartData.map((_, i) => i)}
-                tickFormatter={(val: number) => chartData[val]?.label ?? ''}
-                tick={{ fontSize: 11, fill: '#64748b' }}
+                tickFormatter={(val: number) => chartData[val]?.label ?? ""}
+                tick={{ fontSize: 11, fill: "#64748b" }}
                 tickLine={false}
-                axisLine={{ stroke: '#e2e8f0' }}
+                axisLine={{ stroke: "#e2e8f0" }}
                 angle={-35}
                 textAnchor="end"
                 interval={0}
@@ -247,19 +265,32 @@ export function AnalyticsPage() {
               <YAxis
                 domain={[0, 100]}
                 ticks={[0, 25, 50, 75, 100]}
-                tick={{ fontSize: 11, fill: '#64748b' }}
+                tick={{ fontSize: 11, fill: "#64748b" }}
                 tickLine={false}
                 axisLine={false}
                 width={32}
               />
-              <Tooltip content={CustomTooltip} cursor={{ stroke: '#e2e8f0', strokeWidth: 1 }} />
+              <Tooltip
+                content={CustomTooltip}
+                cursor={{ stroke: "#e2e8f0", strokeWidth: 1 }}
+              />
               <Line
                 type="monotone"
                 dataKey="score"
                 stroke="#16a34a"
                 strokeWidth={2}
-                dot={{ r: 5, fill: '#ffffff', stroke: '#16a34a', strokeWidth: 2 }}
-                activeDot={{ r: 7, fill: '#16a34a', stroke: '#ffffff', strokeWidth: 2 }}
+                dot={{
+                  r: 5,
+                  fill: "#ffffff",
+                  stroke: "#16a34a",
+                  strokeWidth: 2,
+                }}
+                activeDot={{
+                  r: 7,
+                  fill: "#16a34a",
+                  stroke: "#ffffff",
+                  strokeWidth: 2,
+                }}
               />
             </LineChart>
           </ResponsiveContainer>
@@ -269,7 +300,9 @@ export function AnalyticsPage() {
       {/* Daftar sesi */}
       <div className="bg-white rounded-2xl border border-brand-light shadow-sm overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-slate-500 text-sm">Loading data…</div>
+          <div className="p-8 text-center text-slate-500 text-sm">
+            Loading data…
+          </div>
         ) : error ? (
           <div className="p-8 text-center text-red-500 text-sm">{error}</div>
         ) : sessions.length === 0 ? (
@@ -279,7 +312,7 @@ export function AnalyticsPage() {
             </p>
             <button
               type="button"
-              onClick={() => navigate('/tryout')}
+              onClick={() => navigate("/tryout")}
               className="py-2 px-4 rounded-lg bg-brand-primary text-white text-sm font-semibold"
             >
               Mulai Simulation
@@ -309,7 +342,7 @@ export function AnalyticsPage() {
                 </div>
                 <div className="shrink-0 flex items-center gap-3">
                   <span className={`text-lg font-bold ${scoreColor(s.score)}`}>
-                    {s.score != null ? s.score : '—'}
+                    {s.score != null ? s.score : "—"}
                   </span>
                   <ChevronRight className="h-4 w-4 text-slate-300" />
                 </div>
@@ -334,14 +367,16 @@ export function AnalyticsPage() {
               <Lock className="h-7 w-7" />
             </div>
             <h2 className="text-xl font-serif font-bold text-brand-dark mb-2">
-              Halaman ini hanya dapat diakses oleh langganan Premium atau Ultimate
+              Halaman ini hanya dapat diakses oleh langganan Premium atau
+              Ultimate
             </h2>
             <p className="text-slate-600 mb-6">
-              Upgrade akun Anda untuk melihat riwayat attempt dan statistik lengkap.
+              Upgrade akun Anda untuk melihat riwayat attempt dan statistik
+              lengkap.
             </p>
             <button
               type="button"
-              onClick={() => navigate('/profile')}
+              onClick={() => navigate("/profile")}
               className="px-4 py-2 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-dark transition-colors"
             >
               Lihat Profile & Upgrade
