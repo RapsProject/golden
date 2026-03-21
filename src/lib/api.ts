@@ -1,3 +1,5 @@
+import { cachedFetch, invalidateCacheByPrefix, tokenKey } from './apiCache';
+
 const BASE = (import.meta.env.VITE_API_BASE_URL as string) ?? "";
 
 type ApiResponse<T> = { success: boolean; message: string; data?: T };
@@ -94,26 +96,30 @@ export type DashboardStats = {
 };
 
 export async function getDashboardStats(token: string) {
-  const res = await api.get<DashboardStats>("/api/v1/dashboard/stats", token);
-  return res.data;
+  return cachedFetch(`dashStats:${tokenKey(token)}`, async () => {
+    const res = await api.get<DashboardStats>("/api/v1/dashboard/stats", token);
+    return res.data;
+  });
 }
 
 // ─── Tryouts ──────────────────────────────────────────────────────────────────
 
 export async function getTryouts(token: string) {
-  const res = await api.get<
-    Array<{
-      id: string;
-      title: string;
-      type: string;
-      durationMinutes: number;
-      maxAttempts: number | null;
-      isPremium: boolean;
-      isUltimate: boolean;
-      isPublished: boolean;
-    }>
-  >("/api/v1/tryouts", token);
-  return res.data ?? [];
+  return cachedFetch(`tryouts:${tokenKey(token)}`, async () => {
+    const res = await api.get<
+      Array<{
+        id: string;
+        title: string;
+        type: string;
+        durationMinutes: number;
+        maxAttempts: number | null;
+        isPremium: boolean;
+        isUltimate: boolean;
+        isPublished: boolean;
+      }>
+    >("/api/v1/tryouts", token);
+    return res.data ?? [];
+  });
 }
 
 export async function getTryoutById(token: string, id: string) {
@@ -302,8 +308,10 @@ export type UserSessionSummary = {
 };
 
 export async function getSessions(token: string) {
-  const res = await api.get<UserSessionSummary[]>("/api/v1/sessions", token);
-  return res.data ?? [];
+  return cachedFetch(`sessions:${tokenKey(token)}`, async () => {
+    const res = await api.get<UserSessionSummary[]>("/api/v1/sessions", token);
+    return res.data ?? [];
+  });
 }
 
 export async function getAdminUserSessions(
@@ -328,8 +336,10 @@ export type SubscriptionPlan = {
 };
 
 export async function getSubscriptionPlans(): Promise<SubscriptionPlan[]> {
-  const res = await api.get<SubscriptionPlan[]>("/api/v1/plans");
-  return res.data ?? [];
+  return cachedFetch('subPlans', async () => {
+    const res = await api.get<SubscriptionPlan[]>("/api/v1/plans");
+    return res.data ?? [];
+  }, 300_000); // 5 min TTL — plans rarely change
 }
 
 // ─── Profile ──────────────────────────────────────────────────────────────────
@@ -353,8 +363,10 @@ export type ProfileDetail = {
 };
 
 export async function getMyProfile(token: string) {
-  const res = await api.get<ProfileDetail>("/api/v1/profile/me", token);
-  return res.data;
+  return cachedFetch(`profile:${tokenKey(token)}`, async () => {
+    const res = await api.get<ProfileDetail>("/api/v1/profile/me", token);
+    return res.data;
+  });
 }
 
 export async function updateMyProfile(
@@ -367,6 +379,8 @@ export async function updateMyProfile(
   },
 ) {
   const res = await api.put<ProfileDetail>("/api/v1/profile/me", data, token);
+  // Invalidate cached profile so the next read gets fresh data
+  invalidateCacheByPrefix('profile:');
   return res.data;
 }
 
@@ -410,16 +424,21 @@ export async function getLeaderboard(
   if (params.limit != null) {
     qs.set("limit", String(params.limit));
   }
-  const res = await api.get<LeaderboardEntry[]>(
-    `/api/v1/leaderboard?${qs.toString()}`,
-    token,
-  );
-  return res.data ?? [];
+  const cacheKey = `leaderboard:${tokenKey(token)}:${qs.toString()}`;
+  return cachedFetch(cacheKey, async () => {
+    const res = await api.get<LeaderboardEntry[]>(
+      `/api/v1/leaderboard?${qs.toString()}`,
+      token,
+    );
+    return res.data ?? [];
+  }, 30_000); // 30s TTL — leaderboard changes more frequently
 }
 
 export async function getDreamMajors(token: string): Promise<string[]> {
-  const res = await api.get<string[]>("/api/v1/leaderboard/dream-majors", token);
-  return res.data ?? [];
+  return cachedFetch(`dreamMajors:${tokenKey(token)}`, async () => {
+    const res = await api.get<string[]>("/api/v1/leaderboard/dream-majors", token);
+    return res.data ?? [];
+  }, 300_000); // 5 min TTL
 }
 
 // ─── Subjects & Topics ────────────────────────────────────────────────────────
