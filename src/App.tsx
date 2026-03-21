@@ -1,99 +1,113 @@
+import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { RequireAuth } from './components/RequireAuth.tsx';
 import { RequireAdmin } from './components/RequireAdmin.tsx';
-import { MarketingLayout } from './app/(marketing)/layout.tsx';
-import MarketingPage from './app/(marketing)/page.tsx';
-import { ComingSoonPage } from './app/(marketing)/coming-soon/page.tsx';
-import { AuthLayout } from './app/(auth)/layout.tsx';
-import { LoginPage } from './app/(auth)/login/page.tsx';
-import { RegisterPage } from './app/(auth)/register/page.tsx';
-import { ResetPasswordPage } from './app/(auth)/reset-password/page.tsx';
-import { GoogleCallbackPage } from './app/(auth)/google-callback/page.tsx';
-import { DashboardLayout } from './app/(dashboard)/layout.tsx';
-import { DashboardHomePage } from './app/(dashboard)/dashboard/page.tsx';
-import { TryOutListPage } from './app/(dashboard)/tryout/page.tsx';
-import { PracticeListPage } from './app/(dashboard)/practice/page.tsx';
-import { PreExamPage } from './app/(dashboard)/tryout/[id]/page.tsx';
-import { ExamResultPage } from './app/(dashboard)/tryout/[id]/result/page.tsx';
-import { ExamPlayPage } from './app/(dashboard)/tryout/[id]/play/page.tsx';
-import { AnalyticsPage } from './app/(dashboard)/analytics/page.tsx';
-import { ProfilePage } from './app/(dashboard)/profile/page.tsx';
-import { LeaderboardPage } from './app/(dashboard)/leaderboard/page.tsx';
-import { SubscriptionPage } from './app/(dashboard)/subscription/page.tsx';
-import { AdminLayout } from './app/(admin)/layout.tsx';
-import { AdminOverviewPage } from './app/(admin)/page.tsx';
-import { AdminQuestionsPage } from './app/(admin)/questions/page.tsx';
-import { AdminSubjectsPage } from './app/(admin)/subjects/page.tsx';
-import { AdminUsersPage } from './app/(admin)/users/page.tsx';
-import { AdminUserDetailPage } from './app/(admin)/users/[id]/page.tsx';
-import { AdminTryoutsPage } from './app/(admin)/tryouts/page.tsx';
+import { LoadingSpinner } from './components/ui/LoadingSpinner.tsx';
+
+// ── Lazy-loaded layouts ──
+const MarketingLayout = lazy(() => import('./app/(marketing)/layout.tsx').then(m => ({ default: m.MarketingLayout })));
+const AuthLayout = lazy(() => import('./app/(auth)/layout.tsx').then(m => ({ default: m.AuthLayout })));
+const DashboardLayout = lazy(() => import('./app/(dashboard)/layout.tsx').then(m => ({ default: m.DashboardLayout })));
+const AdminLayout = lazy(() => import('./app/(admin)/layout.tsx').then(m => ({ default: m.AdminLayout })));
+
+// ── Lazy-loaded pages: Marketing ──
+const MarketingPage = lazy(() => import('./app/(marketing)/page.tsx'));
+const ComingSoonPage = lazy(() => import('./app/(marketing)/coming-soon/page.tsx').then(m => ({ default: m.ComingSoonPage })));
+
+// ── Lazy-loaded pages: Auth ──
+const LoginPage = lazy(() => import('./app/(auth)/login/page.tsx').then(m => ({ default: m.LoginPage })));
+const RegisterPage = lazy(() => import('./app/(auth)/register/page.tsx').then(m => ({ default: m.RegisterPage })));
+const ResetPasswordPage = lazy(() => import('./app/(auth)/reset-password/page.tsx').then(m => ({ default: m.ResetPasswordPage })));
+const GoogleCallbackPage = lazy(() => import('./app/(auth)/google-callback/page.tsx').then(m => ({ default: m.GoogleCallbackPage })));
+
+// ── Lazy-loaded pages: Dashboard ──
+const DashboardHomePage = lazy(() => import('./app/(dashboard)/dashboard/page.tsx').then(m => ({ default: m.DashboardHomePage })));
+const TryOutListPage = lazy(() => import('./app/(dashboard)/tryout/page.tsx').then(m => ({ default: m.TryOutListPage })));
+const PracticeListPage = lazy(() => import('./app/(dashboard)/practice/page.tsx').then(m => ({ default: m.PracticeListPage })));
+const PreExamPage = lazy(() => import('./app/(dashboard)/tryout/[id]/page.tsx').then(m => ({ default: m.PreExamPage })));
+const ExamResultPage = lazy(() => import('./app/(dashboard)/tryout/[id]/result/page.tsx').then(m => ({ default: m.ExamResultPage })));
+const ExamPlayPage = lazy(() => import('./app/(dashboard)/tryout/[id]/play/page.tsx').then(m => ({ default: m.ExamPlayPage })));
+const AnalyticsPage = lazy(() => import('./app/(dashboard)/analytics/page.tsx').then(m => ({ default: m.AnalyticsPage })));
+const ProfilePage = lazy(() => import('./app/(dashboard)/profile/page.tsx').then(m => ({ default: m.ProfilePage })));
+const LeaderboardPage = lazy(() => import('./app/(dashboard)/leaderboard/page.tsx').then(m => ({ default: m.LeaderboardPage })));
+const SubscriptionPage = lazy(() => import('./app/(dashboard)/subscription/page.tsx').then(m => ({ default: m.SubscriptionPage })));
+
+// ── Lazy-loaded pages: Admin ──
+const AdminOverviewPage = lazy(() => import('./app/(admin)/page.tsx').then(m => ({ default: m.AdminOverviewPage })));
+const AdminQuestionsPage = lazy(() => import('./app/(admin)/questions/page.tsx').then(m => ({ default: m.AdminQuestionsPage })));
+const AdminSubjectsPage = lazy(() => import('./app/(admin)/subjects/page.tsx').then(m => ({ default: m.AdminSubjectsPage })));
+const AdminUsersPage = lazy(() => import('./app/(admin)/users/page.tsx').then(m => ({ default: m.AdminUsersPage })));
+const AdminUserDetailPage = lazy(() => import('./app/(admin)/users/[id]/page.tsx').then(m => ({ default: m.AdminUserDetailPage })));
+const AdminTryoutsPage = lazy(() => import('./app/(admin)/tryouts/page.tsx').then(m => ({ default: m.AdminTryoutsPage })));
 
 export default function App() {
   return (
-    <Routes>
-      {/* ── Marketing (with Navbar + Footer) ── */}
-      <Route element={<MarketingLayout />}>
-        <Route index element={<MarketingPage />} />
-      </Route>
+    <Suspense fallback={<LoadingSpinner />}>
+      <Routes>
+        {/* ── Marketing (with Navbar + Footer) ── */}
+        <Route element={<MarketingLayout />}>
+          <Route index element={<MarketingPage />} />
+        </Route>
 
-      {/* ── Coming Soon: standalone, no navbar/footer ── */}
-      <Route path="coming-soon" element={<ComingSoonPage />} />
+        {/* ── Coming Soon: standalone, no navbar/footer ── */}
+        <Route path="coming-soon" element={<ComingSoonPage />} />
 
-      {/* ── Auth (split-screen, no navbar) ── */}
-      <Route element={<AuthLayout />}>
-        <Route path="login" element={<LoginPage />} />
-        <Route path="register" element={<RegisterPage />} />
-        <Route path="reset-password" element={<ResetPasswordPage />} />
-        <Route path="auth/callback" element={<GoogleCallbackPage />} />
-      </Route>
+        {/* ── Auth (split-screen, no navbar) ── */}
+        <Route element={<AuthLayout />}>
+          <Route path="login" element={<LoginPage />} />
+          <Route path="register" element={<RegisterPage />} />
+          <Route path="reset-password" element={<ResetPasswordPage />} />
+          <Route path="auth/callback" element={<GoogleCallbackPage />} />
+        </Route>
 
-      {/* ── Dashboard (sidebar layout, requires auth) ── */}
-      <Route
-        element={
-          <RequireAuth>
-            <DashboardLayout />
-          </RequireAuth>
-        }
-      >
-        <Route path="dashboard" element={<DashboardHomePage />} />
-        <Route path="tryout" element={<TryOutListPage />} />
-        <Route path="practice" element={<PracticeListPage />} />
-        <Route path="tryout/:id" element={<PreExamPage />} />
-        <Route path="tryout/:id/result" element={<ExamResultPage />} />
-        <Route path="analytics" element={<AnalyticsPage />} />
-        <Route path="leaderboard" element={<LeaderboardPage />} />
-        <Route path="profile" element={<ProfilePage />} />
-        <Route path="subscription" element={<SubscriptionPage />} />
-      </Route>
+        {/* ── Dashboard (sidebar layout, requires auth) ── */}
+        <Route
+          element={
+            <RequireAuth>
+              <DashboardLayout />
+            </RequireAuth>
+          }
+        >
+          <Route path="dashboard" element={<DashboardHomePage />} />
+          <Route path="tryout" element={<TryOutListPage />} />
+          <Route path="practice" element={<PracticeListPage />} />
+          <Route path="tryout/:id" element={<PreExamPage />} />
+          <Route path="tryout/:id/result" element={<ExamResultPage />} />
+          <Route path="analytics" element={<AnalyticsPage />} />
+          <Route path="leaderboard" element={<LeaderboardPage />} />
+          <Route path="profile" element={<ProfilePage />} />
+          <Route path="subscription" element={<SubscriptionPage />} />
+        </Route>
 
-      {/* ── Exam Play: full-screen, requires auth ── */}
-      <Route
-        path="tryout/:id/play"
-        element={
-          <RequireAuth>
-            <ExamPlayPage />
-          </RequireAuth>
-        }
-      />
+        {/* ── Exam Play: full-screen, requires auth ── */}
+        <Route
+          path="tryout/:id/play"
+          element={
+            <RequireAuth>
+              <ExamPlayPage />
+            </RequireAuth>
+          }
+        />
 
-      {/* ── Admin Panel: requires admin role ── */}
-      <Route
-        path="admin"
-        element={
-          <RequireAdmin>
-            <AdminLayout />
-          </RequireAdmin>
-        }
-      >
-        <Route index element={<AdminOverviewPage />} />
-        <Route path="tryouts" element={<AdminTryoutsPage />} />
-        <Route path="questions" element={<AdminQuestionsPage />} />
-        <Route path="subjects" element={<AdminSubjectsPage />} />
-        <Route path="users" element={<AdminUsersPage />} />
-        <Route path="users/:id" element={<AdminUserDetailPage />} />
-      </Route>
+        {/* ── Admin Panel: requires admin role ── */}
+        <Route
+          path="admin"
+          element={
+            <RequireAdmin>
+              <AdminLayout />
+            </RequireAdmin>
+          }
+        >
+          <Route index element={<AdminOverviewPage />} />
+          <Route path="tryouts" element={<AdminTryoutsPage />} />
+          <Route path="questions" element={<AdminQuestionsPage />} />
+          <Route path="subjects" element={<AdminSubjectsPage />} />
+          <Route path="users" element={<AdminUsersPage />} />
+          <Route path="users/:id" element={<AdminUserDetailPage />} />
+        </Route>
 
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Suspense>
   );
 }
