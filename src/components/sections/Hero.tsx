@@ -1,4 +1,4 @@
-import { ArrowRight, Eye } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "../ui/Button";
 import { Badge } from "../ui/Badge";
 import { Container } from "../ui/Container";
@@ -8,7 +8,7 @@ interface HeroProps {
   onNavigateComingSoon?: () => void;
 }
 
-export function Hero({ onNavigateRegister, onNavigateComingSoon }: HeroProps) {
+export function Hero({ onNavigateRegister }: HeroProps) {
   return (
     <section className="relative pt-24 pb-20 bg-gradient-to-b from-white to-brand-light md:pt-32 md:pb-24">
       <Container>

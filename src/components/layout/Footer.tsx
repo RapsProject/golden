@@ -1,4 +1,4 @@
-import { Instagram, Twitter, TwitterIcon, XIcon, Youtube } from 'lucide-react';
+import { Instagram, Twitter } from 'lucide-react';
 
 const productLinks = ['Features', 'Pricing'];
 const companyLinks = ['About Us', 'Contact'];
