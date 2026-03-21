@@ -11,7 +11,8 @@ import {
   X,
   ShieldCheck,
 } from 'lucide-react';
-import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { PrefetchLink } from '../../components/ui/PrefetchLink';
 import { cn } from '../../lib/utils';
 import { Button } from '../../components/ui/Button';
 import { useAuth } from '../../contexts/AuthContext';
@@ -97,7 +98,7 @@ export function DashboardLayout() {
 
       <nav className="p-3 space-y-1">
         {items.map(({ label, to, icon: Icon }) => (
-          <NavLink
+          <PrefetchLink
             key={label}
             to={to}
             onClick={() => setMobileOpen(false)}
@@ -113,7 +114,7 @@ export function DashboardLayout() {
           >
             <Icon className="h-5 w-5 text-brand-primary" />
             <span>{label}</span>
-          </NavLink>
+          </PrefetchLink>
         ))}
       </nav>
 
