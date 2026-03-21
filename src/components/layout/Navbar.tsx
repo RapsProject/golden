@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "../ui/Button";
-import { Container } from "../ui/Container";
+import { cn } from "../../lib/utils";
 
 interface NavbarProps {
   onNavigateLogin?: () => void;
@@ -10,30 +10,58 @@ interface NavbarProps {
 
 export function Navbar({ onNavigateLogin, onNavigateRegister }: NavbarProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   const menuItems = ["Features", "Pricing", "Testimonials"];
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-brand-light">
-      <Container>
-        <div className="flex items-center justify-between h-16 md:h-20">
+    <nav
+      className={cn(
+        "fixed top-0 left-0 right-0 z-50 transition-[padding] duration-500 ease-in-out",
+        isScrolled ? "pt-4 px-4" : "pt-0 px-0"
+      )}
+    >
+      <div
+        className={cn(
+          "mx-auto transition-all duration-500 ease-in-out",
+          isScrolled
+            ? "max-w-5xl bg-white/60 backdrop-blur-xl shadow-lg shadow-black/[0.08] rounded-full border border-white/40"
+            : "max-w-full bg-white/50 backdrop-blur-lg border-b border-brand-light"
+        )}
+      >
+        <div
+          className={cn(
+            "flex items-center justify-between transition-all duration-500 ease-in-out mx-auto",
+            isScrolled
+              ? "h-14 px-6 md:px-8"
+              : "h-16 md:h-20 max-w-7xl px-4 sm:px-6 lg:px-8"
+          )}
+        >
           {/* Logo */}
           <div className="flex items-center">
             <a
               href="/"
-              className="text-2xl font-bold font-serif text-brand-dark"
+              className="font-serif text-2xl font-bold text-brand-dark"
             >
               Sabi<span className="text-brand-primary">Academia</span>
             </a>
           </div>
 
           {/* Desktop Menu */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="items-center hidden gap-8 md:flex">
             {menuItems.map((item) => (
               <a
                 key={item}
                 href={`#${item.toLowerCase()}`}
-                className="text-slate-700 hover:text-brand-primary transition-colors font-medium"
+                className="font-medium transition-colors text-slate-700 hover:text-brand-primary"
               >
                 {item}
               </a>
@@ -41,7 +69,7 @@ export function Navbar({ onNavigateLogin, onNavigateRegister }: NavbarProps) {
           </div>
 
           {/* Desktop CTA Buttons */}
-          <div className="hidden md:flex items-center gap-4">
+          <div className="items-center hidden gap-4 md:flex">
             <Button variant="outline" size="sm" onClick={onNavigateLogin}>
               Login
             </Button>
@@ -52,7 +80,7 @@ export function Navbar({ onNavigateLogin, onNavigateRegister }: NavbarProps) {
 
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden p-2 text-brand-dark"
+            className="p-2 md:hidden text-brand-dark"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Toggle menu"
           >
@@ -62,13 +90,18 @@ export function Navbar({ onNavigateLogin, onNavigateRegister }: NavbarProps) {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden py-4 border-t border-brand-light">
+          <div
+            className={cn(
+              "md:hidden py-4 border-t border-brand-light",
+              isScrolled ? "px-4 rounded-b-2xl" : "px-4"
+            )}
+          >
             <div className="flex flex-col gap-4">
               {menuItems.map((item) => (
                 <a
                   key={item}
                   href={`#${item.toLowerCase()}`}
-                  className="text-slate-700 hover:text-brand-primary transition-colors font-medium py-2"
+                  className="py-2 font-medium transition-colors text-slate-700 hover:text-brand-primary"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {item}
@@ -95,7 +128,7 @@ export function Navbar({ onNavigateLogin, onNavigateRegister }: NavbarProps) {
             </div>
           </div>
         )}
-      </Container>
+      </div>
     </nav>
   );
 }

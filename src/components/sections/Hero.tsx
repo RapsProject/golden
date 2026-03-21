@@ -1,4 +1,4 @@
-import { ArrowRight, Eye } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "../ui/Button";
 import { Badge } from "../ui/Badge";
 import { Container } from "../ui/Container";
@@ -8,11 +8,11 @@ interface HeroProps {
   onNavigateComingSoon?: () => void;
 }
 
-export function Hero({ onNavigateRegister, onNavigateComingSoon }: HeroProps) {
+export function Hero({ onNavigateRegister }: HeroProps) {
   return (
-    <section className="relative bg-gradient-to-b from-white to-brand-light pt-24 md:pt-32 pb-20 md:pb-24">
+    <section className="relative pt-24 pb-20 bg-gradient-to-b from-white to-brand-light md:pt-32 md:pb-24">
       <Container>
-        <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
+        <div className="flex flex-col items-center gap-12 lg:flex-row lg:gap-16">
           {/* Left Side - Text Content */}
           <div className="flex-1 text-center lg:text-left">
             {/* Badge */}
@@ -21,7 +21,7 @@ export function Hero({ onNavigateRegister, onNavigateComingSoon }: HeroProps) {
             </div>
 
             {/* Headline */}
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-brand-dark leading-tight mb-6">
+            <h1 className="mb-6 font-serif text-4xl font-bold leading-tight md:text-5xl lg:text-6xl text-brand-dark">
               Secure Your Seat at{" "}
               <span className="text-brand-primary">
                 ITB International Class.
@@ -29,13 +29,13 @@ export function Hero({ onNavigateRegister, onNavigateComingSoon }: HeroProps) {
             </h1>
 
             {/* Subheading */}
-            <p className="text-lg md:text-xl text-slate-600 mb-8 max-w-2xl mx-auto lg:mx-0">
+            <p className="max-w-2xl mx-auto mb-8 text-lg md:text-xl text-slate-600 lg:mx-0">
               Materi terkurasi, simulasi real-time, dan strategi khusus AqTest
               dari mahasiswa ITB.
             </p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+            <div className="flex flex-col justify-center gap-4 sm:flex-row lg:justify-start">
               <Button
                 variant="primary"
                 size="lg"
@@ -44,19 +44,10 @@ export function Hero({ onNavigateRegister, onNavigateComingSoon }: HeroProps) {
               >
                 Start Free Simulation
               </Button>
-              <Button
-                variant="ghost"
-                size="lg"
-                icon={Eye}
-                iconPosition="left"
-                onClick={onNavigateComingSoon}
-              >
-                View Syllabus
-              </Button>
             </div>
 
             {/* Stats or Trust Indicators */}
-            <div className="mt-12 flex flex-wrap gap-8 justify-center lg:justify-start">
+            <div className="flex flex-wrap justify-center gap-8 mt-12 lg:justify-start">
               <div>
                 <div className="text-3xl font-bold text-brand-primary">
                   500+
@@ -80,12 +71,12 @@ export function Hero({ onNavigateRegister, onNavigateComingSoon }: HeroProps) {
           <div className="flex-1 w-full max-w-lg lg:max-w-none">
             <div className="relative">
               {/* Placeholder for Dashboard Mockup */}
-              <div className="bg-white rounded-2xl shadow-2xl p-6 border border-brand-light">
+              <div className="p-6 bg-white border shadow-2xl rounded-2xl border-brand-light">
                 {/* Mock Dashboard Header */}
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-3 h-3 rounded-full bg-red-400"></div>
-                  <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-                  <div className="w-3 h-3 rounded-full bg-green-400"></div>
+                  <div className="w-3 h-3 bg-red-400 rounded-full"></div>
+                  <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
+                  <div className="w-3 h-3 bg-green-400 rounded-full"></div>
                 </div>
 
                 {/* Mock Dashboard Content */}
@@ -100,24 +91,24 @@ export function Hero({ onNavigateRegister, onNavigateComingSoon }: HeroProps) {
                         75%
                       </span>
                     </div>
-                    <div className="h-3 bg-brand-light rounded-full overflow-hidden">
-                      <div className="h-full w-3/4 bg-gradient-to-r from-brand-primary to-brand-secondary rounded-full"></div>
+                    <div className="h-3 overflow-hidden rounded-full bg-brand-light">
+                      <div className="w-3/4 h-full rounded-full bg-gradient-to-r from-brand-primary to-brand-secondary"></div>
                     </div>
                   </div>
 
                   {/* Mock Question Card */}
-                  <div className="bg-brand-light rounded-lg p-4 mt-6">
-                    <div className="text-xs font-semibold text-brand-primary mb-2">
+                  <div className="p-4 mt-6 rounded-lg bg-brand-light">
+                    <div className="mb-2 text-xs font-semibold text-brand-primary">
                       MATHEMATICS
                     </div>
-                    <p className="text-sm text-slate-700 mb-4">
+                    <p className="mb-4 text-sm text-slate-700">
                       If f(x) = 2x + 1 and g(x) = x², what is (f ∘ g)(3)?
                     </p>
                     <div className="grid grid-cols-2 gap-2">
                       {["A. 19", "B. 21", "C. 23", "D. 25"].map((option) => (
                         <button
                           key={option}
-                          className="bg-white text-sm py-2 px-3 rounded-lg hover:border-brand-primary border border-transparent transition-all"
+                          className="px-3 py-2 text-sm transition-all bg-white border border-transparent rounded-lg hover:border-brand-primary"
                         >
                           {option}
                         </button>
@@ -150,8 +141,8 @@ export function Hero({ onNavigateRegister, onNavigateComingSoon }: HeroProps) {
               </div>
 
               {/* Decorative Elements */}
-              <div className="absolute -top-6 -right-6 w-24 h-24 bg-brand-secondary/20 rounded-full blur-2xl"></div>
-              <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-brand-primary/20 rounded-full blur-2xl"></div>
+              <div className="absolute w-24 h-24 rounded-full -top-6 -right-6 bg-brand-secondary/20 blur-2xl"></div>
+              <div className="absolute w-32 h-32 rounded-full -bottom-6 -left-6 bg-brand-primary/20 blur-2xl"></div>
             </div>
           </div>
         </div>

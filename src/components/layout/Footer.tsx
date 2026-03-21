@@ -1,9 +1,39 @@
-import { Container } from '../ui/Container';
+import { Instagram, Twitter } from 'lucide-react';
 
-const productLinks = ['Features', 'Pricing', 'Syllabus'];
+const productLinks = ['Features', 'Pricing'];
 const companyLinks = ['About Us', 'Contact'];
 const legalLinks = ['Privacy Policy', 'Terms of Service'];
-const socialLinks = ['Instagram', 'TikTok', 'YouTube'];
+
+const socialLinks = [
+  {
+    name: 'Instagram',
+    icon: <Instagram size={20} />,
+    href: '#',
+  },
+  {
+    name: 'TikTok',
+    icon: (
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+      </svg>
+    ),
+    href: '#',
+  },
+  {
+    name: 'Twitter',
+    icon: <Twitter size={20} />,
+    href: '#',
+  },
+];
 
 interface FooterProps {
   onNavigateComingSoon?: () => void;
@@ -11,29 +41,30 @@ interface FooterProps {
 
 export function Footer({ onNavigateComingSoon }: FooterProps) {
   return (
-    <footer className="bg-slate-950 text-brand-light pt-16 pb-8 mt-12">
-      <Container>
-        <div className="grid gap-10 md:grid-cols-4 mb-10">
-          {/* Logo / Bio */}
-          <div>
-            <div className="text-2xl font-bold font-serif text-white mb-3">
-              Sabi<span className="text-brand-primary">Academia</span>
-            </div>
-            <p className="text-sm text-slate-400 max-w-xs">
-              Exam-focused preparation for IUP ITB. Crafted by students who have passed the AqTest
-              and know what really matters.
-            </p>
+    <footer className="px-4 pb-4 mt-12">
+      <div className="px-6 pb-8 mx-auto max-w-7xl rounded-3xl bg-slate-950 text-brand-light pt-14 sm:px-10 lg:px-14">
+        {/* Top section: Logo + Bio */}
+        <div className="mb-10">
+          <div className="mb-3 font-serif text-2xl font-bold text-white">
+            Sabi<span className="text-brand-primary">Academia</span>
           </div>
+          <p className="max-w-sm text-sm text-slate-400">
+            Exam-focused preparation for IUP ITB. Crafted by students who have passed the AqTest
+            and know what really matters.
+          </p>
+        </div>
 
+        {/* 4 aligned columns */}
+        <div className="grid grid-cols-2 gap-8 mb-10 md:grid-cols-4">
           {/* Product */}
           <div>
-            <h3 className="text-sm font-semibold text-white mb-3">Product</h3>
+            <h3 className="mb-3 text-sm font-semibold text-white">Product</h3>
             <ul className="space-y-2 text-sm">
               {productLinks.map((item) => (
                 <li key={item}>
                   <a
                     href={`#${item.toLowerCase()}`}
-                    className="text-slate-400 hover:text-brand-secondary transition-colors"
+                    className="transition-colors text-slate-400 hover:text-brand-secondary"
                   >
                     {item}
                   </a>
@@ -44,13 +75,13 @@ export function Footer({ onNavigateComingSoon }: FooterProps) {
 
           {/* Company */}
           <div>
-            <h3 className="text-sm font-semibold text-white mb-3">Company</h3>
+            <h3 className="mb-3 text-sm font-semibold text-white">Company</h3>
             <ul className="space-y-2 text-sm">
               {companyLinks.map((item) => (
                 <li key={item}>
                   <button
                     type="button"
-                    className="text-slate-400 hover:text-brand-secondary transition-colors"
+                    className="transition-colors text-slate-400 hover:text-brand-secondary"
                     onClick={onNavigateComingSoon}
                   >
                     {item}
@@ -60,30 +91,33 @@ export function Footer({ onNavigateComingSoon }: FooterProps) {
             </ul>
           </div>
 
-          {/* Socials / Legal */}
+          {/* Connect - Social Media Icons */}
           <div>
-            <h3 className="text-sm font-semibold text-white mb-3">Connect</h3>
-            <ul className="space-y-2 text-sm mb-4">
-              {socialLinks.map((item) => (
-                <li key={item}>
-                  <button
-                    type="button"
-                    className="text-slate-400 hover:text-brand-secondary transition-colors"
-                    onClick={onNavigateComingSoon}
-                  >
-                    {item}
-                  </button>
-                </li>
+            <h3 className="mb-3 text-sm font-semibold text-white">Connect</h3>
+            <div className="flex items-center gap-3">
+              {socialLinks.map((social) => (
+                <button
+                  key={social.name}
+                  type="button"
+                  className="p-2 transition-colors rounded-lg text-slate-400 hover:text-brand-secondary hover:bg-slate-800"
+                  onClick={onNavigateComingSoon}
+                  aria-label={social.name}
+                >
+                  {social.icon}
+                </button>
               ))}
-            </ul>
+            </div>
+          </div>
 
-            <h3 className="text-sm font-semibold text-white mb-3">Legal</h3>
+          {/* Legal */}
+          <div>
+            <h3 className="mb-3 text-sm font-semibold text-white">Legal</h3>
             <ul className="space-y-2 text-sm">
               {legalLinks.map((item) => (
                 <li key={item}>
                   <button
                     type="button"
-                    className="text-slate-400 hover:text-brand-secondary transition-colors"
+                    className="transition-colors text-slate-400 hover:text-brand-secondary"
                     onClick={onNavigateComingSoon}
                   >
                     {item}
@@ -94,16 +128,16 @@ export function Footer({ onNavigateComingSoon }: FooterProps) {
           </div>
         </div>
 
-        <div className="border-t border-slate-800 pt-4 mt-4 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+        {/* Bottom bar */}
+        <div className="flex flex-col items-center justify-between gap-3 pt-4 mt-4 text-xs border-t border-slate-800 md:flex-row text-slate-500">
           <div>
-            © 2025 SabiAcademia. Made by ITB Students.
+            © 2026 SabiAcademia. Made by ITB Students.
           </div>
           <div className="flex gap-4">
             <span>Bandung · Indonesia</span>
           </div>
         </div>
-      </Container>
+      </div>
     </footer>
   );
 }
-
