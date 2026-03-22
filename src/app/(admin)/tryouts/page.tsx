@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Pencil, Save, ToggleLeft, ToggleRight, X, AlertCircle, Settings2, Trash2, Eye, CheckCircle2, Upload, Link, ImageIcon } from 'lucide-react';
+import { Plus, Pencil, Save, ToggleLeft, ToggleRight, X, AlertCircle, Settings2, Trash2, Eye, CheckCircle2, Upload, Link, ImageIcon, PenLine } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { QuestionTextRenderer } from '../../../components/QuestionTextRenderer';
 import {
@@ -107,6 +107,7 @@ export function AdminTryoutsPage() {
   const [previewLoading, setPreviewLoading] = useState(false);
 
   const [questionFormOpen, setQuestionFormOpen] = useState(false);
+  const [questionPreviewMode, setQuestionPreviewMode] = useState(false);
   const [questionEditingId, setQuestionEditingId] = useState<string | null>(null);
   const [questionForm, setQuestionForm] = useState<QuestionFormState>(emptyQuestionForm(''));
   const [questionSubjects, setQuestionSubjects] = useState<SubjectData[]>([]);
@@ -330,12 +331,16 @@ export function AdminTryoutsPage() {
 
   const openCreateQuestion = async () => {
     if (!previewTryout) return;
+    const nextSeq = previewQuestions.length > 0
+      ? Math.max(...previewQuestions.map((q) => q.sequenceNumber)) + 1
+      : 1;
     setQuestionEditingId(null);
-    setQuestionForm(emptyQuestionForm(previewTryout.id));
+    setQuestionForm({ ...emptyQuestionForm(previewTryout.id), sequenceNumber: String(nextSeq) });
     setQuestionFormError(null);
     setQuestionFormTopics([]);
     setQImageUploading(false);
     setQOptionImageUploading(null);
+    setQuestionPreviewMode(false);
     setQuestionFormOpen(true);
     if (accessToken) {
       getSubjects(accessToken).then(setQuestionSubjects).catch(() => setQuestionSubjects([]));
@@ -362,6 +367,7 @@ export function AdminTryoutsPage() {
       })),
     });
     setQuestionFormError(null);
+    setQuestionPreviewMode(false);
     setQuestionFormOpen(true);
     if (accessToken) {
       getSubjects(accessToken).then(setQuestionSubjects).catch(() => setQuestionSubjects([]));
@@ -412,6 +418,7 @@ export function AdminTryoutsPage() {
     setQuestionFormError(null);
     try {
       if (questionEditingId) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { tryoutId: _t, ...rest } = questionFormToPayload(questionForm);
         await updateQuestion(accessToken, questionEditingId, rest);
       } else {
@@ -1074,16 +1081,122 @@ export function AdminTryoutsPage() {
               <h2 className="text-base font-semibold text-brand-dark">
                 {questionEditingId ? 'Edit Question' : 'Tambah Soal'}
               </h2>
-              <button
-                type="button"
-                onClick={() => setQuestionFormOpen(false)}
-                className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 transition-colors"
-              >
-                <X className="h-4 w-4" />
-              </button>
+              <div className="flex items-center gap-2">
+                {/* Edit / Preview toggle */}
+                <div className="flex rounded-lg border border-slate-200 overflow-hidden text-xs font-medium">
+                  <button
+                    type="button"
+                    onClick={() => setQuestionPreviewMode(false)}
+                    className={`flex items-center gap-1 px-3 py-1.5 transition-colors ${!questionPreviewMode ? 'bg-brand-primary text-white' : 'text-slate-500 hover:bg-slate-50'}`}
+                  >
+                    <PenLine className="h-3.5 w-3.5" /> Edit
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setQuestionPreviewMode(true)}
+                    className={`flex items-center gap-1 px-3 py-1.5 transition-colors ${questionPreviewMode ? 'bg-brand-primary text-white' : 'text-slate-500 hover:bg-slate-50'}`}
+                  >
+                    <Eye className="h-3.5 w-3.5" /> Preview
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setQuestionFormOpen(false)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
             </div>
 
-            <form onSubmit={handleQuestionSave} className="p-5 space-y-4">
+            {/* ── PREVIEW panel ── */}
+            {questionPreviewMode && (
+              <div className="p-5 space-y-5">
+                {/* Question text + image */}
+                <div>
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Soal</p>
+                  <div className="rounded-xl border border-slate-100 bg-slate-50 px-4 py-4 text-sm text-slate-800 leading-relaxed min-h-[60px]">
+                    {questionForm.text ? (
+                      <QuestionTextRenderer
+                        text={questionForm.text}
+                        imageUrl={questionForm.imageUrl || null}
+                        className="text-sm text-slate-800 leading-relaxed"
+                        imgClassName="mt-3 max-h-56 max-w-full rounded-lg border border-slate-200 bg-white object-contain"
+                      />
+                    ) : (
+                      <span className="text-slate-400 italic">Teks soal belum diisi…</span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Options */}
+                <div>
+                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Pilihan Jawaban</p>
+                  <div className="space-y-2">
+                    {questionForm.options.map((opt, idx) => (
+                      <div
+                        key={idx}
+                        className={`flex items-start gap-3 rounded-xl border-2 px-4 py-3 text-sm ${opt.isCorrect ? 'border-green-400 bg-green-50' : 'border-slate-200 bg-white'}`}
+                      >
+                        <span className={`flex-shrink-0 h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold ${opt.isCorrect ? 'bg-green-500 text-white' : 'bg-slate-100 text-slate-600'}`}>
+                          {String.fromCharCode(65 + idx)}
+                        </span>
+                        <div className="min-w-0">
+                          {opt.text ? (
+                            <span className={opt.isCorrect ? 'text-green-800 font-medium' : 'text-slate-700'}><LatexText>{opt.text}</LatexText></span>
+                          ) : null}
+                          {opt.imageUrl ? (
+                            <img
+                              src={opt.imageUrl}
+                              alt={`Pilihan ${String.fromCharCode(65 + idx)}`}
+                              className="mt-2 max-h-28 max-w-full rounded-lg border border-slate-200 bg-slate-50 object-contain"
+                            />
+                          ) : null}
+                          {!opt.text && !opt.imageUrl ? (
+                            <span className="text-slate-400 italic">Kosong</span>
+                          ) : null}
+                        </div>
+                        {opt.isCorrect && (
+                          <span className="ml-auto shrink-0 text-xs font-semibold text-green-600 bg-green-100 rounded-full px-2 py-0.5">Benar</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Explanation */}
+                {questionForm.explanation && (
+                  <div>
+                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Pembahasan</p>
+                    <div className="rounded-xl border border-slate-100 bg-amber-50 px-4 py-3 text-sm text-slate-700 leading-relaxed">
+                      <LatexText>{questionForm.explanation}</LatexText>
+                    </div>
+                  </div>
+                )}
+
+                {/* Save button still accessible from preview */}
+                <div className="flex gap-3 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setQuestionPreviewMode(false)}
+                    className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                  >
+                    ← Kembali Edit
+                  </button>
+                  <button
+                    type="button"
+                    disabled={questionSaving}
+                    onClick={(e) => { setQuestionPreviewMode(false); handleQuestionSave(e as unknown as React.FormEvent); }}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-dark transition-colors disabled:opacity-60"
+                  >
+                    <Save className="h-4 w-4" />
+                    {questionSaving ? 'Menyimpan…' : questionEditingId ? 'Update' : 'Simpan'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <form onSubmit={handleQuestionSave} className={`p-5 space-y-4 ${questionPreviewMode ? 'hidden' : ''}`}>
               {questionFormError && (
                 <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 rounded-xl px-3 py-2">
                   <AlertCircle className="h-4 w-4 shrink-0" />
