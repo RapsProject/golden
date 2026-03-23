@@ -251,6 +251,8 @@ export type SessionAnswerResult = {
   question: {
     id: string;
     sequenceNumber: number;
+    text: string;
+    imageUrl: string | null;
     explanation: string | null;
     options?: Array<{
       id: string;

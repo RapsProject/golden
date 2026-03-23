@@ -7,6 +7,7 @@ import {
 } from 'react-router-dom';
 import { CheckCircle2, XCircle, MinusCircle } from 'lucide-react';
 import { useAuth } from '../../../../../contexts/AuthContext';
+import { QuestionTextRenderer } from '../../../../../components/QuestionTextRenderer';
 import {
   getSessions,
   getSession,
@@ -112,7 +113,7 @@ export function ExamResultPage() {
 
   if (loading) {
     return (
-      <div className="max-w-3xl mx-auto py-8">
+      <div className="max-w-3xl py-8 mx-auto">
         <p className="text-slate-600">Loading result…</p>
       </div>
     );
@@ -166,34 +167,34 @@ export function ExamResultPage() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      <div className="bg-white rounded-2xl border border-brand-light shadow-sm p-6 md:p-8 text-center">
-        <p className="text-xs font-semibold text-brand-primary uppercase tracking-wide mb-2">
+      <div className="p-6 text-center bg-white border shadow-sm rounded-2xl border-brand-light md:p-8">
+        <p className="mb-2 text-xs font-semibold tracking-wide uppercase text-brand-primary">
           Simulation Complete!
         </p>
-        <h1 className="text-2xl md:text-3xl font-serif font-bold text-brand-dark mb-6">
+        <h1 className="mb-6 font-serif text-2xl font-bold md:text-3xl text-brand-dark">
           Result
         </h1>
         <div className={`text-6xl md:text-7xl font-bold mb-1 ${scoreColor}`}>
           {scoreDisplay}
         </div>
-        <div className="text-slate-500 text-sm mb-8">out of 100</div>
+        <div className="mb-8 text-sm text-slate-500">out of 100</div>
         <div className="grid grid-cols-3 gap-4">
-          <div className="bg-brand-light rounded-xl p-4">
+          <div className="p-4 bg-brand-light rounded-xl">
             <div className="text-2xl font-bold text-brand-primary">{correct}</div>
-            <div className="text-xs text-slate-600 mt-1">Correct</div>
+            <div className="mt-1 text-xs text-slate-600">Correct</div>
           </div>
-          <div className="bg-red-50 rounded-xl p-4">
+          <div className="p-4 bg-red-50 rounded-xl">
             <div className="text-2xl font-bold text-red-600">{wrong}</div>
-            <div className="text-xs text-slate-600 mt-1">Wrong</div>
+            <div className="mt-1 text-xs text-slate-600">Wrong</div>
           </div>
-          <div className="bg-slate-50 rounded-xl p-4">
+          <div className="p-4 bg-slate-50 rounded-xl">
             <div className="text-2xl font-bold text-slate-500">{unanswered}</div>
-            <div className="text-xs text-slate-600 mt-1">Unanswered</div>
+            <div className="mt-1 text-xs text-slate-600">Unanswered</div>
           </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl border border-brand-light shadow-sm overflow-hidden">
+      <div className="overflow-hidden bg-white border shadow-sm rounded-2xl border-brand-light">
         <div className="px-5 py-4 border-b border-brand-light">
           <h2 className="text-base font-semibold text-brand-dark">Answer Review</h2>
         </div>
@@ -202,22 +203,41 @@ export function ExamResultPage() {
             const isCorrect = a.option?.isCorrect ?? false;
             const isUnanswered = a.optionId == null;
             const correctOption = a.question?.options?.find((o) => o.isCorrect);
+            const bgClass = isUnanswered ? 'bg-slate-50' : isCorrect ? 'bg-teal-50/40' : 'bg-red-50/40';
             return (
-              <div key={a.questionId ?? idx} className="p-5 space-y-3">
-                <div className="flex items-start gap-3">
+              <div key={a.questionId ?? idx} className={`p-5 space-y-3 ${bgClass}`}>
+                <div className="flex items-start gap-3 mb-2">
                   <div className="flex-shrink-0 mt-0.5">
                     {isUnanswered ? (
-                      <MinusCircle className="h-5 w-5 text-slate-400" />
+                      <MinusCircle className="w-5 h-5 text-slate-400" />
                     ) : isCorrect ? (
-                      <CheckCircle2 className="h-5 w-5 text-brand-primary" />
+                      <CheckCircle2 className="w-5 h-5 text-brand-primary" />
                     ) : (
-                      <XCircle className="h-5 w-5 text-red-500" />
+                      <XCircle className="w-5 h-5 text-red-500" />
                     )}
                   </div>
-                  <div className="min-w-0">
-                    <span className="text-xs text-slate-400">Q{idx + 1}</span>
+                  <div className="flex items-center min-w-0 gap-2">
+                    <span className="text-xs font-semibold text-slate-500">Q{idx + 1}</span>
+                    {isUnanswered ? (
+                      <span className="text-[10px] font-bold uppercase tracking-wide bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md">Unanswered</span>
+                    ) : isCorrect ? (
+                      <span className="text-[10px] font-bold uppercase tracking-wide bg-brand-light text-brand-primary px-2 py-0.5 rounded-md">Correct</span>
+                    ) : (
+                      <span className="text-[10px] font-bold uppercase tracking-wide bg-red-50 text-red-600 px-2 py-0.5 rounded-md">Wrong Answer</span>
+                    )}
                   </div>
                 </div>
+
+                {a.question && (a.question.text || a.question.imageUrl) && (
+                  <div className="mb-4 ml-8">
+                    <QuestionTextRenderer 
+                      text={a.question.text} 
+                      imageUrl={a.question.imageUrl} 
+                      className="text-sm md:text-base text-slate-800" 
+                    />
+                  </div>
+                )}
+
                 <div className="ml-8 text-xs md:text-sm text-slate-700">
                   <span className="font-semibold text-slate-600">Your answer:</span>{' '}
                   <span>{isUnanswered ? '—' : (a.option?.text != null ? <LatexText>{a.option.text}</LatexText> : '—')}</span>
@@ -229,8 +249,8 @@ export function ExamResultPage() {
                   </div>
                 )}
                 {a.question?.explanation && (
-                  <div className="ml-8 rounded-xl bg-brand-light/60 border border-brand-secondary/30 px-4 py-3">
-                    <p className="text-xs font-semibold text-brand-secondary mb-1">
+                  <div className="px-4 py-3 ml-8 border rounded-xl bg-brand-light/60 border-brand-secondary/30">
+                    <p className="mb-1 text-xs font-semibold text-brand-secondary">
                       EXPLANATION
                     </p>
                     <p className="text-sm text-slate-700"><LatexText>{a.question.explanation}</LatexText></p>
@@ -247,14 +267,14 @@ export function ExamResultPage() {
           <button
             type="button"
             onClick={() => navigate('/tryout')}
-            className="flex-1 py-3 rounded-xl border border-brand-primary text-brand-primary text-sm font-semibold hover:bg-brand-secondary/20 transition-colors"
+            className="flex-1 py-3 text-sm font-semibold transition-colors border rounded-xl border-brand-primary text-brand-primary hover:bg-brand-secondary/20"
           >
             Back to Simulations
           </button>
           <button
             type="button"
             onClick={() => navigate('/dashboard')}
-            className="flex-1 py-3 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-dark transition-colors"
+            className="flex-1 py-3 text-sm font-semibold text-white transition-colors rounded-xl bg-brand-primary hover:bg-brand-dark"
           >
             Go to Dashboard
           </button>
@@ -262,7 +282,7 @@ export function ExamResultPage() {
         <button
           type="button"
           onClick={() => navigate('/analytics')}
-          className="w-full py-3 rounded-xl border border-slate-600 text-slate-600 text-sm font-semibold hover:bg-slate-50 transition-colors"
+          className="w-full py-3 text-sm font-semibold transition-colors border rounded-xl border-slate-600 text-slate-600 hover:bg-slate-50"
         >
           Back to Analytics
         </button>
