@@ -4,7 +4,7 @@ import { cn } from '../../lib/utils';
 import { LatexText } from '../LatexText';
 import { QuestionTextRenderer } from '../QuestionTextRenderer';
 
-const OPTION_LABELS = ['A', 'B', 'C', 'D'];
+const OPTION_LABELS = ['A', 'B', 'C', 'D', 'E'];
 
 interface QuestionCardProps {
   question: Question;

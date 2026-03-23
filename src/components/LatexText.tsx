@@ -76,6 +76,7 @@ export function LatexText({ children, className }: { children: string; className
                 try {
                   const html = katex.renderToString(latex, { ...katexOpts, displayMode: false });
                   segments.push(
+                    // eslint-disable-next-line react-hooks/error-boundaries
                     <span key={`i-${keyCounter}`} dangerouslySetInnerHTML={{ __html: html }} />
                   );
                 } catch {
