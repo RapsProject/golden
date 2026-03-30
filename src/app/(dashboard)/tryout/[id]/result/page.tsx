@@ -253,7 +253,7 @@ export function ExamResultPage() {
                     <p className="mb-1 text-xs font-semibold text-brand-secondary">
                       EXPLANATION
                     </p>
-                    <p className="text-sm text-slate-700"><LatexText>{a.question.explanation}</LatexText></p>
+                    <p className="text-sm text-slate-700 whitespace-pre-wrap break-words"><LatexText>{a.question.explanation}</LatexText></p>
                   </div>
                 )}
               </div>

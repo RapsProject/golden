@@ -753,8 +753,8 @@ export function AdminQuestionsPage() {
                 {form.explanation && (
                   <div>
                     <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Pembahasan</p>
-                    <div className="rounded-xl border border-slate-100 bg-amber-50 px-4 py-3 text-sm text-slate-700 leading-relaxed">
-                      {form.explanation}
+                    <div className="rounded-xl border border-slate-100 bg-amber-50 px-4 py-3 text-sm text-slate-700 leading-relaxed whitespace-pre-wrap break-words">
+                      <LatexText>{form.explanation}</LatexText>
                     </div>
                   </div>
                 )}
