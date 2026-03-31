@@ -49,9 +49,16 @@ export function Navbar({ onNavigateLogin, onNavigateRegister }: NavbarProps) {
           <div className="flex items-center">
             <a
               href="/"
-              className="font-serif text-2xl font-bold text-brand-dark"
+              className="flex items-center gap-2 font-serif text-2xl font-bold text-brand-dark"
             >
-              Sabi<span className="text-brand-primary">Academia</span>
+              <img 
+                src="/Logo_Sabi.png" 
+                alt="SabiAcademia Logo" 
+                className="object-contain w-8 h-8 md:w-10 md:h-10" 
+              />
+              <span>
+                Sabi<span className="text-brand-primary">Academia</span>
+              </span>
             </a>
           </div>
 

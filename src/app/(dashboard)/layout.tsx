@@ -88,11 +88,14 @@ export function DashboardLayout() {
         className
       )}
     >
-      <div className="bg-brand-dark text-white px-5 py-5">
-        <div className="text-xl font-bold font-serif">
-          Sabi<span className="text-brand-secondary">Academia</span>
+      <div className="flex items-center gap-3 px-5 py-5 text-white bg-brand-dark">
+        <img src="/Logo_Putih.png" alt="SabiAcademia Logo" className="object-contain w-10 h-10" />
+        <div>
+          <div className="font-serif text-xl font-bold leading-none">
+            Sabi<span className="text-brand-secondary">Academia</span>
+          </div>
+          <div className="mt-1 text-xs text-white/80">Member Area</div>
         </div>
-        <div className="text-xs text-white/80 mt-1">Member Area</div>
       </div>
 
       <nav className="p-3 space-y-1">
@@ -111,15 +114,15 @@ export function DashboardLayout() {
             }
             end={to === '/dashboard'}
           >
-            <Icon className="h-5 w-5 text-brand-primary" />
+            <Icon className="w-5 h-5 text-brand-primary" />
             <span>{label}</span>
           </NavLink>
         ))}
       </nav>
 
-      <div className="mt-auto p-4 border-t border-brand-light">
+      <div className="p-4 mt-auto border-t border-brand-light">
         <div className="flex items-center gap-3 mb-3">
-          <div className="h-9 w-9 rounded-full bg-brand-primary text-white flex items-center justify-center text-sm font-semibold">
+          <div className="flex items-center justify-center text-sm font-semibold text-white rounded-full h-9 w-9 bg-brand-primary">
             {user.name
               .split(' ')
               .slice(0, 2)
@@ -127,14 +130,14 @@ export function DashboardLayout() {
               .join('')}
           </div>
           <div className="min-w-0">
-            <div className="text-sm font-semibold text-slate-900 truncate">{user.name}</div>
-            <div className="text-xs text-slate-500 truncate">{user.email}</div>
+            <div className="text-sm font-semibold truncate text-slate-900">{user.name}</div>
+            <div className="text-xs truncate text-slate-500">{user.email}</div>
           </div>
         </div>
         <Button
           variant="outline"
           size="sm"
-          className="w-full justify-center"
+          className="justify-center w-full"
           icon={LogOut}
           iconPosition="left"
           onClick={handleLogout}
@@ -149,7 +152,7 @@ export function DashboardLayout() {
     <div className="min-h-screen bg-brand-light">
       {/* Desktop */}
       <div className="hidden md:flex">
-        <div className="h-screen sticky top-0">
+        <div className="sticky top-0 h-screen">
           <Sidebar />
         </div>
         <main className="flex-1 p-4 lg:p-6">
@@ -161,8 +164,11 @@ export function DashboardLayout() {
       <div className="md:hidden">
         <div className="sticky top-0 z-40 bg-white border-b border-brand-light">
           <div className="flex items-center justify-between px-4 py-3">
-            <div className="text-lg font-bold font-serif text-brand-dark">
-              Sabi<span className="text-brand-primary">Academia</span>
+            <div className="flex items-center gap-2">
+              <img src="/Logo_Putih.png" alt="SabiAcademia Logo" className="object-contain w-8 h-8" />
+              <div className="font-serif text-lg font-bold text-brand-dark">
+                Sabi<span className="text-brand-primary">Academia</span>
+              </div>
             </div>
             <button
               type="button"
@@ -170,7 +176,7 @@ export function DashboardLayout() {
               onClick={() => setMobileOpen(true)}
               aria-label="Open menu"
             >
-              <Menu className="h-6 w-6" />
+              <Menu className="w-6 h-6" />
             </button>
           </div>
         </div>
@@ -192,11 +198,11 @@ export function DashboardLayout() {
             </div>
             <button
               type="button"
-              className="absolute top-4 right-4 text-white p-2"
+              className="absolute p-2 text-white top-4 right-4"
               onClick={() => setMobileOpen(false)}
               aria-label="Close menu"
             >
-              <X className="h-6 w-6" />
+              <X className="w-6 h-6" />
             </button>
           </div>
         )}
