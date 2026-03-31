@@ -248,7 +248,7 @@ export function AnalyticsPage() {
               <XAxis
                 dataKey="idx"
                 type="number"
-                domain={[-0.2, chartData.length - 1]}
+                domain={[-0.2, Math.max(chartData.length - 1, 1)]}
                 ticks={chartData.map((_, i) => i)}
                 tickFormatter={(val: number) => chartData[val]?.label ?? ""}
                 tick={{ fontSize: 11, fill: "#64748b" }}
