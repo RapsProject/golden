@@ -8,24 +8,11 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-
-// Minimal types that match supabase's shape without importing from @supabase/supabase-js
-interface AuthUser {
-  id: string;
-  email?: string;
-  user_metadata?: Record<string, unknown>;
-  [key: string]: unknown;
-}
-
-interface AuthSession {
-  user: AuthUser;
-  access_token: string;
-  [key: string]: unknown;
-}
+import type { User, Session } from '@supabase/supabase-js';
 
 type AuthContextValue = {
-  user: AuthUser | null;
-  session: AuthSession | null;
+  user: User | null;
+  session: Session | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string, fullName?: string) => Promise<{ error: Error | null }>;
@@ -36,14 +23,12 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AnyFn = (...args: any[]) => any;
-
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [session, setSession] = useState<AuthSession | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const clientRef = useRef<{ auth: Record<string, AnyFn> } | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const clientRef = useRef<any>(null);
   const unsubRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
@@ -53,9 +38,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (cancelled) return;
       clientRef.current = supabase;
 
-      supabase.auth.getSession().then((result: { data: { session: AuthSession | null } }) => {
+      supabase.auth.getSession().then(({ data: { session: s } }) => {
         if (cancelled) return;
-        const s = result.data.session;
         setSession(s);
         setUser(s?.user ?? null);
         setLoading(false);
@@ -63,7 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const {
         data: { subscription },
-      } = supabase.auth.onAuthStateChange((_event: string, s: AuthSession | null) => {
+      } = supabase.auth.onAuthStateChange((_event, s) => {
         if (cancelled) return;
         setSession(s);
         setUser(s?.user ?? null);
