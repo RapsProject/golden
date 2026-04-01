@@ -7,14 +7,11 @@ export default defineConfig({
   build: {
     target: 'esnext',
     cssCodeSplit: true,
+    modulePreload: false,
     rollupOptions: {
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
-          charts: ['recharts'],
-          katex: ['katex'],
-          icons: ['lucide-react'],
-          supabase: ['@supabase/supabase-js'],
         },
       },
     },

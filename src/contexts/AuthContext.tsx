@@ -4,15 +4,28 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react';
-import type { Session, User } from '@supabase/supabase-js';
-import { supabase } from '../lib/supabase';
+
+// Minimal types that match supabase's shape without importing from @supabase/supabase-js
+interface AuthUser {
+  id: string;
+  email?: string;
+  user_metadata?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+interface AuthSession {
+  user: AuthUser;
+  access_token: string;
+  [key: string]: unknown;
+}
 
 type AuthContextValue = {
-  user: User | null;
-  session: Session | null;
+  user: AuthUser | null;
+  session: AuthSession | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string, fullName?: string) => Promise<{ error: Error | null }>;
@@ -23,67 +36,88 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyFn = (...args: any[]) => any;
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [session, setSession] = useState<AuthSession | null>(null);
   const [loading, setLoading] = useState(true);
+  const clientRef = useRef<{ auth: Record<string, AnyFn> } | null>(null);
+  const unsubRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session: s } }) => {
-      setSession(s);
-      setUser(s?.user ?? null);
-      if (s?.access_token) {
-        console.log('[Auth] Session dari getSession: token ada, panjang', s.access_token.length, 'user:', s.user?.email ?? s.user?.id);
-      } else {
-        console.log('[Auth] Session dari getSession: tidak ada token (belum login)');
-      }
-      setLoading(false);
+    let cancelled = false;
+
+    import('../lib/supabase').then(({ supabase }) => {
+      if (cancelled) return;
+      clientRef.current = supabase;
+
+      supabase.auth.getSession().then((result: { data: { session: AuthSession | null } }) => {
+        if (cancelled) return;
+        const s = result.data.session;
+        setSession(s);
+        setUser(s?.user ?? null);
+        setLoading(false);
+      });
+
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((_event: string, s: AuthSession | null) => {
+        if (cancelled) return;
+        setSession(s);
+        setUser(s?.user ?? null);
+      });
+
+      unsubRef.current = () => subscription.unsubscribe();
     });
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, s) => {
-      setSession(s);
-      setUser(s?.user ?? null);
-      if (s?.access_token) {
-        console.log('[Auth] onAuthStateChange:', event, 'token ada, panjang', s.access_token.length);
-      } else {
-        console.log('[Auth] onAuthStateChange:', event, 'tidak ada token');
-      }
-    });
+    return () => {
+      cancelled = true;
+      unsubRef.current?.();
+    };
+  }, []);
 
-    return () => subscription.unsubscribe();
+  const getClient = useCallback(async () => {
+    if (clientRef.current) return clientRef.current;
+    const { supabase } = await import('../lib/supabase');
+    clientRef.current = supabase;
+    return supabase;
   }, []);
 
   const signIn = useCallback(async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const client = await getClient();
+    const { error } = await client.auth.signInWithPassword({ email, password });
     return { error: error ?? null };
-  }, []);
+  }, [getClient]);
 
   const signUp = useCallback(
     async (email: string, password: string, fullName?: string) => {
-      const { error } = await supabase.auth.signUp({
+      const client = await getClient();
+      const { error } = await client.auth.signUp({
         email,
         password,
         options: fullName ? { data: { full_name: fullName } } : undefined,
       });
       return { error: error ?? null };
     },
-    []
+    [getClient]
   );
 
   const signInWithGoogle = useCallback(async () => {
+    const client = await getClient();
     const redirectTo = `${window.location.origin}/auth/callback`;
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { error } = await client.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo },
     });
     return { error: error ?? null };
-  }, []);
+  }, [getClient]);
 
   const signOut = useCallback(async () => {
-    await supabase.auth.signOut();
-  }, []);
+    const client = await getClient();
+    await client.auth.signOut();
+  }, [getClient]);
 
   const value = useMemo<AuthContextValue>(
     () => ({

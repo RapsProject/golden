@@ -1,4 +1,4 @@
-/* Google Fonts loaded asynchronously via index.html */
+/* Fonts self-hosted via @fontsource (imported in main.tsx) */
 
 @tailwind base;
 @tailwind components;
