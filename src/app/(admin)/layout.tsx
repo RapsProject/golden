@@ -48,7 +48,7 @@ export function AdminLayout() {
       )}
     >
       <div className="flex items-center gap-3 px-5 py-5 text-white bg-brand-dark">
-        <img src="/Logo_Putih.png" alt="SabiAdmin Logo" className="object-contain w-10 h-10" />
+        <img src="/Logo_Sabi_Putih.svg" alt="SabiAdmin Logo" className="object-contain w-10 h-10" />
         <div>
           <div className="font-serif text-xl font-bold leading-none">
             Sabi<span className="text-brand-secondary">Admin</span>
@@ -130,7 +130,11 @@ export function AdminLayout() {
         <div className="sticky top-0 z-40 bg-white border-b border-brand-light">
           <div className="flex items-center justify-between px-4 py-3">
             <div className="flex items-center gap-2">
-              <img src="/Logo_Putih.png" alt="SabiAdmin Logo" className="object-contain w-8 h-8" />
+              <img
+                src="/Logo_Sabi_Putih.svg"
+                alt="SabiAdmin Logo"
+                className="object-contain w-8 h-8"
+              />
               <div className="font-serif text-lg font-bold text-brand-dark">
                 Sabi<span className="text-brand-primary">Admin</span>
               </div>

@@ -84,12 +84,16 @@ export function DashboardLayout() {
   const Sidebar = ({ className }: { className?: string }) => (
     <aside
       className={cn(
-        'h-full w-[250px] flex flex-col bg-white border-r border-brand-light',
-        className
+        "h-full w-[250px] flex flex-col bg-white border-r border-brand-light",
+        className,
       )}
     >
       <div className="flex items-center gap-3 px-5 py-5 text-white bg-brand-dark">
-        <img src="/Logo_Putih.png" alt="SabiAcademia Logo" className="object-contain w-10 h-10" />
+        <img
+          src="/Logo_Sabi_Putih.svg"
+          alt="SabiAcademia Logo"
+          className="object-contain w-10 h-10"
+        />
         <div>
           <div className="font-serif text-xl font-bold leading-none">
             Sabi<span className="text-brand-secondary">Academia</span>
@@ -106,13 +110,13 @@ export function DashboardLayout() {
             onClick={() => setMobileOpen(false)}
             className={({ isActive }) =>
               cn(
-                'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                 isActive
-                  ? 'bg-brand-light text-brand-dark'
-                  : 'text-slate-700 hover:bg-brand-light/60 hover:text-brand-dark'
+                  ? "bg-brand-light text-brand-dark"
+                  : "text-slate-700 hover:bg-brand-light/60 hover:text-brand-dark",
               )
             }
-            end={to === '/dashboard'}
+            end={to === "/dashboard"}
           >
             <Icon className="w-5 h-5 text-brand-primary" />
             <span>{label}</span>
@@ -124,13 +128,15 @@ export function DashboardLayout() {
         <div className="flex items-center gap-3 mb-3">
           <div className="flex items-center justify-center text-sm font-semibold text-white rounded-full h-9 w-9 bg-brand-primary">
             {user.name
-              .split(' ')
+              .split(" ")
               .slice(0, 2)
               .map((s) => s[0])
-              .join('')}
+              .join("")}
           </div>
           <div className="min-w-0">
-            <div className="text-sm font-semibold truncate text-slate-900">{user.name}</div>
+            <div className="text-sm font-semibold truncate text-slate-900">
+              {user.name}
+            </div>
             <div className="text-xs truncate text-slate-500">{user.email}</div>
           </div>
         </div>
@@ -165,7 +171,11 @@ export function DashboardLayout() {
         <div className="sticky top-0 z-40 bg-white border-b border-brand-light">
           <div className="flex items-center justify-between px-4 py-3">
             <div className="flex items-center gap-2">
-              <img src="/Logo_Putih.png" alt="SabiAcademia Logo" className="object-contain w-8 h-8" />
+              <img
+                src="/Logo_Sabi_Putih.svg"
+                alt="SabiAcademia Logo"
+                className="object-contain w-8 h-8"
+              />
               <div className="font-serif text-lg font-bold text-brand-dark">
                 Sabi<span className="text-brand-primary">Academia</span>
               </div>

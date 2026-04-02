@@ -52,7 +52,7 @@ export function Navbar({ onNavigateLogin, onNavigateRegister }: NavbarProps) {
               className="flex items-center gap-2 font-serif text-2xl font-bold text-brand-dark"
             >
               <img 
-                src="/Logo_Sabi.png" 
+                src="/Logo_Sabi_Default.svg" 
                 alt="SabiAcademia Logo" 
                 className="object-contain w-8 h-8 md:w-10 md:h-10" 
               />
