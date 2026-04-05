@@ -500,37 +500,37 @@ export function AdminTryoutsPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-serif font-bold text-brand-dark">Tryouts</h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <h1 className="font-serif text-2xl font-bold text-brand-dark">Tryouts</h1>
+          <p className="mt-1 text-sm text-slate-500">
             Kelola daftar tryout/simulasi yang tersedia untuk siswa.
           </p>
         </div>
         <button
           type="button"
           onClick={openCreate}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-dark transition-colors"
+          className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white transition-colors rounded-xl bg-brand-primary hover:bg-brand-dark"
         >
-          <Plus className="h-4 w-4" />
+          <Plus className="w-4 h-4" />
           New Tryout
         </button>
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 rounded-xl px-4 py-3">
-          <AlertCircle className="h-4 w-4 shrink-0" />
+        <div className="flex items-center gap-2 px-4 py-3 text-sm text-red-600 bg-red-50 rounded-xl">
+          <AlertCircle className="w-4 h-4 shrink-0" />
           {error}
         </div>
       )}
 
-      <div className="bg-white rounded-2xl border border-brand-light shadow-sm overflow-x-auto">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 pt-3 pb-2 border-b border-slate-100">
-          <div className="flex items-center gap-3 flex-1">
+      <div className="overflow-x-auto bg-white border shadow-sm rounded-2xl border-brand-light">
+        <div className="flex flex-col gap-3 px-4 pt-3 pb-2 border-b sm:flex-row sm:items-center sm:justify-between border-slate-100">
+          <div className="flex items-center flex-1 gap-3">
             <input
               type="search"
               value={searchTitle}
               onChange={(e) => setSearchTitle(e.target.value)}
               placeholder="Cari judul tryout..."
-              className="flex-1 min-w-0 max-w-sm rounded-lg border border-slate-200 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/30 placeholder:text-slate-400"
+              className="flex-1 max-w-sm min-w-0 px-3 py-2 text-sm bg-white border rounded-lg border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30 placeholder:text-slate-400"
               aria-label="Cari judul tryout"
             />
             <span className="text-xs text-slate-500 shrink-0">
@@ -554,7 +554,7 @@ export function AdminTryoutsPage() {
               onChange={(e) =>
                 setFilterType(e.target.value as 'all' | 'simulation' | 'practice')
               }
-              className="rounded-lg border border-slate-200 px-2 py-1 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+              className="px-2 py-1 text-xs bg-white border rounded-lg border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
             >
               <option value="all">Semua</option>
               <option value="simulation">Simulation</option>
@@ -565,25 +565,25 @@ export function AdminTryoutsPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-slate-100">
-              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase">
+              <th className="px-4 py-3 text-xs font-semibold text-left uppercase text-slate-500">
                 Title
               </th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase">
+              <th className="px-4 py-3 text-xs font-semibold text-left uppercase text-slate-500">
                 Type
               </th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase">
+              <th className="px-4 py-3 text-xs font-semibold text-left uppercase text-slate-500">
                 Duration
               </th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase">
+              <th className="px-4 py-3 text-xs font-semibold text-left uppercase text-slate-500">
                 Attempts
               </th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase">
-                Premium
+              <th className="px-4 py-3 text-xs font-semibold text-left uppercase text-slate-500">
+                Subscription
               </th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase">
+              <th className="px-4 py-3 text-xs font-semibold text-left uppercase text-slate-500">
                 Published
               </th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase">
+              <th className="px-4 py-3 text-xs font-semibold text-left uppercase text-slate-500">
                 Active
               </th>
               <th className="px-4 py-3" />
@@ -592,13 +592,13 @@ export function AdminTryoutsPage() {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={8} className="text-center py-8 text-slate-500">
+                <td colSpan={8} className="py-8 text-center text-slate-500">
                   Memuat…
                 </td>
               </tr>
             ) : filteredTryouts.length === 0 ? (
               <tr>
-                <td colSpan={8} className="text-center py-8 text-slate-400">
+                <td colSpan={8} className="py-8 text-center text-slate-400">
                   Belum ada tryout. Klik &quot;New Tryout&quot; untuk membuat.
                 </td>
               </tr>
@@ -606,10 +606,10 @@ export function AdminTryoutsPage() {
               filteredTryouts.map((t) => (
                 <tr
                   key={t.id}
-                  className="border-b border-slate-50 hover:bg-slate-50/60 transition-colors"
+                  className="transition-colors border-b border-slate-50 hover:bg-slate-50/60"
                 >
-                  <td className="px-4 py-3 text-slate-800 font-medium">{t.title}</td>
-                  <td className="px-4 py-3 text-slate-600 capitalize">{t.type}</td>
+                  <td className="px-4 py-3 font-medium text-slate-800">{t.title}</td>
+                  <td className="px-4 py-3 capitalize text-slate-600">{t.type}</td>
                   <td className="px-4 py-3 text-slate-600">{t.durationMinutes} min</td>
                   <td className="px-4 py-3 text-slate-500">
                     {t.maxAttempts != null ? t.maxAttempts : <span className="text-slate-300">—</span>}
@@ -649,13 +649,13 @@ export function AdminTryoutsPage() {
                     <button
                       type="button"
                       onClick={() => toggleActive(t)}
-                      className="text-brand-primary hover:text-brand-dark transition-colors"
+                      className="transition-colors text-brand-primary hover:text-brand-dark"
                       title={t.isActive ? 'Nonaktifkan' : 'Aktifkan'}
                     >
                       {t.isActive ? (
-                        <ToggleRight className="h-5 w-5 text-green-500" />
+                        <ToggleRight className="w-5 h-5 text-green-500" />
                       ) : (
-                        <ToggleLeft className="h-5 w-5 text-slate-400" />
+                        <ToggleLeft className="w-5 h-5 text-slate-400" />
                       )}
                     </button>
                   </td>
@@ -667,7 +667,7 @@ export function AdminTryoutsPage() {
                         className="p-1.5 rounded-lg text-slate-500 hover:bg-brand-light hover:text-brand-dark transition-colors"
                         title="Preview soal & jawaban"
                       >
-                        <Eye className="h-4 w-4" />
+                        <Eye className="w-4 h-4" />
                       </button>
                       <button
                         type="button"
@@ -675,7 +675,7 @@ export function AdminTryoutsPage() {
                         className="p-1.5 rounded-lg text-slate-500 hover:bg-brand-light hover:text-brand-dark transition-colors"
                         title="Kelola soal"
                       >
-                        <Settings2 className="h-4 w-4" />
+                        <Settings2 className="w-4 h-4" />
                       </button>
                       <button
                         type="button"
@@ -683,7 +683,7 @@ export function AdminTryoutsPage() {
                         className="p-1.5 rounded-lg text-slate-500 hover:bg-brand-light hover:text-brand-dark transition-colors"
                         title="Edit"
                       >
-                        <Pencil className="h-4 w-4" />
+                        <Pencil className="w-4 h-4" />
                       </button>
                       <button
                         type="button"
@@ -691,7 +691,7 @@ export function AdminTryoutsPage() {
                         className="p-1.5 rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-600 transition-colors"
                         title="Hapus tryout"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </td>
@@ -704,8 +704,8 @@ export function AdminTryoutsPage() {
 
       {/* Create / Edit Tryout Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 overflow-y-auto py-8">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 my-auto">
+        <div className="fixed inset-0 z-50 flex items-start justify-center py-8 overflow-y-auto bg-black/40">
+          <div className="w-full max-w-lg mx-4 my-auto bg-white shadow-xl rounded-2xl">
             <div className="flex items-center justify-between p-5 border-b border-slate-100">
               <h2 className="text-base font-semibold text-brand-dark">
                 {editingId ? 'Edit Tryout' : 'New Tryout'}
@@ -715,20 +715,20 @@ export function AdminTryoutsPage() {
                 onClick={() => setModalOpen(false)}
                 className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 transition-colors"
               >
-                <X className="h-4 w-4" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
             <form onSubmit={handleSubmit} className="p-5 space-y-4">
               {formError && (
-                <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 rounded-xl px-3 py-2">
-                  <AlertCircle className="h-4 w-4 shrink-0" />
+                <div className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 bg-red-50 rounded-xl">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
                   {formError}
                 </div>
               )}
 
               <div>
-                <label className="block text-xs font-medium text-slate-600 mb-1">
+                <label className="block mb-1 text-xs font-medium text-slate-600">
                   Title <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -737,13 +737,13 @@ export function AdminTryoutsPage() {
                   onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))}
                   required
                   placeholder="Contoh: IUP ITB Grand Simulation - Batch 2"
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+                  className="w-full px-3 py-2 text-sm border rounded-xl border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 mb-1">
+                  <label className="block mb-1 text-xs font-medium text-slate-600">
                     Type
                   </label>
                   <select
@@ -751,7 +751,7 @@ export function AdminTryoutsPage() {
                     onChange={(e) =>
                       setForm((p) => ({ ...p, type: e.target.value as 'simulation' | 'practice' }))
                     }
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+                    className="w-full px-3 py-2 text-sm bg-white border rounded-xl border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
                   >
                     <option value="simulation">Simulation</option>
                     <option value="practice">Practice</option>
@@ -759,7 +759,7 @@ export function AdminTryoutsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 mb-1">
+                  <label className="block mb-1 text-xs font-medium text-slate-600">
                     Duration (minutes) <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -767,15 +767,15 @@ export function AdminTryoutsPage() {
                     min={1}
                     value={form.durationMinutes}
                     onChange={(e) => setForm((p) => ({ ...p, durationMinutes: e.target.value }))}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+                    className="w-full px-3 py-2 text-sm border rounded-xl border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
                   />
                 </div>
               </div>
 
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 mb-1">
+                  <label className="block mb-1 text-xs font-medium text-slate-600">
                     Max attempts (opsional)
                   </label>
                   <input
@@ -783,7 +783,7 @@ export function AdminTryoutsPage() {
                     min={1}
                     value={form.maxAttempts}
                     onChange={(e) => setForm((p) => ({ ...p, maxAttempts: e.target.value }))}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+                    className="w-full px-3 py-2 text-sm border rounded-xl border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
                   />
                 </div>
 
@@ -793,7 +793,7 @@ export function AdminTryoutsPage() {
                       type="checkbox"
                       checked={form.isPremium}
                       onChange={(e) => setForm((p) => ({ ...p, isPremium: e.target.checked }))}
-                      className="accent-brand-primary w-4 h-4"
+                      className="w-4 h-4 accent-brand-primary"
                     />
                     <span>Premium</span>
                   </label>
@@ -802,7 +802,7 @@ export function AdminTryoutsPage() {
                       type="checkbox"
                       checked={form.isUltimate}
                       onChange={(e) => setForm((p) => ({ ...p, isUltimate: e.target.checked }))}
-                      className="accent-brand-primary w-4 h-4"
+                      className="w-4 h-4 accent-brand-primary"
                     />
                     <span>Ultimate</span>
                   </label>
@@ -811,7 +811,7 @@ export function AdminTryoutsPage() {
                       type="checkbox"
                       checked={form.isPublished}
                       onChange={(e) => setForm((p) => ({ ...p, isPublished: e.target.checked }))}
-                      className="accent-brand-primary w-4 h-4"
+                      className="w-4 h-4 accent-brand-primary"
                     />
                     <span>Published (visible to students)</span>
                   </label>
@@ -831,7 +831,7 @@ export function AdminTryoutsPage() {
                   disabled={saving}
                   className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-dark transition-colors disabled:opacity-60"
                 >
-                  <Save className="h-4 w-4" />
+                  <Save className="w-4 h-4" />
                   {saving ? 'Menyimpan…' : editingId ? 'Update' : 'Simpan'}
                 </button>
               </div>
@@ -843,10 +843,10 @@ export function AdminTryoutsPage() {
       {/* Delete confirmation modal */}
       {deleteId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4">
+          <div className="w-full max-w-sm mx-4 bg-white shadow-xl rounded-2xl">
             <div className="flex items-center gap-3 p-5 border-b border-slate-100">
               <div className="p-2 bg-red-50 rounded-xl">
-                <Trash2 className="h-5 w-5 text-red-600" />
+                <Trash2 className="w-5 h-5 text-red-600" />
               </div>
               <h2 className="text-base font-semibold text-slate-900">Hapus tryout?</h2>
             </div>
@@ -888,7 +888,7 @@ export function AdminTryoutsPage() {
 
       {/* Preview Tryout Modal */}
       {previewTryout && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 overflow-y-auto py-8">
+        <div className="fixed inset-0 z-50 flex items-start justify-center py-8 overflow-y-auto bg-black/40">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl mx-4 my-auto max-h-[90vh] flex flex-col">
             <div className="flex items-center justify-between p-5 border-b border-slate-100 shrink-0">
               <h2 className="text-base font-semibold text-brand-dark">
@@ -900,7 +900,7 @@ export function AdminTryoutsPage() {
                   onClick={openCreateQuestion}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-brand-primary text-white hover:bg-brand-dark transition-colors"
                 >
-                  <Plus className="h-4 w-4" />
+                  <Plus className="w-4 h-4" />
                   Tambah Soal
                 </button>
                 <button
@@ -909,22 +909,22 @@ export function AdminTryoutsPage() {
                   className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 transition-colors"
                   aria-label="Tutup"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
             </div>
-            <div className="p-5 overflow-y-auto flex-1 min-h-0">
+            <div className="flex-1 min-h-0 p-5 overflow-y-auto">
               {previewLoading ? (
-                <p className="text-sm text-slate-500 py-8 text-center">Memuat soal…</p>
+                <p className="py-8 text-sm text-center text-slate-500">Memuat soal…</p>
               ) : previewQuestions.length === 0 ? (
-                <div className="py-8 text-center space-y-3">
+                <div className="py-8 space-y-3 text-center">
                   <p className="text-sm text-slate-500">Belum ada soal di tryout ini.</p>
                   <button
                     type="button"
                     onClick={openCreateQuestion}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-dark transition-colors"
+                    className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white transition-colors rounded-xl bg-brand-primary hover:bg-brand-dark"
                   >
-                    <Plus className="h-4 w-4" />
+                    <Plus className="w-4 h-4" />
                     Tambah Soal Pertama
                   </button>
                   <p className="text-xs text-slate-400">
@@ -932,7 +932,7 @@ export function AdminTryoutsPage() {
                     <button
                       type="button"
                       onClick={() => navigate(`/admin/questions?tryoutId=${encodeURIComponent(previewTryout.id)}`)}
-                      className="text-brand-primary hover:text-brand-dark font-medium"
+                      className="font-medium text-brand-primary hover:text-brand-dark"
                     >
                       kelola di section Question
                     </button>
@@ -943,17 +943,17 @@ export function AdminTryoutsPage() {
                   {previewQuestions.map((q) => (
                     <div
                       key={q.id}
-                      className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 space-y-3"
+                      className="p-4 space-y-3 border rounded-xl border-slate-200 bg-slate-50/50"
                     >
                       <div className="flex items-start gap-2">
-                        <span className="shrink-0 flex h-7 w-7 items-center justify-center rounded-lg bg-brand-primary/15 text-brand-primary text-xs font-bold">
+                        <span className="flex items-center justify-center text-xs font-bold rounded-lg shrink-0 h-7 w-7 bg-brand-primary/15 text-brand-primary">
                           {q.sequenceNumber}
                         </span>
-                        <div className="min-w-0 flex-1 text-sm text-slate-800 leading-relaxed">
+                        <div className="flex-1 min-w-0 text-sm leading-relaxed text-slate-800">
                           <QuestionTextRenderer
                             text={q.text}
                             imageUrl={q.imageUrl}
-                            className="text-sm text-slate-800 leading-relaxed"
+                            className="text-sm leading-relaxed text-slate-800"
                             imgClassName="mt-3 max-h-56 max-w-full rounded-lg border border-slate-200 bg-white object-contain"
                           />
                         </div>
@@ -964,7 +964,7 @@ export function AdminTryoutsPage() {
                             className="p-1.5 rounded-lg text-slate-500 hover:bg-brand-light hover:text-brand-dark transition-colors"
                             title="Edit soal"
                           >
-                            <Pencil className="h-4 w-4" />
+                            <Pencil className="w-4 h-4" />
                           </button>
                           <button
                             type="button"
@@ -972,11 +972,11 @@ export function AdminTryoutsPage() {
                             className="p-1.5 rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-600 transition-colors"
                             title="Hapus soal"
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
                       </div>
-                      <ul className="ml-9 space-y-2">
+                      <ul className="space-y-2 ml-9">
                         {q.options
                           .slice()
                           .sort((a, b) => a.sequenceNumber - b.sequenceNumber)
@@ -994,7 +994,7 @@ export function AdminTryoutsPage() {
                               <span className="font-medium text-slate-500 w-5 shrink-0 mt-0.5">
                                 {String.fromCharCode(64 + opt.sequenceNumber)}.
                               </span>
-                              <div className="min-w-0 flex-1">
+                              <div className="flex-1 min-w-0">
                                 {opt.text ? (
                                   <span><LatexText>{opt.text}</LatexText></span>
                                 ) : null}
@@ -1006,7 +1006,7 @@ export function AdminTryoutsPage() {
                                   />
                                 ) : null}
                                 {!opt.text && !opt.imageUrl ? (
-                                  <span className="text-slate-400 italic text-xs">—</span>
+                                  <span className="text-xs italic text-slate-400">—</span>
                                 ) : null}
                               </div>
                               {opt.isCorrect && (
@@ -1023,12 +1023,12 @@ export function AdminTryoutsPage() {
               )}
             </div>
             {!previewLoading && previewQuestions.length > 0 && (
-              <div className="px-5 py-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 shrink-0">
+              <div className="flex items-center justify-between px-5 py-3 text-xs border-t border-slate-100 text-slate-500 shrink-0">
                 <span>Total {previewQuestions.length} soal</span>
                 <button
                   type="button"
                   onClick={() => navigate(`/admin/questions?tryoutId=${encodeURIComponent(previewTryout.id)}`)}
-                  className="text-brand-primary hover:text-brand-dark font-medium"
+                  className="font-medium text-brand-primary hover:text-brand-dark"
                 >
                   Kelola di section Question →
                 </button>
@@ -1041,10 +1041,10 @@ export function AdminTryoutsPage() {
       {/* Delete Question confirmation (from preview) */}
       {deleteQuestionId && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4">
+          <div className="w-full max-w-sm mx-4 bg-white shadow-xl rounded-2xl">
             <div className="flex items-center gap-3 p-5 border-b border-slate-100">
               <div className="p-2 bg-red-50 rounded-xl">
-                <Trash2 className="h-5 w-5 text-red-600" />
+                <Trash2 className="w-5 h-5 text-red-600" />
               </div>
               <h2 className="text-base font-semibold text-slate-900">Hapus soal?</h2>
             </div>
@@ -1076,14 +1076,14 @@ export function AdminTryoutsPage() {
       {/* Create / Edit Question modal (from preview) */}
       {questionFormOpen && previewTryout && (
         <div className="fixed inset-0 z-[60] flex items-start justify-center bg-black/40 overflow-y-auto py-8">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl mx-4 my-auto">
+          <div className="w-full max-w-2xl mx-4 my-auto bg-white shadow-xl rounded-2xl">
             <div className="flex items-center justify-between p-5 border-b border-slate-100">
               <h2 className="text-base font-semibold text-brand-dark">
                 {questionEditingId ? 'Edit Question' : 'Tambah Soal'}
               </h2>
               <div className="flex items-center gap-2">
                 {/* Edit / Preview toggle */}
-                <div className="flex rounded-lg border border-slate-200 overflow-hidden text-xs font-medium">
+                <div className="flex overflow-hidden text-xs font-medium border rounded-lg border-slate-200">
                   <button
                     type="button"
                     onClick={() => setQuestionPreviewMode(false)}
@@ -1104,7 +1104,7 @@ export function AdminTryoutsPage() {
                   onClick={() => setQuestionFormOpen(false)}
                   className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 transition-colors"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -1114,24 +1114,24 @@ export function AdminTryoutsPage() {
               <div className="p-5 space-y-5">
                 {/* Question text + image */}
                 <div>
-                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Soal</p>
+                  <p className="mb-2 text-xs font-semibold tracking-wide uppercase text-slate-400">Soal</p>
                   <div className="rounded-xl border border-slate-100 bg-slate-50 px-4 py-4 text-sm text-slate-800 leading-relaxed min-h-[60px]">
                     {questionForm.text ? (
                       <QuestionTextRenderer
                         text={questionForm.text}
                         imageUrl={questionForm.imageUrl || null}
-                        className="text-sm text-slate-800 leading-relaxed"
+                        className="text-sm leading-relaxed text-slate-800"
                         imgClassName="mt-3 max-h-56 max-w-full rounded-lg border border-slate-200 bg-white object-contain"
                       />
                     ) : (
-                      <span className="text-slate-400 italic">Teks soal belum diisi…</span>
+                      <span className="italic text-slate-400">Teks soal belum diisi…</span>
                     )}
                   </div>
                 </div>
 
                 {/* Options */}
                 <div>
-                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Pilihan Jawaban</p>
+                  <p className="mb-2 text-xs font-semibold tracking-wide uppercase text-slate-400">Pilihan Jawaban</p>
                   <div className="space-y-2">
                     {questionForm.options.map((opt, idx) => (
                       <div
@@ -1149,11 +1149,11 @@ export function AdminTryoutsPage() {
                             <img
                               src={opt.imageUrl}
                               alt={`Pilihan ${String.fromCharCode(65 + idx)}`}
-                              className="mt-2 max-h-28 max-w-full rounded-lg border border-slate-200 bg-slate-50 object-contain"
+                              className="object-contain max-w-full mt-2 border rounded-lg max-h-28 border-slate-200 bg-slate-50"
                             />
                           ) : null}
                           {!opt.text && !opt.imageUrl ? (
-                            <span className="text-slate-400 italic">Kosong</span>
+                            <span className="italic text-slate-400">Kosong</span>
                           ) : null}
                         </div>
                         {opt.isCorrect && (
@@ -1167,8 +1167,8 @@ export function AdminTryoutsPage() {
                 {/* Explanation */}
                 {questionForm.explanation && (
                   <div>
-                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Pembahasan</p>
-                    <div className="rounded-xl border border-slate-100 bg-amber-50 px-4 py-3 text-sm text-slate-700 leading-relaxed whitespace-pre-wrap break-words">
+                    <p className="mb-2 text-xs font-semibold tracking-wide uppercase text-slate-400">Pembahasan</p>
+                    <div className="px-4 py-3 text-sm leading-relaxed break-words whitespace-pre-wrap border rounded-xl border-slate-100 bg-amber-50 text-slate-700">
                       <LatexText>{questionForm.explanation}</LatexText>
                     </div>
                   </div>
@@ -1189,7 +1189,7 @@ export function AdminTryoutsPage() {
                     onClick={(e) => { setQuestionPreviewMode(false); handleQuestionSave(e as unknown as React.FormEvent); }}
                     className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-dark transition-colors disabled:opacity-60"
                   >
-                    <Save className="h-4 w-4" />
+                    <Save className="w-4 h-4" />
                     {questionSaving ? 'Menyimpan…' : questionEditingId ? 'Update' : 'Simpan'}
                   </button>
                 </div>
@@ -1198,20 +1198,20 @@ export function AdminTryoutsPage() {
 
             <form onSubmit={handleQuestionSave} className={`p-5 space-y-4 ${questionPreviewMode ? 'hidden' : ''}`}>
               {questionFormError && (
-                <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 rounded-xl px-3 py-2">
-                  <AlertCircle className="h-4 w-4 shrink-0" />
+                <div className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 bg-red-50 rounded-xl">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
                   {questionFormError}
                 </div>
               )}
 
-              <div className="rounded-xl bg-slate-50 border border-slate-200 px-3 py-2 text-sm text-slate-700">
+              <div className="px-3 py-2 text-sm border rounded-xl bg-slate-50 border-slate-200 text-slate-700">
                 <span className="text-xs font-medium text-slate-500">Tryout</span>
                 <p className="font-medium">{previewTryout.title}</p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 mb-1">Sequence Number <span className="text-red-500">*</span></label>
+                  <label className="block mb-1 text-xs font-medium text-slate-600">Sequence Number <span className="text-red-500">*</span></label>
                   <input
                     type="number"
                     min={1}
@@ -1219,16 +1219,16 @@ export function AdminTryoutsPage() {
                     onChange={(e) => setQuestionForm((p) => ({ ...p, sequenceNumber: e.target.value }))}
                     required
                     placeholder="1"
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+                    className="w-full px-3 py-2 text-sm border rounded-xl border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 mb-1">Subject <span className="text-red-500">*</span></label>
+                  <label className="block mb-1 text-xs font-medium text-slate-600">Subject <span className="text-red-500">*</span></label>
                   <select
                     value={questionForm.subjectId}
                     onChange={(e) => setQuestionForm((p) => ({ ...p, subjectId: e.target.value, topicId: '' }))}
                     required
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+                    className="w-full px-3 py-2 text-sm bg-white border rounded-xl border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
                   >
                     <option value="">— Pilih Subject —</option>
                     {questionSubjects.map((s) => (
@@ -1237,12 +1237,12 @@ export function AdminTryoutsPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 mb-1">Topic</label>
+                  <label className="block mb-1 text-xs font-medium text-slate-600">Topic</label>
                   <select
                     value={questionForm.topicId}
                     onChange={(e) => setQuestionForm((p) => ({ ...p, topicId: e.target.value }))}
                     disabled={!questionForm.subjectId || questionFormTopics.length === 0}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary/30 disabled:opacity-50"
+                    className="w-full px-3 py-2 text-sm bg-white border rounded-xl border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30 disabled:opacity-50"
                   >
                     <option value="">— Opsional —</option>
                     {questionFormTopics.map((t) => (
@@ -1253,7 +1253,7 @@ export function AdminTryoutsPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-600 mb-1">Question Text <span className="text-red-500">*</span></label>
+                <label className="block mb-1 text-xs font-medium text-slate-600">Question Text <span className="text-red-500">*</span></label>
                 <textarea
                   value={questionForm.text}
                   onChange={(e) => setQuestionForm((p) => ({ ...p, text: e.target.value }))}
@@ -1261,22 +1261,22 @@ export function AdminTryoutsPage() {
                   required
                   rows={4}
                   placeholder="Tulis soal di sini. Paste gambar langsung ke sini untuk menambahkan gambar."
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-mono resize-y focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+                  className="w-full px-3 py-2 font-mono text-sm border resize-y rounded-xl border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
                 />
                 <p className="mt-1 text-xs text-slate-500">
-                  LaTeX: <code className="bg-slate-100 px-1 rounded">$rumus$</code> inline; <code className="bg-slate-100 px-1 rounded">$$rumus$$</code> atau <code className="bg-slate-100 px-1 rounded">\[rumus\]</code> blok.
+                  LaTeX: <code className="px-1 rounded bg-slate-100">$rumus$</code> inline; <code className="px-1 rounded bg-slate-100">$$rumus$$</code> atau <code className="px-1 rounded bg-slate-100">\[rumus\]</code> blok.
                   {' '}Kamu juga bisa <strong>paste gambar</strong> langsung ke kolom ini.
-                  {' '}Gunakan <code className="bg-slate-100 px-1 rounded">[img]</code> di teks untuk menempatkan gambar inline.
+                  {' '}Gunakan <code className="px-1 rounded bg-slate-100">[img]</code> di teks untuk menempatkan gambar inline.
                 </p>
               </div>
 
               {/* Image section */}
               <div>
-                <label className="flex items-center gap-1 text-xs font-medium text-slate-600 mb-1">
+                <label className="flex items-center gap-1 mb-1 text-xs font-medium text-slate-600">
                   <ImageIcon className="h-3.5 w-3.5" /> Gambar Soal (opsional)
                 </label>
                 <div
-                  className="mb-2 flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-500 hover:border-brand-primary/40 hover:bg-brand-primary/5 transition-colors cursor-pointer"
+                  className="flex items-center justify-center gap-2 px-4 py-3 mb-2 text-xs transition-colors border-2 border-dashed cursor-pointer rounded-xl border-slate-200 bg-slate-50 text-slate-500 hover:border-brand-primary/40 hover:bg-brand-primary/5"
                   onClick={() => qImageFileRef.current?.click()}
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={async (e) => {
@@ -1288,8 +1288,8 @@ export function AdminTryoutsPage() {
                   }}
                 >
                   {qImageUploading ? (
-                    <span className="flex items-center gap-2 text-brand-primary font-medium">
-                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                    <span className="flex items-center gap-2 font-medium text-brand-primary">
+                      <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
                       </svg>
@@ -1297,15 +1297,15 @@ export function AdminTryoutsPage() {
                     </span>
                   ) : (
                     <>
-                      <Upload className="h-4 w-4 shrink-0" />
+                      <Upload className="w-4 h-4 shrink-0" />
                       <span>Klik untuk pilih file, atau drag &amp; drop. Maks 100KB.</span>
                     </>
                   )}
                 </div>
                 <input ref={qImageFileRef} type="file" accept="image/*" className="hidden" onChange={handleQImageFileChange} />
                 {questionForm.imageUrl && !qImageUploading && (
-                  <div className="mb-2 relative inline-block rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
-                    <img src={questionForm.imageUrl} alt="Preview soal" className="max-h-40 max-w-full object-contain block" />
+                  <div className="relative inline-block mb-2 overflow-hidden border rounded-xl border-slate-200 bg-slate-50">
+                    <img src={questionForm.imageUrl} alt="Preview soal" className="block object-contain max-w-full max-h-40" />
                     <button
                       type="button"
                       onClick={() => setQuestionForm((p) => ({ ...p, imageUrl: '' }))}
@@ -1324,25 +1324,25 @@ export function AdminTryoutsPage() {
                   value={questionForm.imageUrl}
                   onChange={(e) => setQuestionForm((p) => ({ ...p, imageUrl: e.target.value }))}
                   placeholder="https://…"
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+                  className="w-full px-3 py-2 text-sm border rounded-xl border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-600 mb-1">Penjelasan (opsional)</label>
+                <label className="block mb-1 text-xs font-medium text-slate-600">Penjelasan (opsional)</label>
                 <textarea
                   value={questionForm.explanation}
                   onChange={(e) => setQuestionForm((p) => ({ ...p, explanation: e.target.value }))}
                   rows={2}
                   placeholder="Pembahasan jawaban..."
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm resize-y focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+                  className="w-full px-3 py-2 text-sm border resize-y rounded-xl border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
                 />
               </div>
 
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-xs font-semibold text-slate-600">Pilihan Jawaban <span className="text-red-500">*</span></label>
-                  <button type="button" onClick={addQuestionOption} className="text-xs text-brand-primary hover:text-brand-dark font-medium flex items-center gap-1">
+                  <button type="button" onClick={addQuestionOption} className="flex items-center gap-1 text-xs font-medium text-brand-primary hover:text-brand-dark">
                     <Plus className="h-3.5 w-3.5" /> Tambah pilihan
                   </button>
                 </div>
@@ -1355,7 +1355,7 @@ export function AdminTryoutsPage() {
                     <div key={idx} className="rounded-xl border border-slate-200 bg-slate-50/50 p-2.5 space-y-2">
                       {/* Row 1: label + text + correct + remove */}
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-semibold text-slate-400 w-5 shrink-0 text-center">{String.fromCharCode(65 + idx)}.</span>
+                        <span className="w-5 text-xs font-semibold text-center text-slate-400 shrink-0">{String.fromCharCode(65 + idx)}.</span>
                         <input
                           type="text"
                           value={opt.text}
@@ -1369,9 +1369,9 @@ export function AdminTryoutsPage() {
                             type="checkbox"
                             checked={opt.isCorrect}
                             onChange={(e) => updateQuestionOption(idx, 'isCorrect', e.target.checked)}
-                            className="accent-brand-primary w-4 h-4"
+                            className="w-4 h-4 accent-brand-primary"
                           />
-                          <span className="text-xs text-green-600 font-medium">Benar</span>
+                          <span className="text-xs font-medium text-green-600">Benar</span>
                         </label>
                         {questionForm.options.length > 2 && (
                           <button type="button" onClick={() => removeQuestionOption(idx)} className="p-1 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500 shrink-0">
@@ -1383,10 +1383,10 @@ export function AdminTryoutsPage() {
                       <div className="pl-7">
                         {opt.imageUrl ? (
                           <div className="flex items-start gap-2">
-                            <div className="relative inline-block rounded-lg overflow-hidden border border-slate-200 bg-white">
+                            <div className="relative inline-block overflow-hidden bg-white border rounded-lg border-slate-200">
                               {qOptionImageUploading === idx ? (
                                 <div className="flex items-center justify-center gap-1.5 h-16 w-24 text-xs text-brand-primary">
-                                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+                                  <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
                                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
                                   </svg>
@@ -1395,14 +1395,14 @@ export function AdminTryoutsPage() {
                                 <img src={opt.imageUrl} alt={`Pilihan ${String.fromCharCode(65 + idx)}`} className="max-h-24 max-w-[160px] object-contain block" />
                               )}
                               <button type="button" onClick={() => updateQuestionOption(idx, 'imageUrl', '')} className="absolute top-0.5 right-0.5 rounded-full bg-white/80 p-0.5 text-slate-500 hover:bg-red-50 hover:text-red-500 border border-slate-200">
-                                <X className="h-3 w-3" />
+                                <X className="w-3 h-3" />
                               </button>
                             </div>
                             <div className="flex flex-col gap-1">
-                              <button type="button" onClick={() => { qCurrentOptionIdxRef.current = idx; qOptionFileRef.current?.click(); }} className="text-xs text-brand-primary hover:text-brand-dark flex items-center gap-1">
-                                <Upload className="h-3 w-3" /> Ganti gambar
+                              <button type="button" onClick={() => { qCurrentOptionIdxRef.current = idx; qOptionFileRef.current?.click(); }} className="flex items-center gap-1 text-xs text-brand-primary hover:text-brand-dark">
+                                <Upload className="w-3 h-3" /> Ganti gambar
                               </button>
-                              <input type="url" value={opt.imageUrl} onChange={(e) => updateQuestionOption(idx, 'imageUrl', e.target.value)} placeholder="URL gambar…" className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-brand-primary/30 w-48" />
+                              <input type="url" value={opt.imageUrl} onChange={(e) => updateQuestionOption(idx, 'imageUrl', e.target.value)} placeholder="URL gambar…" className="w-48 px-2 py-1 text-xs bg-white border rounded-lg border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30" />
                             </div>
                           </div>
                         ) : (
@@ -1416,12 +1416,12 @@ export function AdminTryoutsPage() {
                                 Mengupload…
                               </span>
                             ) : (
-                              <button type="button" onClick={() => { qCurrentOptionIdxRef.current = idx; qOptionFileRef.current?.click(); }} className="flex items-center gap-1 text-xs text-slate-500 hover:text-brand-primary transition-colors">
+                              <button type="button" onClick={() => { qCurrentOptionIdxRef.current = idx; qOptionFileRef.current?.click(); }} className="flex items-center gap-1 text-xs transition-colors text-slate-500 hover:text-brand-primary">
                                 <ImageIcon className="h-3.5 w-3.5" /> Tambah gambar
                               </button>
                             )}
-                            <span className="text-slate-300 text-xs">|</span>
-                            <input type="url" value={opt.imageUrl} onChange={(e) => updateQuestionOption(idx, 'imageUrl', e.target.value)} placeholder="atau paste URL gambar…" className="flex-1 rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-brand-primary/30" />
+                            <span className="text-xs text-slate-300">|</span>
+                            <input type="url" value={opt.imageUrl} onChange={(e) => updateQuestionOption(idx, 'imageUrl', e.target.value)} placeholder="atau paste URL gambar…" className="flex-1 px-2 py-1 text-xs bg-white border rounded-lg border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30" />
                           </div>
                         )}
                       </div>
@@ -1435,7 +1435,7 @@ export function AdminTryoutsPage() {
                   Batal
                 </button>
                 <button type="submit" disabled={questionSaving} className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-dark disabled:opacity-60">
-                  <Save className="h-4 w-4" />
+                  <Save className="w-4 h-4" />
                   {questionSaving ? 'Menyimpan…' : questionEditingId ? 'Update' : 'Simpan'}
                 </button>
               </div>

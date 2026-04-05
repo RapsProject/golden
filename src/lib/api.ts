@@ -67,7 +67,6 @@ export type ProfileData = {
     id: string;
     status: string;
     startDate: string;
-    endDate: string;
     plan: { id: string; name: string; price: number; durationDays: number };
   }>;
 };
@@ -349,7 +348,6 @@ export type ProfileDetail = {
     id: string;
     status: string;
     startDate: string;
-    endDate: string;
     plan: { id: string; name: string; price: number; durationDays: number };
   }>;
 };
@@ -636,7 +634,6 @@ export type AdminUserData = {
     id: string;
     status: string;
     startDate: string;
-    endDate: string;
     plan: { id: string; name: string; price: number; durationDays: number };
   }>;
 };
