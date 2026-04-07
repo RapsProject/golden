@@ -17,9 +17,14 @@ function formatDate(dateStr: string) {
   });
 }
 
-function subBadge(status: string) {
-  if (status === 'active') return 'bg-green-100 text-green-700 border border-green-200';
+function subBadge(status: string, planName?: string) {
   if (status === 'expired') return 'bg-red-100 text-red-700 border border-red-200';
+  if (status === 'active') {
+    const p = planName?.toLowerCase() || '';
+    if (p.includes('ultimate')) return 'bg-purple-50 text-purple-700 border border-purple-200';
+    if (p.includes('premium')) return 'bg-amber-50 text-amber-700 border border-amber-200';
+    return 'bg-green-100 text-green-700 border border-green-200';
+  }
   return 'bg-slate-100 text-slate-500 border border-slate-200';
 }
 
@@ -73,20 +78,20 @@ export function AdminUsersPage() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-serif font-bold text-brand-dark">Users</h1>
-        <p className="text-sm text-slate-500 mt-1">Data semua pengguna platform</p>
+        <h1 className="font-serif text-2xl font-bold text-brand-dark">Users</h1>
+        <p className="mt-1 text-sm text-slate-500">Data semua pengguna platform</p>
       </div>
 
       {/* Summary cards */}
       {summary && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {stats.map(({ label, value, icon: Icon, color }) => (
             <div
               key={label}
-              className="bg-white rounded-2xl border border-brand-light p-5 shadow-sm flex items-center gap-4"
+              className="flex items-center gap-4 p-5 bg-white border shadow-sm rounded-2xl border-brand-light"
             >
               <div className={`p-2.5 rounded-xl ${color}`}>
-                <Icon className="h-5 w-5" />
+                <Icon className="w-5 h-5" />
               </div>
               <div>
                 <div className="text-2xl font-bold text-brand-dark">{value}</div>
@@ -98,49 +103,49 @@ export function AdminUsersPage() {
       )}
 
       {error && (
-        <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 rounded-xl px-4 py-3">
-          <AlertCircle className="h-4 w-4 shrink-0" />
+        <div className="flex items-center gap-2 px-4 py-3 text-sm text-red-600 bg-red-50 rounded-xl">
+          <AlertCircle className="w-4 h-4 shrink-0" />
           {error}
         </div>
       )}
 
       {/* Search */}
-      <div className="bg-white rounded-2xl border border-brand-light p-4 shadow-sm">
+      <div className="p-4 bg-white border shadow-sm rounded-2xl border-brand-light">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Search className="absolute w-4 h-4 -translate-y-1/2 left-3 top-1/2 text-slate-400" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Cari nama, email, asal sekolah, jurusan impian…"
-            className="w-full rounded-xl border border-slate-200 pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+            className="w-full py-2 pr-3 text-sm border rounded-xl border-slate-200 pl-9 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
           />
         </div>
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-2xl border border-brand-light shadow-sm overflow-x-auto">
+      <div className="overflow-x-auto bg-white border shadow-sm rounded-2xl border-brand-light">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-slate-100">
-              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase">Nama</th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase">Email</th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase">Asal Sekolah</th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase">Jurusan Impian</th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase">Role</th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase">Subscription</th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase">Bergabung</th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase">Detail</th>
+              <th className="px-4 py-3 text-xs font-semibold text-left uppercase text-slate-500">Nama</th>
+              <th className="px-4 py-3 text-xs font-semibold text-left uppercase text-slate-500">Email</th>
+              <th className="px-4 py-3 text-xs font-semibold text-left uppercase text-slate-500">Asal Sekolah</th>
+              <th className="px-4 py-3 text-xs font-semibold text-left uppercase text-slate-500">Jurusan Impian</th>
+              <th className="px-4 py-3 text-xs font-semibold text-left uppercase text-slate-500">Role</th>
+              <th className="px-4 py-3 text-xs font-semibold text-left uppercase text-slate-500">Subscription</th>
+              <th className="px-4 py-3 text-xs font-semibold text-left uppercase text-slate-500">Bergabung</th>
+              <th className="px-4 py-3 text-xs font-semibold text-left uppercase text-slate-500">Detail</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={8} className="text-center py-8 text-slate-500">Memuat…</td>
+                <td colSpan={8} className="py-8 text-center text-slate-500">Memuat…</td>
               </tr>
             ) : filtered.length === 0 ? (
               <tr>
-                <td colSpan={8} className="text-center py-8 text-slate-400">
+                <td colSpan={8} className="py-8 text-center text-slate-400">
                   {search ? 'Tidak ada user yang cocok dengan pencarian.' : 'Belum ada user.'}
                 </td>
               </tr>
@@ -150,11 +155,11 @@ export function AdminUsersPage() {
                 return (
                   <tr
                     key={user.id}
-                    className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors"
+                    className="transition-colors border-b border-slate-50 hover:bg-slate-50/50"
                   >
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2.5">
-                        <div className="h-8 w-8 rounded-full bg-brand-primary text-white flex items-center justify-center text-xs font-semibold shrink-0">
+                        <div className="flex items-center justify-center w-8 h-8 text-xs font-semibold text-white rounded-full bg-brand-primary shrink-0">
                           {user.fullName
                             .split(' ')
                             .slice(0, 2)
@@ -193,21 +198,16 @@ export function AdminUsersPage() {
                       {activeSub ? (
                         <div>
                           <span
-                            className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold ${subBadge(activeSub.status)}`}
+                            className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold ${subBadge(activeSub.status, activeSub.plan.name)}`}
                           >
                             {activeSub.plan.name}
                           </span>
-                          <div className="text-xs text-slate-400 mt-0.5">
-                            {activeSub.status === 'active'
-                              ? `Aktif s/d ${formatDate(activeSub.endDate)}`
-                              : `Expired ${formatDate(activeSub.endDate)}`}
-                          </div>
                         </div>
                       ) : (
                         <span className="text-xs text-slate-400">Free Plan</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-slate-500 text-xs whitespace-nowrap">
+                    <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">
                       {formatDate(user.createdAt)}
                     </td>
                     <td className="px-4 py-3 text-right">
@@ -227,7 +227,7 @@ export function AdminUsersPage() {
           </tbody>
         </table>
         {!loading && (
-          <div className="px-4 py-2 text-xs text-slate-400 border-t border-slate-50">
+          <div className="px-4 py-2 text-xs border-t text-slate-400 border-slate-50">
             {filtered.length} dari {users.length} user
           </div>
         )}

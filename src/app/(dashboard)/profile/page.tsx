@@ -184,13 +184,7 @@ export function ProfilePage() {
               <div className="font-medium text-slate-800">
                 {formatDate(activeSub.startDate)}
               </div>
-            </div>
-            <div>
-              <div className="text-xs text-slate-400 mb-0.5">Expires on</div>
-              <div className="font-medium text-slate-800">
-                {formatDate(activeSub.endDate)}
-              </div>
-            </div>
+          </div>
         </div>
       </div>
       )}

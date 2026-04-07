@@ -5,7 +5,7 @@ import {
   useNavigate,
   useParams,
 } from 'react-router-dom';
-import { BarChart3, ChevronLeft, Clock, Mail, Phone, GraduationCap, School, User as UserIcon } from 'lucide-react';
+import { BarChart3, ChevronLeft, Clock, Mail, Phone, School, User as UserIcon } from 'lucide-react';
 import { useAuth } from '../../../../contexts/AuthContext';
 import {
   getAdminUserSessions,
@@ -41,6 +41,17 @@ function scoreColor(score: number | null): string {
   if (score >= 700) return 'text-brand-primary';
   if (score >= 500) return 'text-yellow-600';
   return 'text-red-600';
+}
+
+function subBadge(status: string, planName?: string) {
+  if (status === 'expired') return 'bg-red-100 text-red-700 border border-red-200';
+  if (status === 'active') {
+    const p = planName?.toLowerCase() || '';
+    if (p.includes('ultimate')) return 'bg-purple-50 text-purple-700 border border-purple-200';
+    if (p.includes('premium')) return 'bg-amber-50 text-amber-700 border border-amber-200';
+    return 'bg-green-100 text-green-700 border border-green-200';
+  }
+  return 'bg-slate-100 text-slate-500 border border-slate-200';
 }
 
 export function AdminUserDetailPage() {
@@ -116,78 +127,81 @@ export function AdminUserDetailPage() {
         onClick={() => navigate('/admin/users')}
         className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-brand-dark"
       >
-        <ChevronLeft className="h-4 w-4" />
+        <ChevronLeft className="w-4 h-4" />
         <span>Kembali ke daftar user</span>
       </button>
 
-      <div className="bg-white rounded-2xl border border-brand-light p-5 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="flex flex-col justify-between gap-4 p-5 bg-white border shadow-sm rounded-2xl border-brand-light md:flex-row md:items-center">
+        {/* Left side: Avatar + User Info */}
         <div className="flex items-center gap-4">
-          <div className="h-12 w-12 rounded-full bg-brand-primary text-white flex items-center justify-center text-lg font-semibold">
+          <div className="flex items-center justify-center text-xl font-semibold text-white rounded-full h-14 w-14 bg-brand-primary shrink-0">
             {initials}
           </div>
           <div>
-            <h1 className="text-lg md:text-xl font-serif font-bold text-brand-dark">
-              {user?.fullName ?? 'User'}
-            </h1>
-            <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-xs text-slate-500">
+            <div className="flex items-center gap-3">
+              <h1 className="font-serif text-xl font-bold text-brand-dark">
+                {user?.fullName ?? 'User'}
+              </h1>
+              <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-[10px] font-bold uppercase tracking-wider">
+                <UserIcon className="w-3 h-3" />
+                {user?.role ?? 'user'}
+              </div>
+            </div>
+            
+            <div className="flex flex-wrap items-center gap-2 mt-1.5 text-xs text-slate-500">
               {user?.email && (
                 <span className="inline-flex items-center gap-1">
-                  <Mail className="h-3 w-3" />
+                  <Mail className="h-3.5 w-3.5" />
                   {user.email}
                 </span>
               )}
+              {user?.email && user?.phoneNumber && <span className="text-slate-300">•</span>}
               {user?.phoneNumber && (
                 <span className="inline-flex items-center gap-1">
-                  <Phone className="h-3 w-3" />
+                  <Phone className="h-3.5 w-3.5" />
                   {user.phoneNumber}
+                </span>
+              )}
+              {((user?.email || user?.phoneNumber) && (user?.schoolOrigin || user?.dreamMajor)) && (
+                <span className="text-slate-300">•</span>
+              )}
+              {(user?.schoolOrigin || user?.dreamMajor) && (
+                <span className="inline-flex items-center gap-1">
+                  <School className="h-3.5 w-3.5 text-brand-primary" />
+                  <span className="font-medium text-slate-600">
+                    {user?.schoolOrigin}
+                    {user?.schoolOrigin && user?.dreamMajor && ' | '}
+                    {user?.dreamMajor}
+                  </span>
                 </span>
               )}
             </div>
           </div>
         </div>
-        <div className="flex flex-col items-start md:items-end gap-2 text-xs">
-          <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
-            <UserIcon className="h-3 w-3" />
-            <span className="font-semibold uppercase tracking-wide">
-              {user?.role ?? 'user'}
-            </span>
-          </div>
-          {user?.schoolOrigin && (
-            <div className="inline-flex items-center gap-1 text-slate-600">
-              <School className="h-3 w-3 text-brand-primary" />
-              <span>{user.schoolOrigin}</span>
+
+        {/* Right side: Subscription & Join Date */}
+        <div className="flex items-center gap-4 text-xs">
+          {activeSub ? (
+            <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full font-semibold ${subBadge(activeSub.status, activeSub.plan.name)}`}>
+              <span>{activeSub.plan.name}</span>
             </div>
-          )}
-          {user?.dreamMajor && (
-            <div className="inline-flex items-center gap-1 text-slate-600">
-              <GraduationCap className="h-3 w-3 text-brand-primary" />
-              <span>{user.dreamMajor}</span>
-            </div>
-          )}
-          {activeSub && (
-            <div className="text-xs text-slate-500">
-              <div className="mb-0.5 font-semibold text-slate-600">Subscription</div>
-              <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-50 border border-slate-200">
-                <span className="text-slate-700">{activeSub.plan.name}</span>
-                <span className="text-slate-400">
-                  ({activeSub.status === 'active' ? 'Aktif' : 'Expired'} s/d{' '}
-                  {formatDate(activeSub.endDate)})
-                </span>
-              </div>
+          ) : (
+            <div className="inline-flex items-center px-2.5 py-1 rounded-full font-semibold bg-slate-100 text-slate-500 border border-slate-200">
+              Free Plan
             </div>
           )}
           {user && (
-            <div className="text-xs text-slate-400">
+            <div className="text-slate-400 whitespace-nowrap">
               Bergabung: {formatDate(user.createdAt)}
             </div>
           )}
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl border border-brand-light p-5 shadow-sm">
+      <div className="p-5 bg-white border shadow-sm rounded-2xl border-brand-light">
         <div className="flex items-center gap-3 mb-2">
-          <div className="h-9 w-9 rounded-full bg-brand-light flex items-center justify-center">
-            <BarChart3 className="h-5 w-5 text-brand-primary" />
+          <div className="flex items-center justify-center rounded-full h-9 w-9 bg-brand-light">
+            <BarChart3 className="w-5 h-5 text-brand-primary" />
           </div>
           <div>
             <h2 className="text-base font-semibold text-brand-dark">
@@ -208,23 +222,23 @@ export function AdminUserDetailPage() {
             User ini belum menyelesaikan simulation apa pun.
           </div>
         ) : (
-          <div className="mt-3 border border-brand-light rounded-2xl overflow-hidden">
+          <div className="mt-3 overflow-hidden border border-brand-light rounded-2xl">
             <div className="divide-y divide-brand-light">
               {sessions.map((s) => (
                 <div
                   key={s.id}
-                  className="px-4 py-3 flex items-center gap-4 bg-white hover:bg-brand-light/40 transition-colors"
+                  className="flex items-center gap-4 px-4 py-3 transition-colors bg-white hover:bg-brand-light/40"
                 >
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-semibold text-slate-900 truncate">
+                    <div className="text-sm font-semibold truncate text-slate-900">
                       {s.tryout?.title ?? s.tryoutId}
                     </div>
                     <div className="flex items-center gap-2 mt-1 text-xs text-slate-400">
-                      <Clock className="h-3 w-3" />
+                      <Clock className="w-3 h-3" />
                       <span>{formatDateTime(s.startTime)}</span>
                     </div>
                   </div>
-                  <div className="shrink-0 text-right">
+                  <div className="text-right shrink-0">
                     <div
                       className={`text-lg font-bold ${scoreColor(s.score)}`}
                     >
