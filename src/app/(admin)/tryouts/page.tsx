@@ -23,6 +23,19 @@ import {
   type CreateQuestionInput,
 } from '../../../lib/api';
 import { LatexText } from '../../../components/LatexText';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
+
+const quillModules = {
+  toolbar: [
+    [{ header: [1, 2, false] }],
+    ['bold', 'italic', 'underline', 'strike'],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    [{ align: [] }],
+    ['blockquote', 'code-block'],
+    ['clean'],
+  ],
+};
 
 type OptionDraft = { sequenceNumber: number; text: string; imageUrl: string; isCorrect: boolean };
 const emptyOption = (seq: number): OptionDraft => ({ sequenceNumber: seq, text: '', imageUrl: '', isCorrect: false });
@@ -149,8 +162,10 @@ export function AdminTryoutsPage() {
     }
   };
 
-  const handleQTextareaPaste = async (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
-    const imageItem = Array.from(e.clipboardData.items).find((item) => item.type.startsWith('image/'));
+  const handleQTextareaPaste = async (e: React.ClipboardEvent<HTMLDivElement>) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    const imageItem = Array.from(items).find((item) => (item as DataTransferItem).type.startsWith('image/')) as DataTransferItem | undefined;
     if (!imageItem) return;
     e.preventDefault();
     const file = imageItem.getAsFile();
@@ -1254,15 +1269,16 @@ export function AdminTryoutsPage() {
 
               <div>
                 <label className="block mb-1 text-xs font-medium text-slate-600">Question Text <span className="text-red-500">*</span></label>
-                <textarea
-                  value={questionForm.text}
-                  onChange={(e) => setQuestionForm((p) => ({ ...p, text: e.target.value }))}
-                  onPaste={handleQTextareaPaste}
-                  required
-                  rows={4}
-                  placeholder="Tulis soal di sini. Paste gambar langsung ke sini untuk menambahkan gambar."
-                  className="w-full px-3 py-2 font-mono text-sm border resize-y rounded-xl border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
-                />
+                <div onPaste={handleQTextareaPaste}>
+                  <ReactQuill
+                    theme="snow"
+                    value={questionForm.text}
+                    onChange={(val) => setQuestionForm((p) => ({ ...p, text: val }))}
+                    modules={quillModules}
+                    placeholder="Tulis soal di sini. Paste gambar langsung ke sini untuk menambahkan gambar."
+                    className="bg-white rounded-xl overflow-hidden [&_.ql-container]:min-h-[150px] [&_.ql-container]:text-sm [&_.ql-editor]:font-mono"
+                  />
+                </div>
                 <p className="mt-1 text-xs text-slate-500">
                   LaTeX: <code className="px-1 rounded bg-slate-100">$rumus$</code> inline; <code className="px-1 rounded bg-slate-100">$$rumus$$</code> atau <code className="px-1 rounded bg-slate-100">\[rumus\]</code> blok.
                   {' '}Kamu juga bisa <strong>paste gambar</strong> langsung ke kolom ini.
@@ -1330,12 +1346,13 @@ export function AdminTryoutsPage() {
 
               <div>
                 <label className="block mb-1 text-xs font-medium text-slate-600">Penjelasan (opsional)</label>
-                <textarea
+                <ReactQuill
+                  theme="snow"
                   value={questionForm.explanation}
-                  onChange={(e) => setQuestionForm((p) => ({ ...p, explanation: e.target.value }))}
-                  rows={2}
+                  onChange={(val) => setQuestionForm((p) => ({ ...p, explanation: val }))}
+                  modules={quillModules}
                   placeholder="Pembahasan jawaban..."
-                  className="w-full px-3 py-2 text-sm border resize-y rounded-xl border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+                  className="bg-white rounded-xl overflow-hidden [&_.ql-container]:min-h-[100px] [&_.ql-container]:text-sm"
                 />
               </div>
 
