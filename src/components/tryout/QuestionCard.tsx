@@ -66,7 +66,7 @@ export function QuestionCard({
         <QuestionTextRenderer
           text={question.text}
           imageUrl={question.imageUrl}
-          className="text-base md:text-lg text-slate-900 leading-relaxed mb-6"
+          className="text-base md:text-lg text-slate-900 leading-relaxed mb-6 break-words overflow-hidden w-full"
         />
 
         {/* Options */}

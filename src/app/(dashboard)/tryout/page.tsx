@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Lock } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { getMyProfile, getSessions, getTryouts } from '../../../lib/api';
 
@@ -11,6 +12,8 @@ type TryoutItem = {
   totalQuestions?: number;
   status: 'not-started' | 'completed';
   score?: number;
+  isLocked?: boolean;
+  lockReason?: string;
 };
 
 function getUserTier(planName?: string): 'free' | 'premium' | 'ultimate' {
@@ -54,20 +57,35 @@ export function TryOutListPage() {
         for (const s of sorted) {
           if (!byTryout.has(s.tryoutId)) byTryout.set(s.tryoutId, { score: s.score! });
         }
-        setTryouts(
-          (list ?? [])
-            .filter((t) => t.type === 'simulation')
-            .filter((t) => canAccessTryout(t, tier))
-            .map((t) => ({
+        const mapped = (list ?? [])
+          .filter((t) => t.type === 'simulation')
+          .map((t) => {
+            const locked = !canAccessTryout(t, tier);
+            let lockReason = '';
+            if (locked) {
+              if (t.isUltimate && !t.isPremium) {
+                lockReason = 'Only available for Ultimate subscription';
+              } else if (t.isPremium && !t.isUltimate) {
+                lockReason = 'Only available for Premium or higher subscription';
+              } else {
+                lockReason = 'Only available for Premium or higher subscription';
+              }
+            }
+            return {
               id: t.id,
               title: t.title,
               type: t.type,
               durationMinutes: t.durationMinutes,
               totalQuestions: undefined,
-              status: byTryout.has(t.id) ? 'completed' : 'not-started',
+              status: (byTryout.has(t.id) ? 'completed' : 'not-started') as 'completed' | 'not-started',
               score: byTryout.get(t.id)?.score,
-            }))
-        );
+              isLocked: locked,
+              lockReason,
+            };
+          });
+        // Sort: unlocked first, then locked
+        mapped.sort((a, b) => (a.isLocked === b.isLocked ? 0 : a.isLocked ? 1 : -1));
+        setTryouts(mapped);
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : 'Failed to load tryouts');
       } finally {
@@ -134,36 +152,52 @@ export function TryOutListPage() {
           {tryouts.map((tryout) => (
             <div
               key={tryout.id}
-              className="bg-white rounded-2xl border border-brand-light shadow-sm p-5 flex flex-col gap-4"
+              className="bg-white rounded-2xl border border-brand-light shadow-sm p-5 flex flex-col gap-4 relative overflow-hidden"
             >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h2 className="text-base font-semibold text-brand-dark">{tryout.title}</h2>
-                  <p className="text-xs text-slate-500 mt-1 capitalize">{tryout.type}</p>
+              {tryout.isLocked && (
+                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/40 backdrop-blur-[3px]">
+                  <Lock className="h-8 w-8 text-slate-800 mb-2 drop-shadow-sm" />
+                  <span className="text-sm font-bold text-slate-800 drop-shadow-sm">Terkunci</span>
+                  <p className="text-xs text-slate-700 font-medium px-4 text-center mt-1">{tryout.lockReason}</p>
+                  <button 
+                    onClick={() => navigate('/subscription')}
+                    className="mt-3 px-4 py-2 bg-brand-primary text-white text-xs font-semibold rounded-xl shadow-sm hover:bg-brand-dark transition-colors border border-brand-primary"
+                  >
+                    Upgrade
+                  </button>
                 </div>
-                {tryout.status === 'completed' && tryout.score != null ? (
-                  <span className="shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full bg-brand-secondary/20 text-brand-dark">
-                    Score: {tryout.score}
-                  </span>
-                ) : (
-                  <span className="shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">
-                    Not Started
-                  </span>
-                )}
-              </div>
+              )}
+              
+              <div className={`flex flex-col gap-4 h-full transition-all ${tryout.isLocked ? 'blur-[5px] select-none opacity-60 pointer-events-none' : ''}`}>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h2 className="text-base font-semibold text-brand-dark">{tryout.title}</h2>
+                    <p className="text-xs text-slate-500 mt-1 capitalize">{tryout.type}</p>
+                  </div>
+                  {tryout.status === 'completed' && tryout.score != null ? (
+                    <span className="shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full bg-brand-secondary/20 text-brand-dark">
+                      Score: {tryout.score}
+                    </span>
+                  ) : (
+                    <span className="shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">
+                      Not Started
+                    </span>
+                  )}
+                </div>
 
-              <div className="flex items-center gap-4 text-xs text-slate-500">
-                {tryout.totalQuestions != null && <span>{tryout.totalQuestions} questions</span>}
-                <span>{tryout.durationMinutes} minutes</span>
-              </div>
+                <div className="flex items-center gap-4 text-xs text-slate-500">
+                  {tryout.totalQuestions != null && <span>{tryout.totalQuestions} questions</span>}
+                  <span>{tryout.durationMinutes} minutes</span>
+                </div>
 
-              <button
-                type="button"
-                onClick={() => navigate(`/tryout/${tryout.id}`)}
-                className="mt-auto w-full py-2.5 rounded-lg bg-brand-primary text-white text-sm font-semibold hover:bg-brand-dark transition-colors"
-              >
-                View Details
-              </button>
+                <button
+                  type="button"
+                  onClick={() => navigate(`/tryout/${tryout.id}`)}
+                  className="mt-auto w-full py-2.5 rounded-lg bg-brand-primary text-white text-sm font-semibold hover:bg-brand-dark transition-colors"
+                >
+                  View Details
+                </button>
+              </div>
             </div>
           ))}
         </div>

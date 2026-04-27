@@ -45,12 +45,17 @@ export function Footer({ onNavigateComingSoon }: FooterProps) {
       <div className="px-6 pb-8 mx-auto max-w-7xl rounded-3xl bg-slate-950 text-brand-light pt-14 sm:px-10 lg:px-14">
         {/* Top section: Logo + Bio */}
         <div className="mb-10">
-          <div className="mb-3 font-serif text-2xl font-bold text-white">
+          <div className="flex items-center mb-3 font-serif text-2xl font-bold text-white">
+            <img
+              src="/Logo_Sabi_Default.svg"
+              alt="SabiAcademia Logo"
+              className="object-contain w-8 h-8 gap-2 md:w-10 md:h-10"
+            />
             Sabi<span className="text-brand-primary">Academia</span>
           </div>
           <p className="max-w-sm text-sm text-slate-400">
-            Exam-focused preparation for IUP ITB. Crafted by students who have passed the AqTest
-            and know what really matters.
+            Exam-focused preparation for IUP ITB. Crafted by students who have
+            passed the AqTest and know what really matters.
           </p>
         </div>
 
@@ -130,9 +135,7 @@ export function Footer({ onNavigateComingSoon }: FooterProps) {
 
         {/* Bottom bar */}
         <div className="flex flex-col items-center justify-between gap-3 pt-4 mt-4 text-xs border-t border-slate-800 md:flex-row text-slate-500">
-          <div>
-            © 2026 SabiAcademia. Made by ITB Students.
-          </div>
+          <div>© 2026 SabiAcademia. Made by ITB Students.</div>
           <div className="flex gap-4">
             <span>Bandung · Indonesia</span>
           </div>

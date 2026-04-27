@@ -20,6 +20,19 @@ import {
   type CreateQuestionInput,
 } from '../../../lib/api';
 import { LatexText } from '../../../components/LatexText';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
+
+const quillModules = {
+  toolbar: [
+    [{ header: [1, 2, 3, false] }],
+    ['bold', 'italic', 'underline', 'strike'],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    [{ align: [] }],
+    ['blockquote'],
+    ['clean'],
+  ],
+};
 
 type OptionDraft = {
   sequenceNumber: number;
@@ -169,7 +182,7 @@ export function AdminQuestionsPage() {
     }
   };
 
-  const handleTextareaPaste = async (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+  const handleTextareaPaste = async (e: React.ClipboardEvent<HTMLDivElement>) => {
     const items = Array.from(e.clipboardData.items);
     const imageItem = items.find((item) => item.type.startsWith('image/'));
     if (!imageItem) return;
@@ -700,12 +713,12 @@ export function AdminQuestionsPage() {
                 {/* Question text + image */}
                 <div>
                   <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Soal</p>
-                  <div className="rounded-xl border border-slate-100 bg-slate-50 px-4 py-4 text-sm text-slate-800 leading-relaxed min-h-[60px]">
+                  <div className="rounded-xl border border-slate-100 bg-slate-50 px-4 py-4 text-sm text-slate-800 leading-relaxed min-h-[60px] break-words overflow-hidden w-full">
                     {form.text ? (
                       <QuestionTextRenderer
                         text={form.text}
                         imageUrl={form.imageUrl || null}
-                        className="text-sm text-slate-800 leading-relaxed"
+                        className="text-sm text-slate-800 leading-relaxed break-words w-full"
                         imgClassName="mt-3 max-h-56 max-w-full rounded-lg border border-slate-200 bg-white object-contain"
                       />
                     ) : (
@@ -728,7 +741,7 @@ export function AdminQuestionsPage() {
                         </span>
                         <div className="min-w-0">
                           {opt.text ? (
-                            <span className={opt.isCorrect ? 'text-green-800 font-medium' : 'text-slate-700'}>{opt.text}</span>
+                            <LatexText className={opt.isCorrect ? 'text-green-800 font-medium' : 'text-slate-700'}>{opt.text}</LatexText>
                           ) : null}
                           {opt.imageUrl ? (
                             <img
@@ -753,8 +766,8 @@ export function AdminQuestionsPage() {
                 {form.explanation && (
                   <div>
                     <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Pembahasan</p>
-                    <div className="rounded-xl border border-slate-100 bg-amber-50 px-4 py-3 text-sm text-slate-700 leading-relaxed whitespace-pre-wrap break-words">
-                      <LatexText>{form.explanation}</LatexText>
+                    <div className="rounded-xl border border-slate-100 bg-amber-50 px-4 py-3 text-sm text-slate-700 leading-relaxed break-words overflow-hidden w-full [&_p]:mb-2 last:[&_p]:mb-0">
+                      <LatexText className="contents">{form.explanation}</LatexText>
                     </div>
                   </div>
                 )}
@@ -859,15 +872,17 @@ export function AdminQuestionsPage() {
                 <label className="block text-xs font-medium text-slate-600 mb-1">
                   Question Text <span className="text-red-500">*</span>
                 </label>
-                <textarea
-                  value={form.text}
-                  onChange={(e) => setForm((p) => ({ ...p, text: e.target.value }))}
-                  onPaste={handleTextareaPaste}
-                  required
-                  rows={4}
-                  placeholder="Tulis soal di sini. Paste gambar langsung di sini untuk menambahkan gambar."
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm font-mono resize-y focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
-                />
+                <div onPaste={handleTextareaPaste} className="w-full bg-white [&_.ql-toolbar]:rounded-t-xl [&_.ql-container]:rounded-b-xl [&_.ql-container]:min-h-[120px]">
+                  <ReactQuill
+                    theme="snow"
+                    value={form.text}
+                    modules={quillModules}
+                    onChange={(val) => setForm((p) => ({ ...p, text: val }))}
+                    placeholder="Tulis soal di sini. (Bisa gunakan markah LaTeX seperti $$x=y$$)"
+                  />
+                  {/* Hidden input agar validasi required HTML5 tetap jalan */}
+                  {form.text.replace(/<[^>]*>/g, '').trim() === '' && <input type="text" required className="hidden" />}
+                </div>
                 <p className="mt-1 text-xs text-slate-500">
                   Mendukung LaTeX: <code className="bg-slate-100 px-1 rounded">$rumus$</code> untuk inline; <code className="bg-slate-100 px-1 rounded">$$rumus$$</code> atau <code className="bg-slate-100 px-1 rounded">\[rumus\]</code> untuk rumus blok.
                   {' '}Kamu juga bisa <strong>paste gambar</strong> langsung ke kolom ini.
@@ -952,13 +967,15 @@ export function AdminQuestionsPage() {
 
               <div>
                 <label className="block text-xs font-medium text-slate-600 mb-1">Penjelasan / Pembahasan (opsional)</label>
-                <textarea
-                  value={form.explanation}
-                  onChange={(e) => setForm((p) => ({ ...p, explanation: e.target.value }))}
-                  rows={3}
-                  placeholder="Pembahasan jawaban..."
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm resize-y focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
-                />
+                <div className="w-full bg-white [&_.ql-toolbar]:rounded-t-xl [&_.ql-container]:rounded-b-xl [&_.ql-container]:min-h-[80px]">
+                  <ReactQuill
+                    theme="snow"
+                    value={form.explanation}
+                    modules={quillModules}
+                    onChange={(val) => setForm((p) => ({ ...p, explanation: val }))}
+                    placeholder="Pembahasan jawaban..."
+                  />
+                </div>
               </div>
 
               {/* Options */}

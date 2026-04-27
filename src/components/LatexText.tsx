@@ -3,94 +3,79 @@ import 'katex/dist/katex.min.css';
 
 const katexOpts = { throwOnError: false };
 
-const OPEN_DISPLAY = '\\[';
-const CLOSE_DISPLAY = '\\]';
-
-function renderBlockMath(latex: string, key: string): React.ReactNode {
-  const trimmed = latex.trim();
-  if (!trimmed) return null;
-  try {
-    const html = katex.renderToString(trimmed, { ...katexOpts, displayMode: true });
-    return <span key={key} className="block my-2" dangerouslySetInnerHTML={{ __html: html }} />;
-  } catch {
-    return <span key={key}>\[{trimmed}\]</span>;
-  }
-}
-
 /**
- * Splits a text segment into parts: plain text (may contain $...$) and \[ ... \] block math.
- */
-function splitDisplayBrackets(segment: string): Array<{ type: 'text'; content: string } | { type: 'block'; content: string }> {
-  const parts: Array<{ type: 'text'; content: string } | { type: 'block'; content: string }> = [];
-  let s = segment;
-  while (s.includes(OPEN_DISPLAY)) {
-    const openIdx = s.indexOf(OPEN_DISPLAY);
-    const before = s.slice(0, openIdx);
-    if (before) parts.push({ type: 'text', content: before });
-    const afterOpen = s.slice(openIdx + OPEN_DISPLAY.length);
-    const closeIdx = afterOpen.indexOf(CLOSE_DISPLAY);
-    if (closeIdx === -1) {
-      parts.push({ type: 'text', content: OPEN_DISPLAY + afterOpen });
-      break;
-    }
-    parts.push({ type: 'block', content: afterOpen.slice(0, closeIdx) });
-    s = afterOpen.slice(closeIdx + CLOSE_DISPLAY.length);
-  }
-  if (s) parts.push({ type: 'text', content: s });
-  return parts;
-}
-
-/**
- * Renders a string that may contain LaTeX:
+ * Renders a string that may contain HTML and LaTeX:
  * - $...$ for inline math (e.g. $x^2 + y^2$)
  * - $$...$$ or \[...\] for block/display math
  */
+function cleanLatexString(latex: string) {
+  return latex
+    .replace(/<[^>]+>/g, '') // Strip HTML tags
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/&#39;/g, "'")
+    .trim();
+}
+
 export function LatexText({ children, className }: { children: string; className?: string }) {
   if (typeof children !== 'string' || !children) {
     return <span className={className} />;
   }
 
-  const segments: React.ReactNode[] = [];
-  const blockParts = children.split('$$');
-  let keyCounter = 0;
+  // To prevent KaTeX throwing errors on unescaped raw HTML formatting
+  // we first extract equation parts and clean them
+  // We also replace global non-breaking spaces with normal spaces because Quill 
+  // sometimes wraps text with &nbsp; which prevents normal line breaking.
+  let processed = children.replace(/&nbsp;/g, ' ');
 
-  for (let i = 0; i < blockParts.length; i++) {
-    if (i % 2 === 1) {
-      // Block math from $$
-      const node = renderBlockMath(blockParts[i]!, `b-${keyCounter++}`);
-      if (node) segments.push(node);
-    } else {
-      // Text: may contain \[ ... \] and $ ... $
-      const mixed = splitDisplayBrackets(blockParts[i]!);
-      for (const part of mixed) {
-        if (part.type === 'block') {
-          const node = renderBlockMath(part.content, `d-${keyCounter++}`);
-          if (node) segments.push(node);
-        } else {
-          const byDollar = part.content.split('$');
-          for (let j = 0; j < byDollar.length; j++) {
-            if (j % 2 === 0) {
-              if (byDollar[j]) segments.push(byDollar[j]);
-            } else {
-              const latex = byDollar[j]?.trim() ?? '';
-              if (latex) {
-                try {
-                  const html = katex.renderToString(latex, { ...katexOpts, displayMode: false });
-                  segments.push(
-                    // eslint-disable-next-line react-hooks/error-boundaries
-                    <span key={`i-${keyCounter}`} dangerouslySetInnerHTML={{ __html: html }} />
-                  );
-                } catch {
-                  segments.push(<span key={`i-${keyCounter}`}>${latex}$</span>);
-                }
-                keyCounter += 1;
-              }
-            }
-          }
-        }
-      }
+  // 1. Convert block math: $$...$$
+  processed = processed.replace(/\$\$([\s\S]*?)\$\$/g, (match, p1) => {
+    try {
+      const html = katex.renderToString(cleanLatexString(p1), { ...katexOpts, displayMode: true });
+      return `<div class="katex-block my-2">${html}</div>`;
+    } catch (e) {
+      // Return original text in red to indicate error
+      return `<span style="color:red" title="${e instanceof Error ? e.message : 'Error'}">${match}</span>`;
     }
+  });
+
+  // 2. Convert block math: \[...\]
+  processed = processed.replace(/\\\[([\s\S]*?)\\\]/g, (match, p1) => {
+    try {
+      const html = katex.renderToString(cleanLatexString(p1), { ...katexOpts, displayMode: true });
+      return `<div class="katex-block my-2">${html}</div>`;
+    } catch (e) {
+      return `<span style="color:red" title="${e instanceof Error ? e.message : 'Error'}">${match}</span>`;
+    }
+  });
+
+  // 3. Convert inline math: $...$
+  // Matches $ followed by characters not containing $ followed by $
+  processed = processed.replace(/\$([^$]+)\$/g, (match, p1) => {
+    const cleaned = cleanLatexString(p1);
+    if (!cleaned) return match;
+    try {
+      const html = katex.renderToString(cleaned, { ...katexOpts, displayMode: false });
+      return `<span class="katex-inline">${html}</span>`;
+    } catch (e) {
+      return `<span style="color:red" title="${e instanceof Error ? e.message : 'Error'}">${match}</span>`;
+    }
+  });
+
+  // Handle plain text line breaks if it's not HTML
+  const isHtml = /<[a-z][\s\S]*>/i.test(children);
+  if (!isHtml) {
+    processed = processed.replace(/\n/g, '<br />');
   }
 
-  return <span className={className}>{segments}</span>;
+  return (
+    <span
+      className={className}
+      dangerouslySetInnerHTML={{ __html: processed }}
+    />
+  );
 }
