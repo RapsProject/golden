@@ -1,8 +1,24 @@
-import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Plus, Pencil, Save, ToggleLeft, ToggleRight, X, AlertCircle, Settings2, Trash2, Eye, CheckCircle2, Upload, Link, ImageIcon, PenLine } from 'lucide-react';
-import { useAuth } from '../../../contexts/AuthContext';
-import { QuestionTextRenderer } from '../../../components/QuestionTextRenderer';
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  Plus,
+  Pencil,
+  Save,
+  ToggleLeft,
+  ToggleRight,
+  X,
+  AlertCircle,
+  Settings2,
+  Trash2,
+  Eye,
+  CheckCircle2,
+  Upload,
+  Link,
+  ImageIcon,
+  PenLine,
+} from "lucide-react";
+import { useAuth } from "../../../contexts/AuthContext";
+import { QuestionTextRenderer } from "../../../components/QuestionTextRenderer";
 import {
   getAdminTryouts,
   createTryout,
@@ -21,24 +37,34 @@ import {
   type SubjectData,
   type TopicData,
   type CreateQuestionInput,
-} from '../../../lib/api';
-import { LatexText } from '../../../components/LatexText';
-import ReactQuill from 'react-quill-new';
-import 'react-quill-new/dist/quill.snow.css';
+} from "../../../lib/api";
+import { LatexText } from "../../../components/LatexText";
+import ReactQuill from "react-quill-new";
+import "react-quill-new/dist/quill.snow.css";
 
 const quillModules = {
   toolbar: [
     [{ header: [1, 2, false] }],
-    ['bold', 'italic', 'underline', 'strike'],
-    [{ list: 'ordered' }, { list: 'bullet' }],
+    ["bold", "italic", "underline", "strike"],
+    [{ list: "ordered" }, { list: "bullet" }],
     [{ align: [] }],
-    ['blockquote', 'code-block'],
-    ['clean'],
+    ["blockquote", "code-block"],
+    ["clean"],
   ],
 };
 
-type OptionDraft = { sequenceNumber: number; text: string; imageUrl: string; isCorrect: boolean };
-const emptyOption = (seq: number): OptionDraft => ({ sequenceNumber: seq, text: '', imageUrl: '', isCorrect: false });
+type OptionDraft = {
+  sequenceNumber: number;
+  text: string;
+  imageUrl: string;
+  isCorrect: boolean;
+};
+const emptyOption = (seq: number): OptionDraft => ({
+  sequenceNumber: seq,
+  text: "",
+  imageUrl: "",
+  isCorrect: false,
+});
 
 type QuestionFormState = {
   tryoutId: string;
@@ -52,12 +78,12 @@ type QuestionFormState = {
 };
 const emptyQuestionForm = (tryoutId: string): QuestionFormState => ({
   tryoutId,
-  subjectId: '',
-  topicId: '',
-  sequenceNumber: '1',
-  text: '',
-  imageUrl: '',
-  explanation: '',
+  subjectId: "",
+  topicId: "",
+  sequenceNumber: "1",
+  text: "",
+  imageUrl: "",
+  explanation: "",
   options: [emptyOption(1), emptyOption(2), emptyOption(3), emptyOption(4)],
 });
 function questionFormToPayload(form: QuestionFormState): CreateQuestionInput {
@@ -80,7 +106,7 @@ function questionFormToPayload(form: QuestionFormState): CreateQuestionInput {
 
 type FormState = {
   title: string;
-  type: 'simulation' | 'practice';
+  type: "simulation" | "practice";
   durationMinutes: string;
   maxAttempts: string;
   isPremium: boolean;
@@ -89,10 +115,10 @@ type FormState = {
 };
 
 const emptyForm = (): FormState => ({
-  title: '',
-  type: 'simulation',
-  durationMinutes: '120',
-  maxAttempts: '',
+  title: "",
+  type: "simulation",
+  durationMinutes: "120",
+  maxAttempts: "",
   isPremium: false,
   isUltimate: false,
   isPublished: false,
@@ -103,8 +129,10 @@ export function AdminTryoutsPage() {
   const navigate = useNavigate();
 
   const [tryouts, setTryouts] = useState<TryoutData[]>([]);
-  const [filterType, setFilterType] = useState<'all' | 'simulation' | 'practice'>('all');
-  const [searchTitle, setSearchTitle] = useState('');
+  const [filterType, setFilterType] = useState<
+    "all" | "simulation" | "practice"
+  >("all");
+  const [searchTitle, setSearchTitle] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -121,51 +149,73 @@ export function AdminTryoutsPage() {
 
   const [questionFormOpen, setQuestionFormOpen] = useState(false);
   const [questionPreviewMode, setQuestionPreviewMode] = useState(false);
-  const [questionEditingId, setQuestionEditingId] = useState<string | null>(null);
-  const [questionForm, setQuestionForm] = useState<QuestionFormState>(emptyQuestionForm(''));
+  const [questionEditingId, setQuestionEditingId] = useState<string | null>(
+    null,
+  );
+  const [questionForm, setQuestionForm] = useState<QuestionFormState>(
+    emptyQuestionForm(""),
+  );
   const [questionSubjects, setQuestionSubjects] = useState<SubjectData[]>([]);
   const [questionFormTopics, setQuestionFormTopics] = useState<TopicData[]>([]);
   const [questionSaving, setQuestionSaving] = useState(false);
-  const [questionFormError, setQuestionFormError] = useState<string | null>(null);
+  const [questionFormError, setQuestionFormError] = useState<string | null>(
+    null,
+  );
   const [deleteQuestionId, setDeleteQuestionId] = useState<string | null>(null);
   const [qImageUploading, setQImageUploading] = useState(false);
   const qImageFileRef = useRef<HTMLInputElement>(null);
-  const [qOptionImageUploading, setQOptionImageUploading] = useState<number | null>(null);
+  const [qOptionImageUploading, setQOptionImageUploading] = useState<
+    number | null
+  >(null);
   const qOptionFileRef = useRef<HTMLInputElement>(null);
   const qCurrentOptionIdxRef = useRef<number>(-1);
 
-  const API_BASE = (import.meta.env.VITE_API_BASE_URL as string) ?? '';
+  const API_BASE = (import.meta.env.VITE_API_BASE_URL as string) ?? "";
 
   const uploadQImageFile = async (file: File): Promise<string | null> => {
     if (file.size > 100 * 1024) {
-      setQuestionFormError(`Ukuran gambar terlalu besar. Maksimal 100KB (${(file.size / 1024).toFixed(1)}KB).`);
+      setQuestionFormError(
+        `Ukuran gambar terlalu besar. Maksimal 100KB (${(file.size / 1024).toFixed(1)}KB).`,
+      );
       return null;
     }
-    if (!accessToken) { setQuestionFormError('Sesi tidak ditemukan. Silakan login ulang.'); return null; }
+    if (!accessToken) {
+      setQuestionFormError("Sesi tidak ditemukan. Silakan login ulang.");
+      return null;
+    }
     setQImageUploading(true);
     try {
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append("file", file);
       const res = await fetch(`${API_BASE}/api/v1/upload/image`, {
-        method: 'POST',
+        method: "POST",
         headers: { Authorization: `Bearer ${accessToken}` },
         body: formData,
       });
       const json = await res.json();
-      if (!res.ok) { setQuestionFormError(json?.message ?? 'Gagal mengupload gambar.'); return null; }
+      if (!res.ok) {
+        setQuestionFormError(json?.message ?? "Gagal mengupload gambar.");
+        return null;
+      }
       return (json?.data?.url as string) ?? null;
     } catch {
-      setQuestionFormError('Gagal mengupload gambar. Periksa koneksi ke server.');
+      setQuestionFormError(
+        "Gagal mengupload gambar. Periksa koneksi ke server.",
+      );
       return null;
     } finally {
       setQImageUploading(false);
     }
   };
 
-  const handleQTextareaPaste = async (e: React.ClipboardEvent<HTMLDivElement>) => {
+  const handleQTextareaPaste = async (
+    e: React.ClipboardEvent<HTMLDivElement>,
+  ) => {
     const items = e.clipboardData?.items;
     if (!items) return;
-    const imageItem = Array.from(items).find((item) => (item as DataTransferItem).type.startsWith('image/')) as DataTransferItem | undefined;
+    const imageItem = Array.from(items).find((item) =>
+      (item as DataTransferItem).type.startsWith("image/"),
+    ) as DataTransferItem | undefined;
     if (!imageItem) return;
     e.preventDefault();
     const file = imageItem.getAsFile();
@@ -174,50 +224,71 @@ export function AdminTryoutsPage() {
     if (url) setQuestionForm((p) => ({ ...p, imageUrl: url }));
   };
 
-  const handleQImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleQImageFileChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const url = await uploadQImageFile(file);
     if (url) setQuestionForm((p) => ({ ...p, imageUrl: url }));
-    e.target.value = '';
+    e.target.value = "";
   };
 
   const uploadQOptionImage = async (file: File, idx: number): Promise<void> => {
     if (file.size > 100 * 1024) {
-      setQuestionFormError(`Ukuran gambar pilihan ${String.fromCharCode(65 + idx)} terlalu besar. Maks 100KB (${(file.size / 1024).toFixed(1)}KB).`);
+      setQuestionFormError(
+        `Ukuran gambar pilihan ${String.fromCharCode(65 + idx)} terlalu besar. Maks 100KB (${(file.size / 1024).toFixed(1)}KB).`,
+      );
       return;
     }
-    if (!accessToken) { setQuestionFormError('Sesi tidak ditemukan.'); return; }
+    if (!accessToken) {
+      setQuestionFormError("Sesi tidak ditemukan.");
+      return;
+    }
     setQOptionImageUploading(idx);
     try {
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append("file", file);
       const res = await fetch(`${API_BASE}/api/v1/upload/image`, {
-        method: 'POST',
+        method: "POST",
         headers: { Authorization: `Bearer ${accessToken}` },
         body: formData,
       });
       const json = await res.json();
-      if (!res.ok) { setQuestionFormError(json?.message ?? 'Gagal mengupload gambar pilihan.'); return; }
-      const url = (json?.data?.url as string) ?? '';
-      if (url) updateQuestionOption(idx, 'imageUrl', url);
+      if (!res.ok) {
+        setQuestionFormError(
+          json?.message ?? "Gagal mengupload gambar pilihan.",
+        );
+        return;
+      }
+      const url = (json?.data?.url as string) ?? "";
+      if (url) updateQuestionOption(idx, "imageUrl", url);
     } catch {
-      setQuestionFormError('Gagal mengupload gambar pilihan. Periksa koneksi ke server.');
+      setQuestionFormError(
+        "Gagal mengupload gambar pilihan. Periksa koneksi ke server.",
+      );
     } finally {
       setQOptionImageUploading(null);
     }
   };
 
-  const handleQOptionFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleQOptionFileChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = e.target.files?.[0];
     const idx = qCurrentOptionIdxRef.current;
     if (!file || idx < 0) return;
     await uploadQOptionImage(file, idx);
-    e.target.value = '';
+    e.target.value = "";
   };
 
-  const handleQOptionPaste = async (e: React.ClipboardEvent<HTMLInputElement>, idx: number) => {
-    const imageItem = Array.from(e.clipboardData.items).find((item) => item.type.startsWith('image/'));
+  const handleQOptionPaste = async (
+    e: React.ClipboardEvent<HTMLInputElement>,
+    idx: number,
+  ) => {
+    const imageItem = Array.from(e.clipboardData.items).find((item) =>
+      item.type.startsWith("image/"),
+    );
     if (!imageItem) return;
     e.preventDefault();
     const file = imageItem.getAsFile();
@@ -232,7 +303,7 @@ export function AdminTryoutsPage() {
       const data = await getAdminTryouts(accessToken);
       setTryouts(data ?? []);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Gagal memuat tryout');
+      setError(e instanceof Error ? e.message : "Gagal memuat tryout");
     } finally {
       setLoading(false);
     }
@@ -254,9 +325,9 @@ export function AdminTryoutsPage() {
     setEditingId(t.id);
     setForm({
       title: t.title,
-      type: t.type as 'simulation' | 'practice',
+      type: t.type as "simulation" | "practice",
       durationMinutes: String(t.durationMinutes),
-      maxAttempts: t.maxAttempts != null ? String(t.maxAttempts) : '',
+      maxAttempts: t.maxAttempts != null ? String(t.maxAttempts) : "",
       isPremium: t.isPremium,
       isUltimate: t.isUltimate,
       isPublished: t.isPublished,
@@ -299,7 +370,9 @@ export function AdminTryoutsPage() {
           }));
         }
       }
-      setPreviewQuestions(questions.sort((a, b) => a.sequenceNumber - b.sequenceNumber));
+      setPreviewQuestions(
+        questions.sort((a, b) => a.sequenceNumber - b.sequenceNumber),
+      );
     } catch {
       setPreviewQuestions([]);
     } finally {
@@ -338,7 +411,9 @@ export function AdminTryoutsPage() {
           }));
         }
       }
-      setPreviewQuestions(questions.sort((a, b) => a.sequenceNumber - b.sequenceNumber));
+      setPreviewQuestions(
+        questions.sort((a, b) => a.sequenceNumber - b.sequenceNumber),
+      );
     } catch {
       /* ignore */
     }
@@ -346,11 +421,15 @@ export function AdminTryoutsPage() {
 
   const openCreateQuestion = async () => {
     if (!previewTryout) return;
-    const nextSeq = previewQuestions.length > 0
-      ? Math.max(...previewQuestions.map((q) => q.sequenceNumber)) + 1
-      : 1;
+    const nextSeq =
+      previewQuestions.length > 0
+        ? Math.max(...previewQuestions.map((q) => q.sequenceNumber)) + 1
+        : 1;
     setQuestionEditingId(null);
-    setQuestionForm({ ...emptyQuestionForm(previewTryout.id), sequenceNumber: String(nextSeq) });
+    setQuestionForm({
+      ...emptyQuestionForm(previewTryout.id),
+      sequenceNumber: String(nextSeq),
+    });
     setQuestionFormError(null);
     setQuestionFormTopics([]);
     setQImageUploading(false);
@@ -358,7 +437,9 @@ export function AdminTryoutsPage() {
     setQuestionPreviewMode(false);
     setQuestionFormOpen(true);
     if (accessToken) {
-      getSubjects(accessToken).then(setQuestionSubjects).catch(() => setQuestionSubjects([]));
+      getSubjects(accessToken)
+        .then(setQuestionSubjects)
+        .catch(() => setQuestionSubjects([]));
     }
   };
 
@@ -369,15 +450,15 @@ export function AdminTryoutsPage() {
     setQuestionForm({
       tryoutId: q.tryoutId,
       subjectId: q.subjectId,
-      topicId: q.topicId ?? '',
+      topicId: q.topicId ?? "",
       sequenceNumber: String(q.sequenceNumber),
       text: q.text,
-      imageUrl: q.imageUrl ?? '',
-      explanation: q.explanation ?? '',
+      imageUrl: q.imageUrl ?? "",
+      explanation: q.explanation ?? "",
       options: q.options.map((o) => ({
         sequenceNumber: o.sequenceNumber,
         text: o.text,
-        imageUrl: o.imageUrl ?? '',
+        imageUrl: o.imageUrl ?? "",
         isCorrect: o.isCorrect ?? false,
       })),
     });
@@ -385,20 +466,32 @@ export function AdminTryoutsPage() {
     setQuestionPreviewMode(false);
     setQuestionFormOpen(true);
     if (accessToken) {
-      getSubjects(accessToken).then(setQuestionSubjects).catch(() => setQuestionSubjects([]));
-      getTopicsBySubject(accessToken, q.subjectId).then(setQuestionFormTopics).catch(() => setQuestionFormTopics([]));
+      getSubjects(accessToken)
+        .then(setQuestionSubjects)
+        .catch(() => setQuestionSubjects([]));
+      getTopicsBySubject(accessToken, q.subjectId)
+        .then(setQuestionFormTopics)
+        .catch(() => setQuestionFormTopics([]));
     }
   };
 
   useEffect(() => {
     if (!accessToken || !questionForm.subjectId || !questionFormOpen) return;
-    getTopicsBySubject(accessToken, questionForm.subjectId).then(setQuestionFormTopics).catch(() => setQuestionFormTopics([]));
+    getTopicsBySubject(accessToken, questionForm.subjectId)
+      .then(setQuestionFormTopics)
+      .catch(() => setQuestionFormTopics([]));
   }, [accessToken, questionForm.subjectId, questionFormOpen]);
 
-  const updateQuestionOption = (idx: number, field: keyof OptionDraft, value: string | boolean) => {
+  const updateQuestionOption = (
+    idx: number,
+    field: keyof OptionDraft,
+    value: string | boolean,
+  ) => {
     setQuestionForm((prev) => ({
       ...prev,
-      options: prev.options.map((o, i) => (i === idx ? { ...o, [field]: value } : o)),
+      options: prev.options.map((o, i) =>
+        i === idx ? { ...o, [field]: value } : o,
+      ),
     }));
   };
   const addQuestionOption = () => {
@@ -410,23 +503,36 @@ export function AdminTryoutsPage() {
   const removeQuestionOption = (idx: number) => {
     setQuestionForm((prev) => ({
       ...prev,
-      options: prev.options.filter((_, i) => i !== idx).map((o, i) => ({ ...o, sequenceNumber: i + 1 })),
+      options: prev.options
+        .filter((_, i) => i !== idx)
+        .map((o, i) => ({ ...o, sequenceNumber: i + 1 })),
     }));
   };
 
   const handleQuestionSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!accessToken) return;
-    if (!questionForm.tryoutId || !questionForm.subjectId || !questionForm.sequenceNumber || !questionForm.text) {
-      setQuestionFormError('Tryout, Subject, Sequence Number, dan Question text wajib diisi.');
+    if (
+      !questionForm.tryoutId ||
+      !questionForm.subjectId ||
+      !questionForm.sequenceNumber ||
+      !questionForm.text
+    ) {
+      setQuestionFormError(
+        "Tryout, Subject, Sequence Number, dan Question text wajib diisi.",
+      );
       return;
     }
     if (!questionForm.options.some((o) => o.isCorrect)) {
-      setQuestionFormError('Minimal satu pilihan harus ditandai sebagai jawaban benar.');
+      setQuestionFormError(
+        "Minimal satu pilihan harus ditandai sebagai jawaban benar.",
+      );
       return;
     }
-    if (questionForm.options.some((o) => !o.text.trim() && !o.imageUrl.trim())) {
-      setQuestionFormError('Semua pilihan harus diisi (teks atau gambar).');
+    if (
+      questionForm.options.some((o) => !o.text.trim() && !o.imageUrl.trim())
+    ) {
+      setQuestionFormError("Semua pilihan harus diisi (teks atau gambar).");
       return;
     }
     setQuestionSaving(true);
@@ -442,7 +548,7 @@ export function AdminTryoutsPage() {
       setQuestionFormOpen(false);
       await refreshPreviewQuestions();
     } catch (e) {
-      setQuestionFormError(e instanceof Error ? e.message : 'Gagal menyimpan');
+      setQuestionFormError(e instanceof Error ? e.message : "Gagal menyimpan");
     } finally {
       setQuestionSaving(false);
     }
@@ -455,7 +561,7 @@ export function AdminTryoutsPage() {
       setDeleteQuestionId(null);
       await refreshPreviewQuestions();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Gagal menghapus soal');
+      setError(e instanceof Error ? e.message : "Gagal menghapus soal");
       setDeleteQuestionId(null);
     }
   };
@@ -464,7 +570,7 @@ export function AdminTryoutsPage() {
     e.preventDefault();
     if (!accessToken) return;
     if (!form.title.trim() || !form.durationMinutes) {
-      setFormError('Title dan duration wajib diisi.');
+      setFormError("Title dan duration wajib diisi.");
       return;
     }
 
@@ -489,7 +595,7 @@ export function AdminTryoutsPage() {
       setModalOpen(false);
       loadTryouts();
     } catch (e) {
-      setFormError(e instanceof Error ? e.message : 'Gagal menyimpan tryout');
+      setFormError(e instanceof Error ? e.message : "Gagal menyimpan tryout");
     } finally {
       setSaving(false);
     }
@@ -506,8 +612,10 @@ export function AdminTryoutsPage() {
   };
 
   const filteredTryouts = tryouts.filter((t) => {
-    const typeMatch = filterType === 'all' ? true : t.type === filterType;
-    const titleMatch = !searchTitle.trim() || t.title.toLowerCase().includes(searchTitle.trim().toLowerCase());
+    const typeMatch = filterType === "all" ? true : t.type === filterType;
+    const titleMatch =
+      !searchTitle.trim() ||
+      t.title.toLowerCase().includes(searchTitle.trim().toLowerCase());
     return typeMatch && titleMatch;
   });
 
@@ -515,7 +623,9 @@ export function AdminTryoutsPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-serif text-2xl font-bold text-brand-dark">Tryouts</h1>
+          <h1 className="font-serif text-2xl font-bold text-brand-dark">
+            Tryouts
+          </h1>
           <p className="mt-1 text-sm text-slate-500">
             Kelola daftar tryout/simulasi yang tersedia untuk siswa.
           </p>
@@ -551,23 +661,28 @@ export function AdminTryoutsPage() {
             <span className="text-xs text-slate-500 shrink-0">
               Filter:
               <span className="ml-2 font-medium text-slate-700">
-                {filterType === 'all'
-                  ? 'Semua tipe'
-                  : filterType === 'simulation'
-                  ? 'Simulation'
-                  : 'Practice'}
+                {filterType === "all"
+                  ? "Semua tipe"
+                  : filterType === "simulation"
+                    ? "Simulation"
+                    : "Practice"}
               </span>
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <label className="text-xs text-slate-500" htmlFor="tryout-type-filter">
+            <label
+              className="text-xs text-slate-500"
+              htmlFor="tryout-type-filter"
+            >
               Tipe
             </label>
             <select
               id="tryout-type-filter"
               value={filterType}
               onChange={(e) =>
-                setFilterType(e.target.value as 'all' | 'simulation' | 'practice')
+                setFilterType(
+                  e.target.value as "all" | "simulation" | "practice",
+                )
               }
               className="px-2 py-1 text-xs bg-white border rounded-lg border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
             >
@@ -623,11 +738,21 @@ export function AdminTryoutsPage() {
                   key={t.id}
                   className="transition-colors border-b border-slate-50 hover:bg-slate-50/60"
                 >
-                  <td className="px-4 py-3 font-medium text-slate-800">{t.title}</td>
-                  <td className="px-4 py-3 capitalize text-slate-600">{t.type}</td>
-                  <td className="px-4 py-3 text-slate-600">{t.durationMinutes} min</td>
+                  <td className="px-4 py-3 font-medium text-slate-800">
+                    {t.title}
+                  </td>
+                  <td className="px-4 py-3 capitalize text-slate-600">
+                    {t.type}
+                  </td>
+                  <td className="px-4 py-3 text-slate-600">
+                    {t.durationMinutes} min
+                  </td>
                   <td className="px-4 py-3 text-slate-500">
-                    {t.maxAttempts != null ? t.maxAttempts : <span className="text-slate-300">—</span>}
+                    {t.maxAttempts != null ? (
+                      t.maxAttempts
+                    ) : (
+                      <span className="text-slate-300">—</span>
+                    )}
                   </td>
                   <td className="px-4 py-3 text-slate-600">
                     {t.isPremium || t.isUltimate ? (
@@ -665,7 +790,7 @@ export function AdminTryoutsPage() {
                       type="button"
                       onClick={() => toggleActive(t)}
                       className="transition-colors text-brand-primary hover:text-brand-dark"
-                      title={t.isActive ? 'Nonaktifkan' : 'Aktifkan'}
+                      title={t.isActive ? "Nonaktifkan" : "Aktifkan"}
                     >
                       {t.isActive ? (
                         <ToggleRight className="w-5 h-5 text-green-500" />
@@ -686,7 +811,11 @@ export function AdminTryoutsPage() {
                       </button>
                       <button
                         type="button"
-                        onClick={() => navigate(`/admin/questions?tryoutId=${encodeURIComponent(t.id)}`)}
+                        onClick={() =>
+                          navigate(
+                            `/admin/questions?tryoutId=${encodeURIComponent(t.id)}`,
+                          )
+                        }
                         className="p-1.5 rounded-lg text-slate-500 hover:bg-brand-light hover:text-brand-dark transition-colors"
                         title="Kelola soal"
                       >
@@ -723,7 +852,7 @@ export function AdminTryoutsPage() {
           <div className="w-full max-w-lg mx-4 my-auto bg-white shadow-xl rounded-2xl">
             <div className="flex items-center justify-between p-5 border-b border-slate-100">
               <h2 className="text-base font-semibold text-brand-dark">
-                {editingId ? 'Edit Tryout' : 'New Tryout'}
+                {editingId ? "Edit Tryout" : "New Tryout"}
               </h2>
               <button
                 type="button"
@@ -749,7 +878,9 @@ export function AdminTryoutsPage() {
                 <input
                   type="text"
                   value={form.title}
-                  onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((p) => ({ ...p, title: e.target.value }))
+                  }
                   required
                   placeholder="Contoh: IUP ITB Grand Simulation - Batch 2"
                   className="w-full px-3 py-2 text-sm border rounded-xl border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
@@ -764,7 +895,10 @@ export function AdminTryoutsPage() {
                   <select
                     value={form.type}
                     onChange={(e) =>
-                      setForm((p) => ({ ...p, type: e.target.value as 'simulation' | 'practice' }))
+                      setForm((p) => ({
+                        ...p,
+                        type: e.target.value as "simulation" | "practice",
+                      }))
                     }
                     className="w-full px-3 py-2 text-sm bg-white border rounded-xl border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
                   >
@@ -781,12 +915,16 @@ export function AdminTryoutsPage() {
                     type="number"
                     min={1}
                     value={form.durationMinutes}
-                    onChange={(e) => setForm((p) => ({ ...p, durationMinutes: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((p) => ({
+                        ...p,
+                        durationMinutes: e.target.value,
+                      }))
+                    }
                     className="w-full px-3 py-2 text-sm border rounded-xl border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
                   />
                 </div>
               </div>
-
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
@@ -797,7 +935,9 @@ export function AdminTryoutsPage() {
                     type="number"
                     min={1}
                     value={form.maxAttempts}
-                    onChange={(e) => setForm((p) => ({ ...p, maxAttempts: e.target.value }))}
+                    onChange={(e) =>
+                      setForm((p) => ({ ...p, maxAttempts: e.target.value }))
+                    }
                     className="w-full px-3 py-2 text-sm border rounded-xl border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
                   />
                 </div>
@@ -807,7 +947,9 @@ export function AdminTryoutsPage() {
                     <input
                       type="checkbox"
                       checked={form.isPremium}
-                      onChange={(e) => setForm((p) => ({ ...p, isPremium: e.target.checked }))}
+                      onChange={(e) =>
+                        setForm((p) => ({ ...p, isPremium: e.target.checked }))
+                      }
                       className="w-4 h-4 accent-brand-primary"
                     />
                     <span>Premium</span>
@@ -816,7 +958,9 @@ export function AdminTryoutsPage() {
                     <input
                       type="checkbox"
                       checked={form.isUltimate}
-                      onChange={(e) => setForm((p) => ({ ...p, isUltimate: e.target.checked }))}
+                      onChange={(e) =>
+                        setForm((p) => ({ ...p, isUltimate: e.target.checked }))
+                      }
                       className="w-4 h-4 accent-brand-primary"
                     />
                     <span>Ultimate</span>
@@ -825,7 +969,12 @@ export function AdminTryoutsPage() {
                     <input
                       type="checkbox"
                       checked={form.isPublished}
-                      onChange={(e) => setForm((p) => ({ ...p, isPublished: e.target.checked }))}
+                      onChange={(e) =>
+                        setForm((p) => ({
+                          ...p,
+                          isPublished: e.target.checked,
+                        }))
+                      }
                       className="w-4 h-4 accent-brand-primary"
                     />
                     <span>Published (visible to students)</span>
@@ -847,7 +996,7 @@ export function AdminTryoutsPage() {
                   className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-dark transition-colors disabled:opacity-60"
                 >
                   <Save className="w-4 h-4" />
-                  {saving ? 'Menyimpan…' : editingId ? 'Update' : 'Simpan'}
+                  {saving ? "Menyimpan…" : editingId ? "Update" : "Simpan"}
                 </button>
               </div>
             </form>
@@ -863,11 +1012,14 @@ export function AdminTryoutsPage() {
               <div className="p-2 bg-red-50 rounded-xl">
                 <Trash2 className="w-5 h-5 text-red-600" />
               </div>
-              <h2 className="text-base font-semibold text-slate-900">Hapus tryout?</h2>
+              <h2 className="text-base font-semibold text-slate-900">
+                Hapus tryout?
+              </h2>
             </div>
             <div className="p-5 space-y-4">
               <p className="text-sm text-slate-600">
-                Tryout ini akan dihapus permanen dari sistem beserta semua soalnya.
+                Tryout ini akan dihapus permanen dari sistem beserta semua
+                soalnya.
               </p>
               <div className="flex gap-3">
                 <button
@@ -887,7 +1039,11 @@ export function AdminTryoutsPage() {
                       loadTryouts();
                     } catch (e) {
                       // Kalau gagal, tampilkan error global
-                      setError(e instanceof Error ? e.message : 'Gagal menghapus tryout');
+                      setError(
+                        e instanceof Error
+                          ? e.message
+                          : "Gagal menghapus tryout",
+                      );
                       setDeleteId(null);
                     }
                   }}
@@ -930,10 +1086,14 @@ export function AdminTryoutsPage() {
             </div>
             <div className="flex-1 min-h-0 p-5 overflow-y-auto">
               {previewLoading ? (
-                <p className="py-8 text-sm text-center text-slate-500">Memuat soal…</p>
+                <p className="py-8 text-sm text-center text-slate-500">
+                  Memuat soal…
+                </p>
               ) : previewQuestions.length === 0 ? (
                 <div className="py-8 space-y-3 text-center">
-                  <p className="text-sm text-slate-500">Belum ada soal di tryout ini.</p>
+                  <p className="text-sm text-slate-500">
+                    Belum ada soal di tryout ini.
+                  </p>
                   <button
                     type="button"
                     onClick={openCreateQuestion}
@@ -943,10 +1103,14 @@ export function AdminTryoutsPage() {
                     Tambah Soal Pertama
                   </button>
                   <p className="text-xs text-slate-400">
-                    Atau{' '}
+                    Atau{" "}
                     <button
                       type="button"
-                      onClick={() => navigate(`/admin/questions?tryoutId=${encodeURIComponent(previewTryout.id)}`)}
+                      onClick={() =>
+                        navigate(
+                          `/admin/questions?tryoutId=${encodeURIComponent(previewTryout.id)}`,
+                        )
+                      }
                       className="font-medium text-brand-primary hover:text-brand-dark"
                     >
                       kelola di section Question
@@ -998,20 +1162,26 @@ export function AdminTryoutsPage() {
                           .map((opt) => (
                             <li
                               key={opt.id}
-                              className={opt.isCorrect
-                                ? 'flex items-start gap-2 rounded-lg border-2 border-green-300 bg-green-50 px-3 py-2 text-sm text-slate-800'
-                                : 'flex items-start gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700'
+                              className={
+                                opt.isCorrect
+                                  ? "flex items-start gap-2 rounded-lg border-2 border-green-300 bg-green-50 px-3 py-2 text-sm text-slate-800"
+                                  : "flex items-start gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700"
                               }
                             >
                               {opt.isCorrect && (
-                                <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5 text-green-600" aria-hidden />
+                                <CheckCircle2
+                                  className="h-4 w-4 shrink-0 mt-0.5 text-green-600"
+                                  aria-hidden
+                                />
                               )}
                               <span className="font-medium text-slate-500 w-5 shrink-0 mt-0.5">
                                 {String.fromCharCode(64 + opt.sequenceNumber)}.
                               </span>
                               <div className="flex-1 min-w-0">
                                 {opt.text ? (
-                                  <span><LatexText>{opt.text}</LatexText></span>
+                                  <span>
+                                    <LatexText>{opt.text}</LatexText>
+                                  </span>
                                 ) : null}
                                 {opt.imageUrl ? (
                                   <img
@@ -1021,7 +1191,9 @@ export function AdminTryoutsPage() {
                                   />
                                 ) : null}
                                 {!opt.text && !opt.imageUrl ? (
-                                  <span className="text-xs italic text-slate-400">—</span>
+                                  <span className="text-xs italic text-slate-400">
+                                    —
+                                  </span>
                                 ) : null}
                               </div>
                               {opt.isCorrect && (
@@ -1042,7 +1214,11 @@ export function AdminTryoutsPage() {
                 <span>Total {previewQuestions.length} soal</span>
                 <button
                   type="button"
-                  onClick={() => navigate(`/admin/questions?tryoutId=${encodeURIComponent(previewTryout.id)}`)}
+                  onClick={() =>
+                    navigate(
+                      `/admin/questions?tryoutId=${encodeURIComponent(previewTryout.id)}`,
+                    )
+                  }
                   className="font-medium text-brand-primary hover:text-brand-dark"
                 >
                   Kelola di section Question →
@@ -1061,11 +1237,14 @@ export function AdminTryoutsPage() {
               <div className="p-2 bg-red-50 rounded-xl">
                 <Trash2 className="w-5 h-5 text-red-600" />
               </div>
-              <h2 className="text-base font-semibold text-slate-900">Hapus soal?</h2>
+              <h2 className="text-base font-semibold text-slate-900">
+                Hapus soal?
+              </h2>
             </div>
             <div className="p-5 space-y-4">
               <p className="text-sm text-slate-600">
-                Soal ini akan dihapus permanen beserta semua pilihan jawabannya. Data juga akan terupdate di section Question.
+                Soal ini akan dihapus permanen beserta semua pilihan jawabannya.
+                Data juga akan terupdate di section Question.
               </p>
               <div className="flex gap-3">
                 <button
@@ -1094,7 +1273,7 @@ export function AdminTryoutsPage() {
           <div className="w-full max-w-2xl mx-4 my-auto bg-white shadow-xl rounded-2xl">
             <div className="flex items-center justify-between p-5 border-b border-slate-100">
               <h2 className="text-base font-semibold text-brand-dark">
-                {questionEditingId ? 'Edit Question' : 'Tambah Soal'}
+                {questionEditingId ? "Edit Question" : "Tambah Soal"}
               </h2>
               <div className="flex items-center gap-2">
                 {/* Edit / Preview toggle */}
@@ -1102,14 +1281,14 @@ export function AdminTryoutsPage() {
                   <button
                     type="button"
                     onClick={() => setQuestionPreviewMode(false)}
-                    className={`flex items-center gap-1 px-3 py-1.5 transition-colors ${!questionPreviewMode ? 'bg-brand-primary text-white' : 'text-slate-500 hover:bg-slate-50'}`}
+                    className={`flex items-center gap-1 px-3 py-1.5 transition-colors ${!questionPreviewMode ? "bg-brand-primary text-white" : "text-slate-500 hover:bg-slate-50"}`}
                   >
                     <PenLine className="h-3.5 w-3.5" /> Edit
                   </button>
                   <button
                     type="button"
                     onClick={() => setQuestionPreviewMode(true)}
-                    className={`flex items-center gap-1 px-3 py-1.5 transition-colors ${questionPreviewMode ? 'bg-brand-primary text-white' : 'text-slate-500 hover:bg-slate-50'}`}
+                    className={`flex items-center gap-1 px-3 py-1.5 transition-colors ${questionPreviewMode ? "bg-brand-primary text-white" : "text-slate-500 hover:bg-slate-50"}`}
                   >
                     <Eye className="h-3.5 w-3.5" /> Preview
                   </button>
@@ -1129,7 +1308,9 @@ export function AdminTryoutsPage() {
               <div className="p-5 space-y-5">
                 {/* Question text + image */}
                 <div>
-                  <p className="mb-2 text-xs font-semibold tracking-wide uppercase text-slate-400">Soal</p>
+                  <p className="mb-2 text-xs font-semibold tracking-wide uppercase text-slate-400">
+                    Soal
+                  </p>
                   <div className="rounded-xl border border-slate-100 bg-slate-50 px-4 py-4 text-sm text-slate-800 leading-relaxed min-h-[60px]">
                     {questionForm.text ? (
                       <QuestionTextRenderer
@@ -1139,26 +1320,40 @@ export function AdminTryoutsPage() {
                         imgClassName="mt-3 max-h-56 max-w-full rounded-lg border border-slate-200 bg-white object-contain"
                       />
                     ) : (
-                      <span className="italic text-slate-400">Teks soal belum diisi…</span>
+                      <span className="italic text-slate-400">
+                        Teks soal belum diisi…
+                      </span>
                     )}
                   </div>
                 </div>
 
                 {/* Options */}
                 <div>
-                  <p className="mb-2 text-xs font-semibold tracking-wide uppercase text-slate-400">Pilihan Jawaban</p>
+                  <p className="mb-2 text-xs font-semibold tracking-wide uppercase text-slate-400">
+                    Pilihan Jawaban
+                  </p>
                   <div className="space-y-2">
                     {questionForm.options.map((opt, idx) => (
                       <div
                         key={idx}
-                        className={`flex items-start gap-3 rounded-xl border-2 px-4 py-3 text-sm ${opt.isCorrect ? 'border-green-400 bg-green-50' : 'border-slate-200 bg-white'}`}
+                        className={`flex items-start gap-3 rounded-xl border-2 px-4 py-3 text-sm ${opt.isCorrect ? "border-green-400 bg-green-50" : "border-slate-200 bg-white"}`}
                       >
-                        <span className={`flex-shrink-0 h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold ${opt.isCorrect ? 'bg-green-500 text-white' : 'bg-slate-100 text-slate-600'}`}>
+                        <span
+                          className={`flex-shrink-0 h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold ${opt.isCorrect ? "bg-green-500 text-white" : "bg-slate-100 text-slate-600"}`}
+                        >
                           {String.fromCharCode(65 + idx)}
                         </span>
                         <div className="min-w-0">
                           {opt.text ? (
-                            <span className={opt.isCorrect ? 'text-green-800 font-medium' : 'text-slate-700'}><LatexText>{opt.text}</LatexText></span>
+                            <span
+                              className={
+                                opt.isCorrect
+                                  ? "text-green-800 font-medium"
+                                  : "text-slate-700"
+                              }
+                            >
+                              <LatexText>{opt.text}</LatexText>
+                            </span>
                           ) : null}
                           {opt.imageUrl ? (
                             <img
@@ -1168,11 +1363,15 @@ export function AdminTryoutsPage() {
                             />
                           ) : null}
                           {!opt.text && !opt.imageUrl ? (
-                            <span className="italic text-slate-400">Kosong</span>
+                            <span className="italic text-slate-400">
+                              Kosong
+                            </span>
                           ) : null}
                         </div>
                         {opt.isCorrect && (
-                          <span className="ml-auto shrink-0 text-xs font-semibold text-green-600 bg-green-100 rounded-full px-2 py-0.5">Benar</span>
+                          <span className="ml-auto shrink-0 text-xs font-semibold text-green-600 bg-green-100 rounded-full px-2 py-0.5">
+                            Benar
+                          </span>
                         )}
                       </div>
                     ))}
@@ -1182,7 +1381,9 @@ export function AdminTryoutsPage() {
                 {/* Explanation */}
                 {questionForm.explanation && (
                   <div>
-                    <p className="mb-2 text-xs font-semibold tracking-wide uppercase text-slate-400">Pembahasan</p>
+                    <p className="mb-2 text-xs font-semibold tracking-wide uppercase text-slate-400">
+                      Pembahasan
+                    </p>
                     <div className="px-4 py-3 text-sm leading-relaxed break-words whitespace-pre-wrap border rounded-xl border-slate-100 bg-amber-50 text-slate-700">
                       <LatexText>{questionForm.explanation}</LatexText>
                     </div>
@@ -1201,17 +1402,27 @@ export function AdminTryoutsPage() {
                   <button
                     type="button"
                     disabled={questionSaving}
-                    onClick={(e) => { setQuestionPreviewMode(false); handleQuestionSave(e as unknown as React.FormEvent); }}
+                    onClick={(e) => {
+                      setQuestionPreviewMode(false);
+                      handleQuestionSave(e as unknown as React.FormEvent);
+                    }}
                     className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-dark transition-colors disabled:opacity-60"
                   >
                     <Save className="w-4 h-4" />
-                    {questionSaving ? 'Menyimpan…' : questionEditingId ? 'Update' : 'Simpan'}
+                    {questionSaving
+                      ? "Menyimpan…"
+                      : questionEditingId
+                        ? "Update"
+                        : "Simpan"}
                   </button>
                 </div>
               </div>
             )}
 
-            <form onSubmit={handleQuestionSave} className={`p-5 space-y-4 ${questionPreviewMode ? 'hidden' : ''}`}>
+            <form
+              onSubmit={handleQuestionSave}
+              className={`p-5 space-y-4 ${questionPreviewMode ? "hidden" : ""}`}
+            >
               {questionFormError && (
                 <div className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 bg-red-50 rounded-xl">
                   <AlertCircle className="w-4 h-4 shrink-0" />
@@ -1220,69 +1431,110 @@ export function AdminTryoutsPage() {
               )}
 
               <div className="px-3 py-2 text-sm border rounded-xl bg-slate-50 border-slate-200 text-slate-700">
-                <span className="text-xs font-medium text-slate-500">Tryout</span>
+                <span className="text-xs font-medium text-slate-500">
+                  Tryout
+                </span>
                 <p className="font-medium">{previewTryout.title}</p>
               </div>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="block mb-1 text-xs font-medium text-slate-600">Sequence Number <span className="text-red-500">*</span></label>
+                  <label className="block mb-1 text-xs font-medium text-slate-600">
+                    Sequence Number <span className="text-red-500">*</span>
+                  </label>
                   <input
                     type="number"
                     min={1}
                     value={questionForm.sequenceNumber}
-                    onChange={(e) => setQuestionForm((p) => ({ ...p, sequenceNumber: e.target.value }))}
+                    onChange={(e) =>
+                      setQuestionForm((p) => ({
+                        ...p,
+                        sequenceNumber: e.target.value,
+                      }))
+                    }
                     required
                     placeholder="1"
                     className="w-full px-3 py-2 text-sm border rounded-xl border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
                   />
                 </div>
                 <div>
-                  <label className="block mb-1 text-xs font-medium text-slate-600">Subject <span className="text-red-500">*</span></label>
+                  <label className="block mb-1 text-xs font-medium text-slate-600">
+                    Subject <span className="text-red-500">*</span>
+                  </label>
                   <select
                     value={questionForm.subjectId}
-                    onChange={(e) => setQuestionForm((p) => ({ ...p, subjectId: e.target.value, topicId: '' }))}
+                    onChange={(e) =>
+                      setQuestionForm((p) => ({
+                        ...p,
+                        subjectId: e.target.value,
+                        topicId: "",
+                      }))
+                    }
                     required
                     className="w-full px-3 py-2 text-sm bg-white border rounded-xl border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
                   >
                     <option value="">— Pilih Subject —</option>
                     {questionSubjects.map((s) => (
-                      <option key={s.id} value={s.id}>{s.name}</option>
+                      <option key={s.id} value={s.id}>
+                        {s.name}
+                      </option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="block mb-1 text-xs font-medium text-slate-600">Topic</label>
+                  <label className="block mb-1 text-xs font-medium text-slate-600">
+                    Topic
+                  </label>
                   <select
                     value={questionForm.topicId}
-                    onChange={(e) => setQuestionForm((p) => ({ ...p, topicId: e.target.value }))}
-                    disabled={!questionForm.subjectId || questionFormTopics.length === 0}
+                    onChange={(e) =>
+                      setQuestionForm((p) => ({
+                        ...p,
+                        topicId: e.target.value,
+                      }))
+                    }
+                    disabled={
+                      !questionForm.subjectId || questionFormTopics.length === 0
+                    }
                     className="w-full px-3 py-2 text-sm bg-white border rounded-xl border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30 disabled:opacity-50"
                   >
                     <option value="">— Opsional —</option>
                     {questionFormTopics.map((t) => (
-                      <option key={t.id} value={t.id}>{t.name}</option>
+                      <option key={t.id} value={t.id}>
+                        {t.name}
+                      </option>
                     ))}
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className="block mb-1 text-xs font-medium text-slate-600">Question Text <span className="text-red-500">*</span></label>
+                <label className="block mb-1 text-xs font-medium text-slate-600">
+                  Question Text <span className="text-red-500">*</span>
+                </label>
                 <div onPaste={handleQTextareaPaste}>
                   <ReactQuill
                     theme="snow"
                     value={questionForm.text}
-                    onChange={(val) => setQuestionForm((p) => ({ ...p, text: val }))}
+                    onChange={(val) =>
+                      setQuestionForm((p) => ({ ...p, text: val }))
+                    }
                     modules={quillModules}
                     placeholder="Tulis soal di sini. Paste gambar langsung ke sini untuk menambahkan gambar."
                     className="bg-white rounded-xl overflow-hidden [&_.ql-container]:min-h-[150px] [&_.ql-container]:text-sm [&_.ql-editor]:font-mono"
                   />
                 </div>
                 <p className="mt-1 text-xs text-slate-500">
-                  LaTeX: <code className="px-1 rounded bg-slate-100">$rumus$</code> inline; <code className="px-1 rounded bg-slate-100">$$rumus$$</code> atau <code className="px-1 rounded bg-slate-100">\[rumus\]</code> blok.
-                  {' '}Kamu juga bisa <strong>paste gambar</strong> langsung ke kolom ini.
-                  {' '}Gunakan <code className="px-1 rounded bg-slate-100">[img]</code> di teks untuk menempatkan gambar inline.
+                  LaTeX:{" "}
+                  <code className="px-1 rounded bg-slate-100">$rumus$</code>{" "}
+                  inline;{" "}
+                  <code className="px-1 rounded bg-slate-100">$$rumus$$</code>{" "}
+                  atau{" "}
+                  <code className="px-1 rounded bg-slate-100">\[rumus\]</code>{" "}
+                  blok. Kamu juga bisa <strong>paste gambar</strong> langsung ke
+                  kolom ini. Gunakan{" "}
+                  <code className="px-1 rounded bg-slate-100">[img]</code> di
+                  teks untuk menempatkan gambar inline.
                 </p>
               </div>
 
@@ -1297,7 +1549,9 @@ export function AdminTryoutsPage() {
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={async (e) => {
                     e.preventDefault();
-                    const file = Array.from(e.dataTransfer.files).find((f) => f.type.startsWith('image/'));
+                    const file = Array.from(e.dataTransfer.files).find((f) =>
+                      f.type.startsWith("image/"),
+                    );
                     if (!file) return;
                     const url = await uploadQImageFile(file);
                     if (url) setQuestionForm((p) => ({ ...p, imageUrl: url }));
@@ -1305,26 +1559,55 @@ export function AdminTryoutsPage() {
                 >
                   {qImageUploading ? (
                     <span className="flex items-center gap-2 font-medium text-brand-primary">
-                      <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                      <svg
+                        className="w-4 h-4 animate-spin"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8v8z"
+                        />
                       </svg>
                       Mengupload…
                     </span>
                   ) : (
                     <>
                       <Upload className="w-4 h-4 shrink-0" />
-                      <span>Klik untuk pilih file, atau drag &amp; drop. Maks 100KB.</span>
+                      <span>
+                        Klik untuk pilih file, atau drag &amp; drop. Maks 100KB.
+                      </span>
                     </>
                   )}
                 </div>
-                <input ref={qImageFileRef} type="file" accept="image/*" className="hidden" onChange={handleQImageFileChange} />
+                <input
+                  ref={qImageFileRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleQImageFileChange}
+                />
                 {questionForm.imageUrl && !qImageUploading && (
                   <div className="relative inline-block mb-2 overflow-hidden border rounded-xl border-slate-200 bg-slate-50">
-                    <img src={questionForm.imageUrl} alt="Preview soal" className="block object-contain max-w-full max-h-40" />
+                    <img
+                      src={questionForm.imageUrl}
+                      alt="Preview soal"
+                      className="block object-contain max-w-full max-h-40"
+                    />
                     <button
                       type="button"
-                      onClick={() => setQuestionForm((p) => ({ ...p, imageUrl: '' }))}
+                      onClick={() =>
+                        setQuestionForm((p) => ({ ...p, imageUrl: "" }))
+                      }
                       className="absolute top-1 right-1 rounded-full bg-white/80 p-0.5 text-slate-500 hover:bg-red-50 hover:text-red-500 border border-slate-200 transition-colors"
                     >
                       <X className="h-3.5 w-3.5" />
@@ -1333,23 +1616,31 @@ export function AdminTryoutsPage() {
                 )}
                 <div className="flex items-center gap-1.5 mb-1">
                   <Link className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                  <span className="text-xs text-slate-400">Atau masukkan URL gambar secara manual:</span>
+                  <span className="text-xs text-slate-400">
+                    Atau masukkan URL gambar secara manual:
+                  </span>
                 </div>
                 <input
                   type="url"
                   value={questionForm.imageUrl}
-                  onChange={(e) => setQuestionForm((p) => ({ ...p, imageUrl: e.target.value }))}
+                  onChange={(e) =>
+                    setQuestionForm((p) => ({ ...p, imageUrl: e.target.value }))
+                  }
                   placeholder="https://…"
                   className="w-full px-3 py-2 text-sm border rounded-xl border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
                 />
               </div>
 
               <div>
-                <label className="block mb-1 text-xs font-medium text-slate-600">Penjelasan (opsional)</label>
+                <label className="block mb-1 text-xs font-medium text-slate-600">
+                  Penjelasan (opsional)
+                </label>
                 <ReactQuill
                   theme="snow"
                   value={questionForm.explanation}
-                  onChange={(val) => setQuestionForm((p) => ({ ...p, explanation: val }))}
+                  onChange={(val) =>
+                    setQuestionForm((p) => ({ ...p, explanation: val }))
+                  }
                   modules={quillModules}
                   placeholder="Pembahasan jawaban..."
                   className="bg-white rounded-xl overflow-hidden [&_.ql-container]:min-h-[100px] [&_.ql-container]:text-sm"
@@ -1358,25 +1649,44 @@ export function AdminTryoutsPage() {
 
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-xs font-semibold text-slate-600">Pilihan Jawaban <span className="text-red-500">*</span></label>
-                  <button type="button" onClick={addQuestionOption} className="flex items-center gap-1 text-xs font-medium text-brand-primary hover:text-brand-dark">
+                  <label className="text-xs font-semibold text-slate-600">
+                    Pilihan Jawaban <span className="text-red-500">*</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={addQuestionOption}
+                    className="flex items-center gap-1 text-xs font-medium text-brand-primary hover:text-brand-dark"
+                  >
                     <Plus className="h-3.5 w-3.5" /> Tambah pilihan
                   </button>
                 </div>
 
                 {/* Hidden file input shared across all options */}
-                <input ref={qOptionFileRef} type="file" accept="image/*" className="hidden" onChange={handleQOptionFileChange} />
+                <input
+                  ref={qOptionFileRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleQOptionFileChange}
+                />
 
                 <div className="space-y-3">
                   {questionForm.options.map((opt, idx) => (
-                    <div key={idx} className="rounded-xl border border-slate-200 bg-slate-50/50 p-2.5 space-y-2">
+                    <div
+                      key={idx}
+                      className="rounded-xl border border-slate-200 bg-slate-50/50 p-2.5 space-y-2"
+                    >
                       {/* Row 1: label + text + correct + remove */}
                       <div className="flex items-center gap-2">
-                        <span className="w-5 text-xs font-semibold text-center text-slate-400 shrink-0">{String.fromCharCode(65 + idx)}.</span>
+                        <span className="w-5 text-xs font-semibold text-center text-slate-400 shrink-0">
+                          {String.fromCharCode(65 + idx)}.
+                        </span>
                         <input
                           type="text"
                           value={opt.text}
-                          onChange={(e) => updateQuestionOption(idx, 'text', e.target.value)}
+                          onChange={(e) =>
+                            updateQuestionOption(idx, "text", e.target.value)
+                          }
                           onPaste={(e) => handleQOptionPaste(e, idx)}
                           placeholder={`Teks pilihan ${String.fromCharCode(65 + idx)} (atau paste gambar di sini)`}
                           className="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
@@ -1385,13 +1695,25 @@ export function AdminTryoutsPage() {
                           <input
                             type="checkbox"
                             checked={opt.isCorrect}
-                            onChange={(e) => updateQuestionOption(idx, 'isCorrect', e.target.checked)}
+                            onChange={(e) =>
+                              updateQuestionOption(
+                                idx,
+                                "isCorrect",
+                                e.target.checked,
+                              )
+                            }
                             className="w-4 h-4 accent-brand-primary"
                           />
-                          <span className="text-xs font-medium text-green-600">Benar</span>
+                          <span className="text-xs font-medium text-green-600">
+                            Benar
+                          </span>
                         </label>
                         {questionForm.options.length > 2 && (
-                          <button type="button" onClick={() => removeQuestionOption(idx)} className="p-1 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => removeQuestionOption(idx)}
+                            className="p-1 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-500 shrink-0"
+                          >
                             <X className="h-3.5 w-3.5" />
                           </button>
                         )}
@@ -1403,42 +1725,121 @@ export function AdminTryoutsPage() {
                             <div className="relative inline-block overflow-hidden bg-white border rounded-lg border-slate-200">
                               {qOptionImageUploading === idx ? (
                                 <div className="flex items-center justify-center gap-1.5 h-16 w-24 text-xs text-brand-primary">
-                                  <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                                  <svg
+                                    className="w-4 h-4 animate-spin"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                  >
+                                    <circle
+                                      className="opacity-25"
+                                      cx="12"
+                                      cy="12"
+                                      r="10"
+                                      stroke="currentColor"
+                                      strokeWidth="4"
+                                    />
+                                    <path
+                                      className="opacity-75"
+                                      fill="currentColor"
+                                      d="M4 12a8 8 0 018-8v8z"
+                                    />
                                   </svg>
                                 </div>
                               ) : (
-                                <img src={opt.imageUrl} alt={`Pilihan ${String.fromCharCode(65 + idx)}`} className="max-h-24 max-w-[160px] object-contain block" />
+                                <img
+                                  src={opt.imageUrl}
+                                  alt={`Pilihan ${String.fromCharCode(65 + idx)}`}
+                                  className="max-h-24 max-w-[160px] object-contain block"
+                                />
                               )}
-                              <button type="button" onClick={() => updateQuestionOption(idx, 'imageUrl', '')} className="absolute top-0.5 right-0.5 rounded-full bg-white/80 p-0.5 text-slate-500 hover:bg-red-50 hover:text-red-500 border border-slate-200">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  updateQuestionOption(idx, "imageUrl", "")
+                                }
+                                className="absolute top-0.5 right-0.5 rounded-full bg-white/80 p-0.5 text-slate-500 hover:bg-red-50 hover:text-red-500 border border-slate-200"
+                              >
                                 <X className="w-3 h-3" />
                               </button>
                             </div>
                             <div className="flex flex-col gap-1">
-                              <button type="button" onClick={() => { qCurrentOptionIdxRef.current = idx; qOptionFileRef.current?.click(); }} className="flex items-center gap-1 text-xs text-brand-primary hover:text-brand-dark">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  qCurrentOptionIdxRef.current = idx;
+                                  qOptionFileRef.current?.click();
+                                }}
+                                className="flex items-center gap-1 text-xs text-brand-primary hover:text-brand-dark"
+                              >
                                 <Upload className="w-3 h-3" /> Ganti gambar
                               </button>
-                              <input type="url" value={opt.imageUrl} onChange={(e) => updateQuestionOption(idx, 'imageUrl', e.target.value)} placeholder="URL gambar…" className="w-48 px-2 py-1 text-xs bg-white border rounded-lg border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30" />
+                              <input
+                                type="url"
+                                value={opt.imageUrl}
+                                onChange={(e) =>
+                                  updateQuestionOption(
+                                    idx,
+                                    "imageUrl",
+                                    e.target.value,
+                                  )
+                                }
+                                placeholder="URL gambar…"
+                                className="w-48 px-2 py-1 text-xs bg-white border rounded-lg border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+                              />
                             </div>
                           </div>
                         ) : (
                           <div className="flex items-center gap-2">
                             {qOptionImageUploading === idx ? (
                               <span className="flex items-center gap-1.5 text-xs text-brand-primary">
-                                <svg className="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24" fill="none">
-                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                                <svg
+                                  className="animate-spin h-3.5 w-3.5"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                >
+                                  <circle
+                                    className="opacity-25"
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                    stroke="currentColor"
+                                    strokeWidth="4"
+                                  />
+                                  <path
+                                    className="opacity-75"
+                                    fill="currentColor"
+                                    d="M4 12a8 8 0 018-8v8z"
+                                  />
                                 </svg>
                                 Mengupload…
                               </span>
                             ) : (
-                              <button type="button" onClick={() => { qCurrentOptionIdxRef.current = idx; qOptionFileRef.current?.click(); }} className="flex items-center gap-1 text-xs transition-colors text-slate-500 hover:text-brand-primary">
-                                <ImageIcon className="h-3.5 w-3.5" /> Tambah gambar
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  qCurrentOptionIdxRef.current = idx;
+                                  qOptionFileRef.current?.click();
+                                }}
+                                className="flex items-center gap-1 text-xs transition-colors text-slate-500 hover:text-brand-primary"
+                              >
+                                <ImageIcon className="h-3.5 w-3.5" /> Tambah
+                                gambar
                               </button>
                             )}
                             <span className="text-xs text-slate-300">|</span>
-                            <input type="url" value={opt.imageUrl} onChange={(e) => updateQuestionOption(idx, 'imageUrl', e.target.value)} placeholder="atau paste URL gambar…" className="flex-1 px-2 py-1 text-xs bg-white border rounded-lg border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30" />
+                            <input
+                              type="url"
+                              value={opt.imageUrl}
+                              onChange={(e) =>
+                                updateQuestionOption(
+                                  idx,
+                                  "imageUrl",
+                                  e.target.value,
+                                )
+                              }
+                              placeholder="atau paste URL gambar…"
+                              className="flex-1 px-2 py-1 text-xs bg-white border rounded-lg border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+                            />
                           </div>
                         )}
                       </div>
@@ -1448,12 +1849,24 @@ export function AdminTryoutsPage() {
               </div>
 
               <div className="flex gap-3 pt-2">
-                <button type="button" onClick={() => setQuestionFormOpen(false)} className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                <button
+                  type="button"
+                  onClick={() => setQuestionFormOpen(false)}
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                >
                   Batal
                 </button>
-                <button type="submit" disabled={questionSaving} className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-dark disabled:opacity-60">
+                <button
+                  type="submit"
+                  disabled={questionSaving}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-dark disabled:opacity-60"
+                >
                   <Save className="w-4 h-4" />
-                  {questionSaving ? 'Menyimpan…' : questionEditingId ? 'Update' : 'Simpan'}
+                  {questionSaving
+                    ? "Menyimpan…"
+                    : questionEditingId
+                      ? "Update"
+                      : "Simpan"}
                 </button>
               </div>
             </form>
@@ -1463,4 +1876,3 @@ export function AdminTryoutsPage() {
     </div>
   );
 }
-
