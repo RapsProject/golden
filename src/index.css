@@ -10,3 +10,20 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Quill Editor Alignment Overrides */
+.ql-align-center { text-align: center; }
+.ql-align-right { text-align: right; }
+.ql-align-justify { text-align: justify; }
+
+/* Handle KaTeX length gracefully */
+.katex-display {
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  max-width: 100%;
+}
+.katex-inline {
+  word-wrap: break-word;
+  white-space: normal;
+}
+

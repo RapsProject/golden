@@ -1,5 +1,5 @@
-import { Fragment } from 'react';
-import { LatexText } from './LatexText';
+import { Fragment } from "react";
+import { LatexText } from "./LatexText";
 
 interface QuestionTextRendererProps {
   text: string;
@@ -20,10 +20,10 @@ interface QuestionTextRendererProps {
 export function QuestionTextRenderer({
   text,
   imageUrl,
-  className = '',
-  imgClassName = 'max-h-64 max-w-full rounded-lg border border-slate-200 bg-slate-50 object-contain',
+  className = "",
+  imgClassName = "max-h-64 max-w-full rounded-lg border border-slate-200 bg-slate-50 object-contain",
 }: QuestionTextRendererProps) {
-  const parts = text.split('[img]');
+  const parts = text.split("[img]");
   const hasMarker = parts.length > 1;
 
   return (
@@ -32,14 +32,18 @@ export function QuestionTextRenderer({
         parts.map((part, idx) => (
           <Fragment key={idx}>
             {part.trim() ? (
-              <div className={idx > 0 ? 'mt-4' : undefined}>
+              <div className={idx > 0 ? "mt-4" : undefined}>
                 <LatexText className="contents">{part}</LatexText>
               </div>
             ) : null}
             {idx < parts.length - 1 ? (
               imageUrl ? (
                 <div className="my-4">
-                  <img src={imageUrl} alt="Gambar soal" className={imgClassName} />
+                  <img
+                    src={imageUrl}
+                    alt="Gambar soal"
+                    className={imgClassName}
+                  />
                 </div>
               ) : (
                 /* placeholder shown when marker is set but no image yet */
@@ -66,5 +70,5 @@ export function QuestionTextRenderer({
 
 /** Returns the display text with [img] stripped — useful for truncated table previews */
 export function stripImgMarker(text: string) {
-  return text.replace(/\[img\]/g, '');
+  return text.replace(/\[img\]/g, "");
 }
