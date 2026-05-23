@@ -1,5 +1,8 @@
-import type { LeaderboardFilterType, LeaderboardSubject } from '../../../lib/api';
-import { DREAM_MAJORS } from '../../../lib/constants';
+import type {
+  LeaderboardFilterType,
+  LeaderboardSubject,
+} from "../../../lib/api";
+import { DREAM_MAJORS } from "../../../lib/constants";
 
 type Tryout = {
   id: string;
@@ -20,10 +23,10 @@ type Props = {
 };
 
 const FILTER_TABS: { label: string; value: LeaderboardFilterType }[] = [
-  { label: 'Overall Average', value: 'OVERALL' },
-  { label: 'By Subject', value: 'SUBJECT' },
-  { label: 'Specific Tryout', value: 'TRYOUT' },
-  { label: 'By Dream Major', value: 'DREAM_MAJOR' },
+  { label: "Overall Average", value: "OVERALL" },
+  { label: "By Subject", value: "SUBJECT" },
+  { label: "Specific Tryout", value: "TRYOUT" },
+  { label: "By Dream Major", value: "DREAM_MAJOR" },
 ];
 
 export function LeaderboardFilters({
@@ -59,8 +62,8 @@ export function LeaderboardFilters({
             onClick={() => onFilterTypeChange(value)}
             className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-150 ${
               filterType === value
-                ? 'bg-brand-primary text-white shadow-sm'
-                : 'bg-brand-light text-brand-dark hover:bg-brand-secondary/30'
+                ? "bg-brand-primary text-white shadow-sm"
+                : "bg-brand-light text-brand-dark hover:bg-brand-secondary/30"
             }`}
           >
             {label}
@@ -69,29 +72,32 @@ export function LeaderboardFilters({
       </div>
 
       {/* Secondary filter: subject */}
-      {filterType === 'SUBJECT' && (
+      {filterType === "SUBJECT" && (
         <div className="flex gap-2">
-          {(['MATHEMATICS', 'PHYSICS'] as LeaderboardSubject[]).map((s) => (
+          {(["MATHEMATICS", "PHYSICS"] as LeaderboardSubject[]).map((s) => (
             <button
               key={s}
               type="button"
               onClick={() => onSubjectChange(s)}
               className={`px-4 py-2 rounded-lg text-sm font-medium border transition-all duration-150 ${
                 subject === s
-                  ? 'border-brand-primary bg-brand-primary text-white'
-                  : 'border-brand-light bg-white text-slate-700 hover:border-brand-primary'
+                  ? "border-brand-primary bg-brand-primary text-white"
+                  : "border-brand-light bg-white text-slate-700 hover:border-brand-primary"
               }`}
             >
-              {s === 'MATHEMATICS' ? 'Mathematics' : 'Physics'}
+              {s === "MATHEMATICS" ? "Mathematics" : "Physics"}
             </button>
           ))}
         </div>
       )}
 
       {/* Secondary filter: tryout select */}
-      {filterType === 'TRYOUT' && (
+      {filterType === "TRYOUT" && (
         <div className="max-w-sm">
-          <label htmlFor="tryout-select" className="block text-xs font-medium text-slate-500 mb-1">
+          <label
+            htmlFor="tryout-select"
+            className="block text-xs font-medium text-slate-500 mb-1"
+          >
             Select Tryout
           </label>
           {tryoutsLoading ? (
@@ -99,7 +105,7 @@ export function LeaderboardFilters({
           ) : (
             <select
               id="tryout-select"
-              value={selectedTryoutId ?? ''}
+              value={selectedTryoutId ?? ""}
               onChange={(e) => {
                 if (e.target.value) onTryoutChange(e.target.value);
               }}
@@ -117,14 +123,17 @@ export function LeaderboardFilters({
       )}
 
       {/* Secondary filter: dream major select */}
-      {filterType === 'DREAM_MAJOR' && (
+      {filterType === "DREAM_MAJOR" && (
         <div className="max-w-sm">
-          <label htmlFor="dream-major-select" className="block text-xs font-medium text-slate-500 mb-1">
-            Pilih Jurusan Impian IUP ITB
+          <label
+            htmlFor="dream-major-select"
+            className="block text-xs font-medium text-slate-500 mb-1"
+          >
+            Pilih Jurusan Impian IUP International Class
           </label>
           <select
             id="dream-major-select"
-            value={selectedDreamMajor ?? ''}
+            value={selectedDreamMajor ?? ""}
             onChange={(e) => {
               if (e.target.value) onDreamMajorChange(e.target.value);
             }}

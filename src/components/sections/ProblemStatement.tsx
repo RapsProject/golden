@@ -1,11 +1,11 @@
-import { CheckCircle2 } from 'lucide-react';
-import { Container } from '../ui/Container';
+import { CheckCircle2 } from "lucide-react";
+import { Container } from "../ui/Container";
 
 export function ProblemStatement() {
   const points = [
-    'Standard UTBK prep does not cover AqTest-style logic problems.',
-    'You need English-based Math & Physics specifically tailored for ITB IUP.',
-    'Time pressure and adaptive question styles require different strategies.',
+    "Standard UTBK prep does not cover AqTest-style logic problems.",
+    "You need English-based Math & Physics specifically tailored for ITB IUP.",
+    "Time pressure and adaptive question styles require different strategies.",
   ];
 
   return (
@@ -28,9 +28,9 @@ export function ProblemStatement() {
               </h2>
 
               <p className="text-slate-300 text-sm md:text-base mb-6">
-                IUP ITB entrance exam is designed differently — more logic, more
-                English, and more application. The usual drill books simply
-                don&apos;t match the questions you&apos;ll face.
+                IUP International Class entrance exam is designed differently —
+                more logic, more English, and more application. The usual drill
+                books simply don&apos;t match the questions you&apos;ll face.
               </p>
 
               <div className="space-y-3">
@@ -53,14 +53,14 @@ export function ProblemStatement() {
             </h2>
             <p className="text-slate-600 text-base md:text-lg mb-6">
               Regular national exam prep focuses on standard curriculum and
-              Bahasa Indonesia questions. AqTest for IUP ITB is built
-              differently — it combines English proficiency, mathematical
+              Bahasa Indonesia questions. AqTest for IUP International Class is
+              built differently — it combines English proficiency, mathematical
               reasoning, and scientific logic in one high-pressure environment.
             </p>
             <p className="text-slate-600 text-base md:text-lg mb-4">
               Without the right blueprint, you might be practicing hard but for
               the wrong game. SabiAcademia helps you align every study session
-              with the actual demands of the IUP ITB exam.
+              with the actual demands of the IUP International Class exam.
             </p>
           </div>
         </div>
@@ -68,4 +68,3 @@ export function ProblemStatement() {
     </section>
   );
 }
-

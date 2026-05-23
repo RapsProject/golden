@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { BookOpen, Phone, School, Sparkles } from 'lucide-react';
-import { updateMyProfile } from '../lib/api';
+import { useState } from "react";
+import { BookOpen, Phone, School, Sparkles } from "lucide-react";
+import { updateMyProfile } from "../lib/api";
 
 const DREAM_MAJORS = [
   "Geological Engineering (FITB)",
@@ -39,9 +39,9 @@ type Props = {
 };
 
 export function OnboardingModal({ accessToken, onClose }: Props) {
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [schoolOrigin, setSchoolOrigin] = useState('');
-  const [dreamMajor, setDreamMajor] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [schoolOrigin, setSchoolOrigin] = useState("");
+  const [dreamMajor, setDreamMajor] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,10 +50,18 @@ export function OnboardingModal({ accessToken, onClose }: Props) {
     setSaving(true);
     setError(null);
     try {
-      await updateMyProfile(accessToken, { phoneNumber, schoolOrigin, dreamMajor });
+      await updateMyProfile(accessToken, {
+        phoneNumber,
+        schoolOrigin,
+        dreamMajor,
+      });
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Gagal menyimpan profil. Coba lagi.');
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Gagal menyimpan profil. Coba lagi.",
+      );
     } finally {
       setSaving(false);
     }
@@ -62,7 +70,6 @@ export function OnboardingModal({ accessToken, onClose }: Props) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
       <div className="bg-white rounded-2xl p-6 md:p-8 w-full max-w-md shadow-2xl animate-[fade-in_0.2s_ease]">
-
         {/* Header */}
         <div className="text-center mb-6">
           <div className="h-14 w-14 rounded-full bg-brand-light flex items-center justify-center mx-auto mb-4">
@@ -72,7 +79,8 @@ export function OnboardingModal({ accessToken, onClose }: Props) {
             Selamat Datang!
           </h2>
           <p className="text-sm text-slate-500 mt-1.5 leading-relaxed">
-            Sebelum memulai, lengkapi profil kamu agar perjalanan belajarmu lebih personal.
+            Sebelum memulai, lengkapi profil kamu agar perjalanan belajarmu
+            lebih personal.
           </p>
         </div>
 
@@ -118,7 +126,7 @@ export function OnboardingModal({ accessToken, onClose }: Props) {
           <div>
             <label className="flex items-center gap-1.5 text-sm font-medium text-slate-700 mb-1.5">
               <BookOpen className="h-4 w-4 text-brand-primary" />
-              Jurusan Impian IUP ITB
+              Jurusan Impian IUP International Class
             </label>
             <select
               value={dreamMajor}
@@ -139,7 +147,7 @@ export function OnboardingModal({ accessToken, onClose }: Props) {
             disabled={saving}
             className="w-full py-3 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-dark transition-colors disabled:opacity-60 mt-2"
           >
-            {saving ? 'Menyimpan…' : 'Simpan & Mulai'}
+            {saving ? "Menyimpan…" : "Simpan & Mulai"}
           </button>
         </form>
 

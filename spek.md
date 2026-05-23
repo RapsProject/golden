@@ -3,7 +3,7 @@ spek.md - Landing Page Specification
 1. Project Context & Design System
    1.1. Overview
 
-Platform persiapan ujian masuk IUP ITB (International Undergraduate Program). Target audiens adalah siswa SMA yang ingin masuk kelas internasional ITB.
+Platform persiapan ujian masuk IUP International Class (International Undergraduate Program). Target audiens adalah siswa SMA yang ingin masuk kelas internasional ITB.
 
     Vibe: Akademis, Profesional, Terpercaya, Modern, & Clean.
 
@@ -86,7 +86,7 @@ src/
 
         Kiri (Text):
 
-            Badge: "The #1 IUP ITB Preparation Platform" (Bg brand-secondary opacity 20%, text brand-dark).
+            Badge: "The #1 IUP International Class Preparation Platform" (Bg brand-secondary opacity 20%, text brand-dark).
 
             Headline: "Secure Your Seat at ITB International Class." (Font Serif, color brand-dark, size text-4xl md:text-6xl).
 

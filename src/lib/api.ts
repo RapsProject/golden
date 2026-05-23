@@ -333,6 +333,27 @@ export async function getSubscriptionPlans(): Promise<SubscriptionPlan[]> {
   return res.data ?? [];
 }
 
+export type TransactionResponse = {
+  id: string;
+  midtransOrderId: string;
+  amount: number;
+  status: string;
+  snapToken?: string;
+  paymentUrl?: string;
+};
+
+export async function createSubscriptionTransaction(
+  token: string,
+  planId: string
+): Promise<TransactionResponse | undefined> {
+  const res = await api.post<TransactionResponse>(
+    "/api/v1/transactions",
+    { planId },
+    token
+  );
+  return res.data;
+}
+
 // ─── Profile ──────────────────────────────────────────────────────────────────
 
 export type ProfileDetail = {

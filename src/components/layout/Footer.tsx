@@ -1,17 +1,17 @@
-import { Instagram, Twitter } from 'lucide-react';
+import { Instagram, Twitter } from "lucide-react";
 
-const productLinks = ['Features', 'Pricing'];
-const companyLinks = ['About Us', 'Contact'];
-const legalLinks = ['Privacy Policy', 'Terms of Service'];
+const productLinks = ["Features", "Pricing"];
+const companyLinks = ["About Us", "Contact"];
+const legalLinks = ["Privacy Policy", "Terms of Service"];
 
 const socialLinks = [
   {
-    name: 'Instagram',
+    name: "Instagram",
     icon: <Instagram size={20} />,
-    href: '#',
+    href: "#",
   },
   {
-    name: 'TikTok',
+    name: "TikTok",
     icon: (
       <svg
         width="20"
@@ -26,12 +26,12 @@ const socialLinks = [
         <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
       </svg>
     ),
-    href: '#',
+    href: "#",
   },
   {
-    name: 'Twitter',
+    name: "Twitter",
     icon: <Twitter size={20} />,
-    href: '#',
+    href: "#",
   },
 ];
 
@@ -54,8 +54,8 @@ export function Footer({ onNavigateComingSoon }: FooterProps) {
             Sabi<span className="text-brand-primary">Academia</span>
           </div>
           <p className="max-w-sm text-sm text-slate-400">
-            Exam-focused preparation for IUP ITB. Crafted by students who have
-            passed the AqTest and know what really matters.
+            Exam-focused preparation for IUP International Class. Crafted by
+            students who have passed the AqTest and know what really matters.
           </p>
         </div>
 

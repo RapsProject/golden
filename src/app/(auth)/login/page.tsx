@@ -1,18 +1,18 @@
-import { useMemo, useState } from 'react';
-import { Chrome, Eye, EyeOff } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Button } from '../../../components/ui/Button';
-import { Input } from '../../../components/ui/Input';
-import { useAuth } from '../../../contexts/AuthContext';
-import { syncProfile } from '../../../lib/api';
-import { supabase } from '../../../lib/supabase';
+import { useMemo, useState } from "react";
+import { Chrome, Eye, EyeOff } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Button } from "../../../components/ui/Button";
+import { Input } from "../../../components/ui/Input";
+import { useAuth } from "../../../contexts/AuthContext";
+import { syncProfile } from "../../../lib/api";
+import { supabase } from "../../../lib/supabase";
 
 export function LoginPage() {
   const navigate = useNavigate();
   const { signIn, signInWithGoogle } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -21,7 +21,7 @@ export function LoginPage() {
 
   const canSubmit = useMemo(
     () => email.length > 3 && password.length > 3 && !loading,
-    [email, password, loading]
+    [email, password, loading],
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -35,24 +35,40 @@ export function LoginPage() {
       setLoading(false);
       return;
     }
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
     if (session?.access_token) {
-      console.log('[Login] Berhasil login. Token ada:', true, 'panjang:', session.access_token.length, 'user id:', session.user?.id);
+      console.log(
+        "[Login] Berhasil login. Token ada:",
+        true,
+        "panjang:",
+        session.access_token.length,
+        "user id:",
+        session.user?.id,
+      );
       try {
         await syncProfile(session.access_token, {
           email,
-          full_name: session.user?.user_metadata?.full_name as string | undefined,
+          full_name: session.user?.user_metadata?.full_name as
+            | string
+            | undefined,
         });
-        console.log('[Login] syncProfile ke backend: sukses');
+        console.log("[Login] syncProfile ke backend: sukses");
       } catch (err) {
-        console.warn('[Login] syncProfile ke backend gagal (optional):', err instanceof Error ? err.message : err);
+        console.warn(
+          "[Login] syncProfile ke backend gagal (optional):",
+          err instanceof Error ? err.message : err,
+        );
         // sync optional; user can still use app
       }
     } else {
-      console.warn('[Login] Berhasil login tapi session/access_token tidak ada');
+      console.warn(
+        "[Login] Berhasil login tapi session/access_token tidak ada",
+      );
     }
     setLoading(false);
-    navigate('/dashboard');
+    navigate("/dashboard");
   };
 
   const handleGoogleSignIn = async () => {
@@ -70,7 +86,7 @@ export function LoginPage() {
       setError(
         err instanceof Error
           ? err.message
-          : 'Terjadi kesalahan saat login dengan Google.',
+          : "Terjadi kesalahan saat login dengan Google.",
       );
       setGoogleLoading(false);
     }
@@ -81,7 +97,7 @@ export function LoginPage() {
     setInfo(null);
 
     if (!email || email.length <= 3) {
-      setError('Masukkan email yang valid terlebih dahulu.');
+      setError("Masukkan email yang valid terlebih dahulu.");
       return;
     }
 
@@ -97,13 +113,13 @@ export function LoginPage() {
       if (resetError) {
         setError(resetError.message);
       } else {
-        setInfo('Link reset password sudah dikirim ke email kamu.');
+        setInfo("Link reset password sudah dikirim ke email kamu.");
       }
     } catch (err) {
       setError(
         err instanceof Error
           ? err.message
-          : 'Terjadi kesalahan. Silakan coba lagi.',
+          : "Terjadi kesalahan. Silakan coba lagi.",
       );
     } finally {
       setResetLoading(false);
@@ -125,7 +141,7 @@ export function LoginPage() {
           Welcome Back
         </h1>
         <p className="text-sm md:text-base text-slate-600 mt-2">
-          Sign in to continue your IUP ITB preparation journey.
+          Sign in to continue your IUP International Class preparation journey.
         </p>
       </div>
 
@@ -139,7 +155,7 @@ export function LoginPage() {
         onClick={handleGoogleSignIn}
         disabled={googleLoading || loading}
       >
-        {googleLoading ? 'Redirecting…' : 'Sign in with Google'}
+        {googleLoading ? "Redirecting…" : "Sign in with Google"}
       </Button>
 
       {/* Divider */}
@@ -184,7 +200,7 @@ export function LoginPage() {
               onClick={handleForgotPassword}
               disabled={resetLoading}
             >
-              {resetLoading ? 'Sending link…' : 'Forgot password?'}
+              {resetLoading ? "Sending link…" : "Forgot password?"}
             </button>
           </div>
 
@@ -237,4 +253,3 @@ export function LoginPage() {
     </div>
   );
 }
-

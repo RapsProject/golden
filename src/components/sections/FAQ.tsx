@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import { Container } from '../ui/Container';
+import { useState } from "react";
+import { Container } from "../ui/Container";
 
 const faqs = [
   {
     question: "Is SabiAcademia officially affiliated with ITB?",
     answer:
-      "SabiAcademia is built by IUP ITB students and alumni, but it is an independent preparation platform and not an official product of ITB.",
+      "SabiAcademia is built by IUP International Class students and alumni, but it is an independent preparation platform and not an official product of ITB.",
   },
   {
     question: "Do I need strong English skills before starting?",
@@ -35,8 +35,8 @@ export function FAQ() {
             Frequently Asked Questions.
           </h2>
           <p className="text-slate-600 text-base md:text-lg max-w-2xl mx-auto">
-            Still unsure about how SabiAcademia fits your IUP ITB journey?
-            These answers might help.
+            Still unsure about how SabiAcademia fits your IUP International
+            Class journey? These answers might help.
           </p>
         </div>
 
@@ -73,4 +73,3 @@ export function FAQ() {
     </section>
   );
 }
-
