@@ -17,21 +17,19 @@ const plans = [
   {
     name: "Premium",
     price: "IDR 349K",
-    description:
-      "Cocok untuk persiapan serius menuju IUP ITB.",
+    description: "Cocok untuk persiapan serius menuju IUP International Class.",
     features: [
       "Bank soal AqTest lengkap",
       "Simulasi real-time & Analytics",
       "Leaderboard & pelacakan progres",
-      "Modul strategi dari mahasiswa IUP ITB",
+      "Modul strategi dari mahasiswa IUP International Class",
     ],
     highlighted: true,
   },
   {
     name: "Ultimate",
     price: "IDR 599K",
-    description:
-      "Semua fitur Premium plus mentoring grup.",
+    description: "Semua fitur Premium plus mentoring grup.",
     features: [
       "Semua fitur Premium",
       "Sesi Q&A grup mingguan dengan mentor",
@@ -49,11 +47,11 @@ export function Pricing({ onNavigateRegister }: PricingProps) {
   return (
     <section id="pricing" className="py-20 md:py-24 bg-brand-dark">
       <Container>
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-serif font-bold text-white mb-4">
+        <div className="mb-12 text-center">
+          <h2 className="mb-4 font-serif text-3xl font-bold text-white md:text-4xl">
             Choose Your Path to ITB International.
           </h2>
-          <p className="text-brand-secondary text-base md:text-lg max-w-2xl mx-auto">
+          <p className="max-w-2xl mx-auto text-base text-brand-secondary md:text-lg">
             Start free, then upgrade when you&apos;re ready to commit. Every
             plan is designed to match a different stage of your preparation
             journey.
@@ -72,22 +70,22 @@ export function Pricing({ onNavigateRegister }: PricingProps) {
               ].join(" ")}
             >
               {plan.highlighted && (
-                <div className="mb-3 inline-flex self-start rounded-full bg-brand-primary/20 px-3 py-1 text-xs font-semibold text-brand-secondary">
+                <div className="inline-flex self-start px-3 py-1 mb-3 text-xs font-semibold rounded-full bg-brand-primary/20 text-brand-secondary">
                   Best Value
                 </div>
               )}
 
-              <h3 className="text-xl font-semibold text-white mb-2">
+              <h3 className="mb-2 text-xl font-semibold text-white">
                 {plan.name}
               </h3>
-              <div className="text-3xl md:text-4xl font-bold text-white mb-2">
+              <div className="mb-2 text-3xl font-bold text-white md:text-4xl">
                 {plan.price}
               </div>
-              <p className="text-sm text-brand-secondary mb-6">
+              <p className="mb-6 text-sm text-brand-secondary">
                 {plan.description}
               </p>
 
-              <ul className="space-y-2 text-sm text-slate-100 mb-6 flex-1">
+              <ul className="flex-1 mb-6 space-y-2 text-sm text-slate-100">
                 {plan.features.map((feature) => (
                   <li key={feature} className="flex gap-2">
                     <span className="mt-1 h-1.5 w-1.5 rounded-full bg-brand-secondary" />

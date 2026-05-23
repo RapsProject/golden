@@ -1,7 +1,8 @@
 spekpagetryout.md - Try Out / Simulation Page Specification
+
 1. Context & Objectives
 
-Fase ini berfokus pada pembuatan antarmuka Try Out (Computer Based Test) untuk persiapan IUP ITB.
+Fase ini berfokus pada pembuatan antarmuka Try Out (Computer Based Test) untuk persiapan IUP International Class.
 
     Kondisi Saat Ini: Backend belum terhubung. Kita akan murni menggunakan Mock Data dan React State (useState, useEffect) untuk logika ujian.
 
@@ -22,42 +23,42 @@ Plaintext
 
 src/
 ├── app/
-│   ├── (dashboard)/
-│   │   ├── layout.tsx                # Layout Dashboard (Sidebar ada di sini)
-│   │   └── tryout/
-│   │       ├── page.tsx              # Halaman List Try Out (Di dalam Dashboard)
-│   │       └── [id]/
-│   │           ├── page.tsx          # Halaman Pre-Exam (Aturan & Start)
-│   │           ├── result/page.tsx   # Halaman Skor Akhir & Pembahasan
-│   │           └── play/
-│   │               ├── layout.tsx    # OVERRIDE LAYOUT: Hapus Sidebar, cuma Header Ujian!
-│   │               └── page.tsx      # WORKSPACE PENGERJAAN SOAL
-│   │
+│ ├── (dashboard)/
+│ │ ├── layout.tsx # Layout Dashboard (Sidebar ada di sini)
+│ │ └── tryout/
+│ │ ├── page.tsx # Halaman List Try Out (Di dalam Dashboard)
+│ │ └── [id]/
+│ │ ├── page.tsx # Halaman Pre-Exam (Aturan & Start)
+│ │ ├── result/page.tsx # Halaman Skor Akhir & Pembahasan
+│ │ └── play/
+│ │ ├── layout.tsx # OVERRIDE LAYOUT: Hapus Sidebar, cuma Header Ujian!
+│ │ └── page.tsx # WORKSPACE PENGERJAAN SOAL
+│ │
 ├── components/
-│   └── tryout/                       # Komponen khusus try out
-│       ├── QuestionCard.tsx          # Menampilkan Soal & Opsi (A, B, C, D)
-│       ├── ExamTimer.tsx             # Countdown Timer
-│       └── NavigationPalette.tsx     # Kotak-kotak nomor soal (Bisa pindah soal)
+│ └── tryout/ # Komponen khusus try out
+│ ├── QuestionCard.tsx # Menampilkan Soal & Opsi (A, B, C, D)
+│ ├── ExamTimer.tsx # Countdown Timer
+│ └── NavigationPalette.tsx # Kotak-kotak nomor soal (Bisa pindah soal)
 │
 └── lib/
-    └── mockData.ts                   # Simpan dummy data ujian di sini
+└── mockData.ts # Simpan dummy data ujian di sini
 
-3. UI/UX & Layout Specification
-3.1. List Try Out (tryout/page.tsx)
+3.  UI/UX & Layout Specification
+    3.1. List Try Out (tryout/page.tsx)
 
-    Header: "AqTest Simulations".
+        Header: "AqTest Simulations".
 
-    Layout: Grid kartu.
+        Layout: Grid kartu.
 
-    Card Item:
+        Card Item:
 
-        Judul: "Mock Test 1: Mathematics & Physics".
+            Judul: "Mock Test 1: Mathematics & Physics".
 
-        Info: 40 Soal | 90 Menit.
+            Info: 40 Soal | 90 Menit.
 
-        Status: "Not Started" (Warna Abu-abu) atau "Completed - Score: 85" (Warna brand-secondary).
+            Status: "Not Started" (Warna Abu-abu) atau "Completed - Score: 85" (Warna brand-secondary).
 
-        Action: Button "View Details" (Warna brand-primary).
+            Action: Button "View Details" (Warna brand-primary).
 
 3.2. Pre-Exam (tryout/[id]/page.tsx)
 
@@ -132,19 +133,20 @@ Karena tidak ada backend, buat instruksi agar Cursor membuat Mock State yang rap
     Auto Submit: Jika timer habis, panggil fungsi handleSubmit secara otomatis.
 
     ## 4.5. Interactive Behavior & Handlers (Crucial UI/UX)
+
 Halaman pengerjaan soal (`play/page.tsx`) WAJIB interaktif. Gunakan `useState` untuk mengatur reaktivitas komponen:
 
-* **Option Selection (Pilih Jawaban):**
-    * Setiap opsi jawaban (A, B, C, D) harus berupa komponen yang *clickable* (bisa diklik seluruh kotaknya, bukan cuma bulatan radionya).
-    * **Logic:** Saat opsi diklik, panggil `handleSelectOption(questionId, optionId)`.
-    * **Visual Feedback:** Opsi yang terpilih harus berubah warna (misal: background menjadi `brand-light` dan border menjadi tebal dengan warna `brand-primary`). Opsi lain kembali ke warna *default* putih.
-* **Navigation Buttons (Next / Prev):**
-    * **Next Button:** Saat diklik, panggil `setCurrentQuestionIndex(prev => prev + 1)`. 
-    * **Prev Button:** Saat diklik, panggil `setCurrentQuestionIndex(prev => prev - 1)`. Tombol ini harus `disabled` jika user berada di soal nomor 1.
-    * **Last Question:** Jika user berada di soal terakhir, ubah teks tombol "Next" menjadi "Finish Review" (mengarah ke rangkuman sebelum submit).
-* **Navigation Palette (Grid Nomor Soal):**
-    * Nomor di kotak navigasi sebelah kanan harus *clickable*. Jika user mengklik angka "15", halaman langsung melompat ke soal nomor 15 (`setCurrentQuestionIndex(14)`).
-    * Warnanya harus reaktif: Jika di state `answers` sudah ada id jawaban untuk soal nomor 5, maka kotak nomor 5 otomatis berubah warna menjadi hijau (`brand-secondary`).
+- **Option Selection (Pilih Jawaban):**
+  - Setiap opsi jawaban (A, B, C, D) harus berupa komponen yang _clickable_ (bisa diklik seluruh kotaknya, bukan cuma bulatan radionya).
+  - **Logic:** Saat opsi diklik, panggil `handleSelectOption(questionId, optionId)`.
+  - **Visual Feedback:** Opsi yang terpilih harus berubah warna (misal: background menjadi `brand-light` dan border menjadi tebal dengan warna `brand-primary`). Opsi lain kembali ke warna _default_ putih.
+- **Navigation Buttons (Next / Prev):**
+  - **Next Button:** Saat diklik, panggil `setCurrentQuestionIndex(prev => prev + 1)`.
+  - **Prev Button:** Saat diklik, panggil `setCurrentQuestionIndex(prev => prev - 1)`. Tombol ini harus `disabled` jika user berada di soal nomor 1.
+  - **Last Question:** Jika user berada di soal terakhir, ubah teks tombol "Next" menjadi "Finish Review" (mengarah ke rangkuman sebelum submit).
+- **Navigation Palette (Grid Nomor Soal):**
+  - Nomor di kotak navigasi sebelah kanan harus _clickable_. Jika user mengklik angka "15", halaman langsung melompat ke soal nomor 15 (`setCurrentQuestionIndex(14)`).
+  - Warnanya harus reaktif: Jika di state `answers` sudah ada id jawaban untuk soal nomor 5, maka kotak nomor 5 otomatis berubah warna menjadi hijau (`brand-secondary`).
 
 5. Mock Data Structure (lib/mockData.ts)
 
@@ -152,35 +154,35 @@ Instruksikan Cursor untuk membuat mock data bahasa Inggris berstandar IUP:
 TypeScript
 
 export const mockTryout = {
-  id: "test-01",
-  title: "IUP ITB Mock Test - Batch 1",
-  durationMinutes: 90,
-  questions: [
-    {
-      id: "q1",
-      subject: "MATHEMATICS",
-      text: "If the roots of the equation x^2 - px + q = 0 are consecutive integers, then the value of p^2 - 4q is...",
-      options: [
-        { id: "opt1", text: "1" },
-        { id: "opt2", text: "2" },
-        { id: "opt3", text: "3" },
-        { id: "opt4", text: "4" }
-      ],
-      correctOptionId: "opt1",
-      explanation: "Let the roots be n and n+1. Sum = 2n+1 = p. Product = n(n+1) = q. Thus, p^2 - 4q = (2n+1)^2 - 4n(n+1) = 4n^2 + 4n + 1 - 4n^2 - 4n = 1."
-    },
-    // Tambahkan 2-3 soal lagi untuk testing
-  ]
+id: "test-01",
+title: "IUP International Class Mock Test - Batch 1",
+durationMinutes: 90,
+questions: [
+{
+id: "q1",
+subject: "MATHEMATICS",
+text: "If the roots of the equation x^2 - px + q = 0 are consecutive integers, then the value of p^2 - 4q is...",
+options: [
+{ id: "opt1", text: "1" },
+{ id: "opt2", text: "2" },
+{ id: "opt3", text: "3" },
+{ id: "opt4", text: "4" }
+],
+correctOptionId: "opt1",
+explanation: "Let the roots be n and n+1. Sum = 2n+1 = p. Product = n(n+1) = q. Thus, p^2 - 4q = (2n+1)^2 - 4n(n+1) = 4n^2 + 4n + 1 - 4n^2 - 4n = 1."
+},
+// Tambahkan 2-3 soal lagi untuk testing
+]
 }
 
 6. Implementation Steps for AI
 
-    Buat struktur folder tryout sesuai diagram di atas. Pastikan menggunakan Route Groups atau konfigurasi Layout yang tepat agar halaman play/ tidak mewarisi Sidebar Dashboard.
+   Buat struktur folder tryout sesuai diagram di atas. Pastikan menggunakan Route Groups atau konfigurasi Layout yang tepat agar halaman play/ tidak mewarisi Sidebar Dashboard.
 
-    Buat file lib/mockData.ts dan masukkan data soal dummy di atas.
+   Buat file lib/mockData.ts dan masukkan data soal dummy di atas.
 
-    Implementasikan komponen UI: ExamTimer, NavigationPalette, dan QuestionCard. Gunakan warna dari Tailwind config yang sudah disetup (brand-primary, dll).
+   Implementasikan komponen UI: ExamTimer, NavigationPalette, dan QuestionCard. Gunakan warna dari Tailwind config yang sudah disetup (brand-primary, dll).
 
-    Rangkai logika state di halaman pengerjaan (play/page.tsx) agar user bisa memilih jawaban, navigasi nomor, dan submit.
+   Rangkai logika state di halaman pengerjaan (play/page.tsx) agar user bisa memilih jawaban, navigasi nomor, dan submit.
 
-    Buat halaman result yang mengkalkulasi skor dari state jawaban yang di-pass (bisa menggunakan searchParams atau React Context sederhana untuk sementara).
+   Buat halaman result yang mengkalkulasi skor dari state jawaban yang di-pass (bisa menggunakan searchParams atau React Context sederhana untuk sementara).

@@ -1,28 +1,39 @@
-import { useEffect, useState } from 'react';
-import { BookOpen, CheckCircle2, CreditCard, Phone, Save, School, User, UserPen } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '../../../contexts/AuthContext';
+import { useEffect, useState } from "react";
+import {
+  BookOpen,
+  CheckCircle2,
+  CreditCard,
+  Phone,
+  Save,
+  School,
+  User,
+  UserPen,
+} from "lucide-react";
+import { Link } from "react-router-dom";
+import { useAuth } from "../../../contexts/AuthContext";
 import {
   getMyProfile,
   getSubscriptionPlans,
   updateMyProfile,
   type ProfileDetail,
   type SubscriptionPlan,
-} from '../../../lib/api';
-import { DREAM_MAJORS } from '../../../lib/constants';
+} from "../../../lib/api";
+import { DREAM_MAJORS } from "../../../lib/constants";
 
 function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString('id-ID', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
+  return new Date(dateStr).toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
   });
 }
 
 function subscriptionBadgeClass(status: string) {
-  if (status === 'active') return 'bg-green-100 text-green-700 border border-green-200';
-  if (status === 'expired') return 'bg-red-100 text-red-700 border border-red-200';
-  return 'bg-slate-100 text-slate-600 border border-slate-200';
+  if (status === "active")
+    return "bg-green-100 text-green-700 border border-green-200";
+  if (status === "expired")
+    return "bg-red-100 text-red-700 border border-red-200";
+  return "bg-slate-100 text-slate-600 border border-slate-200";
 }
 
 export function ProfilePage() {
@@ -33,10 +44,10 @@ export function ProfilePage() {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [fullName, setFullName] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [dreamMajor, setDreamMajor] = useState('');
-  const [schoolOrigin, setSchoolOrigin] = useState('');
+  const [fullName, setFullName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [dreamMajor, setDreamMajor] = useState("");
+  const [schoolOrigin, setSchoolOrigin] = useState("");
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [plansLoading, setPlansLoading] = useState(true);
 
@@ -48,19 +59,21 @@ export function ProfilePage() {
         if (!cancelled && data) {
           setProfile(data);
           setFullName(data.fullName);
-          setPhoneNumber(data.phoneNumber ?? '');
-          setDreamMajor(data.dreamMajor ?? '');
-          setSchoolOrigin(data.schoolOrigin ?? '');
+          setPhoneNumber(data.phoneNumber ?? "");
+          setDreamMajor(data.dreamMajor ?? "");
+          setSchoolOrigin(data.schoolOrigin ?? "");
         }
       })
       .catch((e) => {
         if (!cancelled)
-          setError(e instanceof Error ? e.message : 'Failed to load profile');
+          setError(e instanceof Error ? e.message : "Failed to load profile");
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [accessToken]);
 
   useEffect(() => {
@@ -68,13 +81,15 @@ export function ProfilePage() {
     getSubscriptionPlans()
       .then((data) => {
         if (!cancelled) {
-          setPlans((data ?? []).filter((p) => p.name !== 'Free'));
+          setPlans((data ?? []).filter((p) => p.name !== "Free"));
         }
       })
       .finally(() => {
         if (!cancelled) setPlansLoading(false);
       });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const handleSave = async (e: React.FormEvent) => {
@@ -97,30 +112,34 @@ export function ProfilePage() {
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to save');
+      setError(e instanceof Error ? e.message : "Failed to save");
     } finally {
       setSaving(false);
     }
   };
 
-  const displayName = fullName || profile?.fullName || authUser?.email || 'User';
+  const displayName =
+    fullName || profile?.fullName || authUser?.email || "User";
   const initials = displayName
-    .split(' ')
+    .split(" ")
     .slice(0, 2)
-    .map((s) => s[0]?.toUpperCase() ?? '')
-    .join('');
+    .map((s) => s[0]?.toUpperCase() ?? "")
+    .join("");
 
   const avatarUrl = authUser?.user_metadata?.avatar_url as string | undefined;
   const activeSub = profile?.subscriptions?.[0];
 
   // Urutan plan: Free < Premium < Ultimate. Hanya tampilkan opsi upgrade ke plan di atas saat ini.
-  const PLAN_ORDER = ['Free', 'Premium', 'Ultimate'] as const;
-  const currentPlanName = activeSub?.plan?.name ?? 'Free';
-  const currentLevel = PLAN_ORDER.indexOf(currentPlanName as (typeof PLAN_ORDER)[number]);
-  const upgradePlans = plans.filter(
-    (p) => PLAN_ORDER.indexOf(p.name as (typeof PLAN_ORDER)[number]) > currentLevel
+  const PLAN_ORDER = ["Free", "Premium", "Ultimate"] as const;
+  const currentPlanName = activeSub?.plan?.name ?? "Free";
+  const currentLevel = PLAN_ORDER.indexOf(
+    currentPlanName as (typeof PLAN_ORDER)[number],
   );
-  const isHighestPlan = currentPlanName === 'Ultimate';
+  const upgradePlans = plans.filter(
+    (p) =>
+      PLAN_ORDER.indexOf(p.name as (typeof PLAN_ORDER)[number]) > currentLevel,
+  );
+  const isHighestPlan = currentPlanName === "Ultimate";
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -140,20 +159,20 @@ export function ProfilePage() {
           )}
           <div className="min-w-0">
             <div className="text-xl font-serif font-bold text-brand-dark truncate">
-              {loading ? '—' : displayName}
+              {loading ? "—" : displayName}
             </div>
             <div className="text-sm text-slate-500 mt-0.5">
-              {profile?.email ?? authUser?.email ?? '—'}
+              {profile?.email ?? authUser?.email ?? "—"}
             </div>
             {!loading && (
               <span
                 className={`inline-block mt-2 text-xs font-semibold px-2.5 py-0.5 rounded-full ${
                   activeSub
                     ? subscriptionBadgeClass(activeSub.status)
-                    : 'bg-slate-100 text-slate-500 border border-slate-200'
+                    : "bg-slate-100 text-slate-500 border border-slate-200"
                 }`}
               >
-                {activeSub ? activeSub.plan.name : 'Free Plan'}
+                {activeSub ? activeSub.plan.name : "Free Plan"}
               </span>
             )}
           </div>
@@ -163,17 +182,23 @@ export function ProfilePage() {
       {/* Subscription detail */}
       {activeSub && (
         <div className="bg-white rounded-2xl border border-brand-light p-5 shadow-sm">
-          <h2 className="text-base font-semibold text-brand-dark mb-3">Subscription</h2>
+          <h2 className="text-base font-semibold text-brand-dark mb-3">
+            Subscription
+          </h2>
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div>
               <div className="text-xs text-slate-400 mb-0.5">Plan</div>
-              <div className="font-medium text-slate-800">{activeSub.plan.name}</div>
+              <div className="font-medium text-slate-800">
+                {activeSub.plan.name}
+              </div>
             </div>
             <div>
               <div className="text-xs text-slate-400 mb-0.5">Status</div>
               <div
                 className={`font-semibold capitalize ${
-                  activeSub.status === 'active' ? 'text-green-600' : 'text-red-500'
+                  activeSub.status === "active"
+                    ? "text-green-600"
+                    : "text-red-500"
                 }`}
               >
                 {activeSub.status}
@@ -184,9 +209,9 @@ export function ProfilePage() {
               <div className="font-medium text-slate-800">
                 {formatDate(activeSub.startDate)}
               </div>
+            </div>
           </div>
         </div>
-      </div>
       )}
 
       {/* Upgrade subscription */}
@@ -197,8 +222,8 @@ export function ProfilePage() {
         </h2>
         <p className="text-sm text-slate-500 mb-4">
           {isHighestPlan
-            ? 'Anda sudah pada plan tertinggi.'
-            : 'Akses penuh Analytics, Leaderboard, dan bank soal lengkap.'}
+            ? "Anda sudah pada plan tertinggi."
+            : "Akses penuh Analytics, Leaderboard, dan bank soal lengkap."}
         </p>
         {plansLoading ? (
           <p className="text-sm text-slate-400 py-2">Memuat paket…</p>
@@ -207,7 +232,9 @@ export function ProfilePage() {
             Tidak ada opsi upgrade—plan Ultimate sudah mencakup semua fitur.
           </p>
         ) : upgradePlans.length === 0 ? (
-          <p className="text-sm text-slate-500 py-2">Tidak ada paket berbayar tersedia.</p>
+          <p className="text-sm text-slate-500 py-2">
+            Tidak ada paket berbayar tersedia.
+          </p>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2">
             {upgradePlans.map((plan) => (
@@ -218,7 +245,7 @@ export function ProfilePage() {
                 <div className="font-semibold text-brand-dark">{plan.name}</div>
                 <div className="mt-1 text-lg font-bold text-brand-primary">
                   {plan.price === 0
-                    ? 'Gratis'
+                    ? "Gratis"
                     : `IDR ${(plan.price / 1000).toFixed(0)}K`}
                 </div>
                 <div className="text-xs text-slate-500 mt-0.5">
@@ -241,10 +268,14 @@ export function ProfilePage() {
         onSubmit={handleSave}
         className="bg-white rounded-2xl border border-brand-light p-5 shadow-sm space-y-5"
       >
-        <h2 className="text-base font-semibold text-brand-dark">Edit Profile</h2>
+        <h2 className="text-base font-semibold text-brand-dark">
+          Edit Profile
+        </h2>
 
         {error && (
-          <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>
+          <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">
+            {error}
+          </p>
         )}
         {saveSuccess && (
           <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 rounded-lg px-3 py-2">
@@ -299,7 +330,7 @@ export function ProfilePage() {
         <div>
           <label className="flex items-center gap-1.5 text-sm font-medium text-slate-700 mb-1.5">
             <BookOpen className="h-4 w-4 text-brand-primary" />
-            Jurusan Impian IUP ITB
+            Jurusan Impian IUP International Class
           </label>
           <select
             value={dreamMajor}
@@ -321,7 +352,7 @@ export function ProfilePage() {
           className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-dark transition-colors disabled:opacity-60"
         >
           <Save className="h-4 w-4" />
-          {saving ? 'Menyimpan…' : 'Save Changes'}
+          {saving ? "Menyimpan…" : "Save Changes"}
         </button>
       </form>
     </div>

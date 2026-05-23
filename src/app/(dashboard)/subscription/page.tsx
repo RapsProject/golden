@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Container } from "../../../components/ui/Container";
 import { Button } from "../../../components/ui/Button";
+import { useAuth } from "../../../contexts/AuthContext";
+import { getSubscriptionPlans, createSubscriptionTransaction, type SubscriptionPlan } from "../../../lib/api";
 
 type PlanKey = "Premium" | "Ultimate";
 
@@ -16,23 +18,90 @@ const PLANS: {
     key: "Premium",
     name: "Premium",
     description: "Akses penuh bank soal, Analytics, dan Leaderboard",
-    price: 349000,
+    price: 69000,
   },
   {
     key: "Ultimate",
     name: "Ultimate",
     description: "Semua fitur Premium ditambah akses lebih banyak soal.",
-    price: 599000,
+    price: 99000,
     highlight: true,
   },
 ];
 
 export function SubscriptionPage() {
   const [selectedPlan, setSelectedPlan] = useState<PlanKey>("Premium");
+  const [loading, setLoading] = useState(false);
+  const [dbPlans, setDbPlans] = useState<SubscriptionPlan[]>([]);
+  
   const navigate = useNavigate();
+  const { session } = useAuth();
+
+  useEffect(() => {
+    getSubscriptionPlans().then(setDbPlans).catch(console.error);
+
+    // Load Midtrans Snap Script
+    const clientKey = import.meta.env.VITE_MIDTRANS_CLIENT_KEY;
+    const isProd = import.meta.env.VITE_MIDTRANS_IS_PRODUCTION === "true";
+    const scriptUrl = isProd 
+      ? "https://app.midtrans.com/snap/snap.js"
+      : "https://app.sandbox.midtrans.com/snap/snap.js";
+
+    if (!document.getElementById("midtrans-snap-script")) {
+      const script = document.createElement("script");
+      script.id = "midtrans-snap-script";
+      script.src = scriptUrl;
+      script.setAttribute("data-client-key", clientKey || "");
+      document.body.appendChild(script);
+    }
+  }, []);
 
   const currentPlan = PLANS.find((p) => p.key === selectedPlan)!;
   const price = currentPlan.price;
+
+  const handleSubscribe = async () => {
+    if (!session?.access_token) return;
+    
+    // Find matching plan from DB
+    const dbPlan = dbPlans.find((p) => p.name.toLowerCase() === currentPlan.name.toLowerCase());
+    if (!dbPlan) {
+      alert("Paket tidak ditemukan di database. Pastikan backend sudah di-seed.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const res = await createSubscriptionTransaction(session.access_token, dbPlan.id);
+      
+      if (res?.snapToken) {
+        // @ts-ignore
+        window.snap.pay(res.snapToken, {
+          onSuccess: function (result: any) {
+            console.log("Success", result);
+            navigate("/dashboard");
+          },
+          onPending: function (result: any) {
+            console.log("Pending", result);
+            navigate("/dashboard");
+          },
+          onError: function (result: any) {
+            console.error("Error", result);
+            alert("Pembayaran gagal. Silakan coba lagi.");
+          },
+          onClose: function () {
+            console.log("Popup closed");
+          }
+        });
+      } else {
+        alert("Gagal membuat transaksi");
+      }
+    } catch (error: any) {
+      console.error(error);
+      alert(error.message || "Terjadi kesalahan saat memproses pembayaran");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-brand-light via-white to-slate-100">
@@ -41,30 +110,30 @@ export function SubscriptionPage() {
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="mb-6 inline-flex items-center gap-2 text-sm text-slate-500 hover:text-brand-primary transition-colors"
+            className="inline-flex items-center gap-2 mb-6 text-sm transition-colors text-slate-500 hover:text-brand-primary"
           >
             <span className="text-base">←</span>
             <span>Kembali ke profil</span>
           </button>
 
-          <div className="text-center mb-10">
-            <h1 className="text-3xl md:text-4xl font-serif font-bold text-brand-dark mb-3">
+          <div className="mb-10 text-center">
+            <h1 className="mb-3 font-serif text-3xl font-bold md:text-4xl text-brand-dark">
               Satu layanan, belajar sepuasnya
             </h1>
-            <p className="text-sm md:text-base text-slate-600 max-w-2xl mx-auto">
+            <p className="max-w-2xl mx-auto text-sm md:text-base text-slate-600">
               Pilih paket <span className="font-semibold">Premium</span> atau{" "}
               <span className="font-semibold">Ultimate</span> dan nikmati semua fitur
               SabiAcademia tanpa batas.
             </p>
           </div>
 
-          <div className="bg-gradient-to-br from-brand-primary via-brand-secondary to-slate-900 rounded-3xl shadow-2xl p-6 md:p-10 relative overflow-hidden">
-            <div className="absolute -right-24 -bottom-24 w-64 h-64 bg-brand-secondary/40 rounded-full blur-3xl" />
-            <div className="absolute -left-24 -top-24 w-64 h-64 bg-brand-primary/40 rounded-full blur-3xl" />
+          <div className="relative p-6 overflow-hidden shadow-2xl bg-gradient-to-br from-brand-primary via-brand-secondary to-slate-900 rounded-3xl md:p-10">
+            <div className="absolute w-64 h-64 rounded-full -right-24 -bottom-24 bg-brand-secondary/40 blur-3xl" />
+            <div className="absolute w-64 h-64 rounded-full -left-24 -top-24 bg-brand-primary/40 blur-3xl" />
 
             <div className="relative z-10 grid gap-8 md:grid-cols-[1.4fr,1fr] items-start">
               <div>
-                <div className="mb-4 inline-flex rounded-full bg-black/20 p-1 text-xs md:text-sm text-slate-100">
+                <div className="inline-flex p-1 mb-4 text-xs rounded-full bg-black/20 md:text-sm text-slate-100">
                   {PLANS.map((plan) => (
                     <button
                       key={plan.key}
@@ -87,21 +156,21 @@ export function SubscriptionPage() {
                   ))}
                 </div>
 
-                <div className="text-3xl md:text-4xl font-extrabold text-white tracking-tight mb-2">
+                <div className="mb-2 text-3xl font-extrabold tracking-tight text-white md:text-4xl">
                   Rp{price.toLocaleString("id-ID")}{" "}
                 </div>
-                <div className="text-sm md:text-base text-white mb-4">
+                <div className="mb-4 text-sm text-white md:text-base">
                   {currentPlan.description}
                 </div>
 
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-black/40 text-slate-50 text-xs md:text-sm font-medium">
+                <div className="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium rounded-full bg-black/40 text-slate-50 md:text-sm">
                   <span className="font-semibold text-white">
                     Sekali bayar, akses seumur hidup
                   </span>
                 </div>
               </div>
 
-              <div className="w-full space-y-4 bg-white/80 backdrop-blur rounded-2xl p-4 md:p-5 shadow-xl">
+              <div className="w-full p-4 space-y-4 shadow-xl bg-white/80 backdrop-blur rounded-2xl md:p-5">
                 <div className="text-xs text-slate-600">
                   <div className="flex items-center justify-between mb-1.5">
                     <span>Plan</span>
@@ -111,7 +180,7 @@ export function SubscriptionPage() {
                     <span>Jenis akses</span>
                     <span className="font-semibold">Lifetime (seumur hidup)</span>
                   </div>
-                  <div className="flex items-center justify-between text-sm font-semibold mt-2 border-t border-slate-200 pt-2">
+                  <div className="flex items-center justify-between pt-2 mt-2 text-sm font-semibold border-t border-slate-200">
                     <span>Total dibayar</span>
                     <span className="text-brand-primary">
                       Rp{price.toLocaleString("id-ID")}
@@ -122,14 +191,11 @@ export function SubscriptionPage() {
                 <Button
                   variant="primary"
                   size="lg"
-                  className="w-full mt-1  
-                  bg-gradient-to-r from-brand-primary to-brand-secondary transform hover:scale-105 transition-all duration-300"
-                  // TODO: Integrasikan dengan Midtrans ketika backend siap
-                  onClick={() => {
-                    // Placeholder: nanti akan memulai proses pembayaran Midtrans
-                  }}
+                  className="w-full mt-1 transition-all duration-300 transform bg-gradient-to-r from-brand-primary to-brand-secondary hover:scale-105"
+                  onClick={handleSubscribe}
+                  disabled={loading}
                 >
-                  Pilih
+                  {loading ? "Memproses..." : "Pilih"}
                 </Button>
               </div>
             </div>

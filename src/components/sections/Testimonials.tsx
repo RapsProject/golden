@@ -1,4 +1,4 @@
-import { Container } from '../ui/Container';
+import { Container } from "../ui/Container";
 
 const testimonials = [
   {
@@ -21,12 +21,12 @@ export function Testimonials() {
       <Container>
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-serif font-bold text-brand-dark mb-4">
-            Insider Access from IUP ITB Students.
+            Insider Access from IUP International Class Students.
           </h2>
           <p className="text-slate-600 text-base md:text-lg max-w-2xl mx-auto">
             SabiAcademia is crafted together with question writers and
-            successful IUP ITB students — giving you guidance from people who
-            have passed the exam themselves.
+            successful IUP International Class students — giving you guidance
+            from people who have passed the exam themselves.
           </p>
         </div>
 
@@ -60,4 +60,3 @@ export function Testimonials() {
     </section>
   );
 }
-

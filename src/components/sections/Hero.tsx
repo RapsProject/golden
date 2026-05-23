@@ -17,7 +17,7 @@ export function Hero({ onNavigateRegister }: HeroProps) {
           <div className="flex-1 text-center lg:text-left">
             {/* Badge */}
             <div className="mb-6">
-              <Badge>The #1 IUP ITB Preparation Platform</Badge>
+              <Badge>The #1 IUP International Class Preparation Platform</Badge>
             </div>
 
             {/* Headline */}

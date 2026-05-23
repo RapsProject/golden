@@ -882,7 +882,7 @@ export function AdminTryoutsPage() {
                     setForm((p) => ({ ...p, title: e.target.value }))
                   }
                   required
-                  placeholder="Contoh: IUP ITB Grand Simulation - Batch 2"
+                  placeholder="Contoh: IUP International Class Grand Simulation - Batch 2"
                   className="w-full px-3 py-2 text-sm border rounded-xl border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
                 />
               </div>

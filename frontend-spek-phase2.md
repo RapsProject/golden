@@ -1,4 +1,5 @@
 frontend-spek-phase2.md - Auth UI & Dashboard Shell
+
 1. Phase Context
 
 Kita melanjutkan pengembangan Frontend Next.js. Landing page (Marketing) sudah selesai. Fokus fase ini adalah membangun halaman Login/Register dan Layout Dashboard (area setelah user login).
@@ -15,24 +16,24 @@ Agar rapi, kita perlu memisahkan layout Landing Page dengan layout Dashboard. In
 Plaintext
 
 src/app/
-├── (marketing)/      # Pindahkan page.tsx (Landing Page) & layout.tsx yang sudah ada ke sini
-│   ├── layout.tsx    # Navbar & Footer Marketing
-│   └── page.tsx      # Landing Page
+├── (marketing)/ # Pindahkan page.tsx (Landing Page) & layout.tsx yang sudah ada ke sini
+│ ├── layout.tsx # Navbar & Footer Marketing
+│ └── page.tsx # Landing Page
 │
-├── (auth)/           # Route Group baru untuk Login/Register
-│   ├── layout.tsx    # Layout khusus Auth (Clean, Center aligned, No Navbar)
-│   ├── login/
-│   │   └── page.tsx
-│   └── register/
-│       └── page.tsx
+├── (auth)/ # Route Group baru untuk Login/Register
+│ ├── layout.tsx # Layout khusus Auth (Clean, Center aligned, No Navbar)
+│ ├── login/
+│ │ └── page.tsx
+│ └── register/
+│ └── page.tsx
 │
-└── (dashboard)/      # Route Group baru untuk area Member
-    ├── layout.tsx    # Sidebar & Topbar Layout
-    └── dashboard/    # Main Dashboard Page
-        └── page.tsx
+└── (dashboard)/ # Route Group baru untuk area Member
+├── layout.tsx # Sidebar & Topbar Layout
+└── dashboard/ # Main Dashboard Page
+└── page.tsx
 
 3. UI Specifications
-3.1. Auth Layout ((auth)/layout.tsx)
+   3.1. Auth Layout ((auth)/layout.tsx)
 
 Desain Split Screen yang modern.
 
@@ -42,7 +43,7 @@ Desain Split Screen yang modern.
 
         Kanan (50%): Area Visual. Background brand-dark (#09637E).
 
-        Konten Kanan: Tampilkan Quote inspiratif atau Testimonial simulasi ("Lolos IUP ITB berkat latihan rutin...").
+        Konten Kanan: Tampilkan Quote inspiratif atau Testimonial simulasi ("Lolos IUP International Class berkat latihan rutin...").
 
     Mobile: Hanya tampilkan area Form.
 
@@ -118,10 +119,10 @@ Tampilan awal setelah login. Gunakan Mock Data untuk mengisi angka-angkanya.
 
 4. Implementation Instructions for AI
 
-    Refactor: Pindahkan Landing Page ke group (marketing) terlebih dahulu. Pastikan globals.css tetap ter-load.
+   Refactor: Pindahkan Landing Page ke group (marketing) terlebih dahulu. Pastikan globals.css tetap ter-load.
 
-    Auth UI: Buat layout (auth) dan halaman Login/Register. Gunakan komponen ui/input, ui/button (jika menggunakan Shadcn UI) atau buat komponen atomik sendiri dengan Tailwind.
+   Auth UI: Buat layout (auth) dan halaman Login/Register. Gunakan komponen ui/input, ui/button (jika menggunakan Shadcn UI) atau buat komponen atomik sendiri dengan Tailwind.
 
-    Dashboard UI: Buat layout (dashboard) dengan Sidebar responsif. Gunakan lucide-react untuk ikon.
+   Dashboard UI: Buat layout (dashboard) dengan Sidebar responsif. Gunakan lucide-react untuk ikon.
 
-    Mock Data: Jangan panggil API atau Database. Hardcode saja data user dan statistik di dalam komponen Dashboard untuk keperluan tampilan.
+   Mock Data: Jangan panggil API atau Database. Hardcode saja data user dan statistik di dalam komponen Dashboard untuk keperluan tampilan.

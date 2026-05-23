@@ -1,7 +1,7 @@
-import { useNavigate } from 'react-router-dom';
-import { Container } from '../ui/Container';
-import { Button } from '../ui/Button';
-import { useAuth } from '../../contexts/AuthContext';
+import { useNavigate } from "react-router-dom";
+import { Container } from "../ui/Container";
+import { Button } from "../ui/Button";
+import { useAuth } from "../../contexts/AuthContext";
 
 export function ComingSoon() {
   const navigate = useNavigate();
@@ -9,9 +9,9 @@ export function ComingSoon() {
 
   const handleBack = () => {
     if (session) {
-      navigate('/dashboard');
+      navigate("/dashboard");
     } else {
-      navigate('/');
+      navigate("/");
     }
   };
 
@@ -27,11 +27,12 @@ export function ComingSoon() {
               We&apos;re finalizing the SabiAcademia platform experience.
             </h1>
             <p className="text-base md:text-lg text-slate-600 mb-8">
-              The full simulation dashboard, payment, and login system are almost ready. For now, you can
-              explore the preview of the IUP ITB preparation journey on this landing page.
+              The full simulation dashboard, payment, and login system are
+              almost ready. For now, you can explore the preview of the IUP
+              International Class preparation journey on this landing page.
             </p>
             <Button variant="primary" size="md" onClick={handleBack}>
-              {session ? 'Back to Dashboard' : 'Back to Landing Page'}
+              {session ? "Back to Dashboard" : "Back to Landing Page"}
             </Button>
           </div>
         </Container>
@@ -39,4 +40,3 @@ export function ComingSoon() {
     </div>
   );
 }
-

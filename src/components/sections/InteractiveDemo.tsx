@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { Container } from '../ui/Container';
-import { CheckCircle, XCircle, RotateCcw } from 'lucide-react';
+import { useState } from "react";
+import { Container } from "../ui/Container";
+import { CheckCircle, XCircle, RotateCcw } from "lucide-react";
 
-const CORRECT_ANSWER = 'A. 19';
-const options = ['A. 19', 'B. 21', 'C. 23', 'D. 25'];
+const CORRECT_ANSWER = "A. 19";
+const options = ["A. 19", "B. 21", "C. 23", "D. 25"];
 
 export function InteractiveDemo() {
   const [selected, setSelected] = useState<string | null>(null);
@@ -22,15 +22,15 @@ export function InteractiveDemo() {
 
   const getOptionStyle = (option: string) => {
     if (!isAnswered) {
-      return 'border-brand-light bg-white hover:border-brand-primary hover:bg-brand-light/60 cursor-pointer';
+      return "border-brand-light bg-white hover:border-brand-primary hover:bg-brand-light/60 cursor-pointer";
     }
     if (option === CORRECT_ANSWER) {
-      return 'border-emerald-400 bg-emerald-50 text-emerald-900';
+      return "border-emerald-400 bg-emerald-50 text-emerald-900";
     }
     if (option === selected && option !== CORRECT_ANSWER) {
-      return 'border-red-300 bg-red-50 text-red-900';
+      return "border-red-300 bg-red-50 text-red-900";
     }
-    return 'border-brand-light bg-white opacity-50';
+    return "border-brand-light bg-white opacity-50";
   };
 
   return (
@@ -44,7 +44,7 @@ export function InteractiveDemo() {
             <p className="max-w-2xl mx-auto text-base text-slate-600 md:text-lg">
               Try answering this sample question — just like in the real
               simulation dashboard. Pick an option and get instant feedback
-              designed by IUP ITB students.
+              designed by IUP International Class students.
             </p>
           </div>
 
@@ -90,14 +90,17 @@ export function InteractiveDemo() {
                     onClick={() => handleSelect(option)}
                     disabled={isAnswered}
                     className={[
-                      'flex items-center justify-between w-full rounded-lg border px-4 py-3 text-left text-sm md:text-base transition-all duration-200',
+                      "flex items-center justify-between w-full rounded-lg border px-4 py-3 text-left text-sm md:text-base transition-all duration-200",
                       getOptionStyle(option),
-                      isAnswered ? 'cursor-default' : '',
-                    ].join(' ')}
+                      isAnswered ? "cursor-default" : "",
+                    ].join(" ")}
                   >
                     <span>{option}</span>
                     {isAnswered && isThisCorrect && (
-                      <CheckCircle size={18} className="text-emerald-500 shrink-0" />
+                      <CheckCircle
+                        size={18}
+                        className="text-emerald-500 shrink-0"
+                      />
                     )}
                     {isAnswered && isThisSelected && !isThisCorrect && (
                       <XCircle size={18} className="text-red-500 shrink-0" />
@@ -111,18 +114,18 @@ export function InteractiveDemo() {
             {isAnswered && (
               <div
                 className={[
-                  'p-4 border rounded-xl md:p-5 transition-all duration-300',
+                  "p-4 border rounded-xl md:p-5 transition-all duration-300",
                   isCorrect
-                    ? 'border-emerald-300/60 bg-emerald-50'
-                    : 'border-red-300/60 bg-red-50',
-                ].join(' ')}
+                    ? "border-emerald-300/60 bg-emerald-50"
+                    : "border-red-300/60 bg-red-50",
+                ].join(" ")}
               >
                 <div className="flex items-center justify-between mb-2">
                   <div
                     className={[
-                      'flex items-center gap-2 text-sm font-semibold',
-                      isCorrect ? 'text-emerald-600' : 'text-red-600',
-                    ].join(' ')}
+                      "flex items-center gap-2 text-sm font-semibold",
+                      isCorrect ? "text-emerald-600" : "text-red-600",
+                    ].join(" ")}
                   >
                     {isCorrect ? (
                       <>
@@ -148,7 +151,11 @@ export function InteractiveDemo() {
 
                 {!isCorrect && (
                   <p className="mb-2 text-sm md:text-base text-slate-700">
-                    The correct answer is <span className="font-semibold text-emerald-700">{CORRECT_ANSWER}</span>.
+                    The correct answer is{" "}
+                    <span className="font-semibold text-emerald-700">
+                      {CORRECT_ANSWER}
+                    </span>
+                    .
                   </p>
                 )}
 
@@ -157,9 +164,9 @@ export function InteractiveDemo() {
                   compute g(3) = 3² = 9, then apply f: f(9) = 2 · 9 + 1 = 19.
                 </p>
                 <p className="text-xs md:text-sm text-slate-500">
-                  Every question in SabiAcademia includes detailed reasoning like
-                  this, so you don't just memorize formulas — you understand the
-                  logic that IUP ITB cares about.
+                  Every question in SabiAcademia includes detailed reasoning
+                  like this, so you don't just memorize formulas — you
+                  understand the logic that IUP International Class cares about.
                 </p>
               </div>
             )}
