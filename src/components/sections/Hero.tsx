@@ -24,14 +24,13 @@ export function Hero({ onNavigateRegister }: HeroProps) {
             <h1 className="mb-6 font-serif text-4xl font-bold leading-tight md:text-5xl lg:text-6xl text-brand-dark">
               Secure Your Seat at{" "}
               <span className="text-brand-primary">
-                ITB International Class.
+                Top IUP Universities.
               </span>
             </h1>
 
             {/* Subheading */}
             <p className="max-w-2xl mx-auto mb-8 text-lg md:text-xl text-slate-600 lg:mx-0">
-              Materi terkurasi, simulasi real-time, dan strategi khusus AqTest
-              dari mahasiswa ITB.
+              Curated materials, real-time simulations, and specialized strategies for IUP entrance exams (UI, ITB, and UGM) from IUP students and alumni.
             </p>
 
             {/* CTA Buttons */}
@@ -44,26 +43,6 @@ export function Hero({ onNavigateRegister }: HeroProps) {
               >
                 Start Free Simulation
               </Button>
-            </div>
-
-            {/* Stats or Trust Indicators */}
-            <div className="flex flex-wrap justify-center gap-8 mt-12 lg:justify-start">
-              <div>
-                <div className="text-3xl font-bold text-brand-primary">
-                  500+
-                </div>
-                <div className="text-sm text-slate-600">Students Enrolled</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-brand-primary">95%</div>
-                <div className="text-sm text-slate-600">Success Rate</div>
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-brand-primary">
-                  1000+
-                </div>
-                <div className="text-sm text-slate-600">Practice Questions</div>
-              </div>
             </div>
           </div>
 

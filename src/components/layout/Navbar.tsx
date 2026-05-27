@@ -25,8 +25,8 @@ export function Navbar({ onNavigateLogin, onNavigateRegister }: NavbarProps) {
   return (
     <nav
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-[padding] duration-500 ease-in-out",
-        isScrolled ? "pt-4 px-4" : "pt-0 px-0"
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out",
+        isScrolled ? "pt-4 px-4" : "pt-4 px-4",
       )}
     >
       <div
@@ -34,7 +34,7 @@ export function Navbar({ onNavigateLogin, onNavigateRegister }: NavbarProps) {
           "mx-auto transition-all duration-500 ease-in-out",
           isScrolled
             ? "max-w-5xl bg-white/60 backdrop-blur-xl shadow-lg shadow-black/[0.08] rounded-full border border-white/40"
-            : "max-w-full bg-white/50 backdrop-blur-lg border-b border-brand-light"
+            : "max-w-full bg-white/50 backdrop-blur-lg border-b border-brand-light",
         )}
       >
         <div
@@ -42,7 +42,7 @@ export function Navbar({ onNavigateLogin, onNavigateRegister }: NavbarProps) {
             "flex items-center justify-between transition-all duration-500 ease-in-out mx-auto",
             isScrolled
               ? "h-14 px-6 md:px-8"
-              : "h-16 md:h-20 max-w-7xl px-4 sm:px-6 lg:px-8"
+              : "h-16 md:h-20 max-w-7xl px-4 sm:px-6 lg:px-8",
           )}
         >
           {/* Logo */}
@@ -51,10 +51,10 @@ export function Navbar({ onNavigateLogin, onNavigateRegister }: NavbarProps) {
               href="/"
               className="flex items-center gap-2 font-serif text-2xl font-bold text-brand-dark"
             >
-              <img 
-                src="/Logo_Sabi_Default.svg" 
-                alt="SabiAcademia Logo" 
-                className="object-contain w-8 h-8 md:w-10 md:h-10" 
+              <img
+                src="/Logo_Sabi_Default.svg"
+                alt="SabiAcademia Logo"
+                className="object-contain w-8 h-8 md:w-10 md:h-10"
               />
               <span>
                 Sabi<span className="text-brand-primary">Academia</span>
@@ -100,7 +100,7 @@ export function Navbar({ onNavigateLogin, onNavigateRegister }: NavbarProps) {
           <div
             className={cn(
               "md:hidden py-4 border-t border-brand-light",
-              isScrolled ? "px-4 rounded-b-2xl" : "px-4"
+              isScrolled ? "px-4 rounded-b-2xl" : "px-4",
             )}
           >
             <div className="flex flex-col gap-4">

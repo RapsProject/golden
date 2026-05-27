@@ -3,15 +3,21 @@ import { Container } from "../ui/Container";
 const testimonials = [
   {
     name: "Raka Pradipta",
-    role: "Systems & Tech, ITB '24",
+    role: "Management, ITB '24",
     quote:
-      "We designed these questions based on the actual cognitive patterns that AqTest measures — not just textbook difficulty.",
+      "We designed these questions based on the actual cognitive patterns that IUP exams measure — not just textbook difficulty.",
   },
   {
     name: "Nabila Ayu",
-    role: "Industrial Engineering, ITB '23",
+    role: "Medicine, UI '23",
     quote:
       "Most students underestimate the English reasoning component. SabiAcademia makes you comfortable thinking in English under time pressure.",
+  },
+  {
+    name: "Bimo Wicaksono",
+    role: "International Relations, UGM '24",
+    quote:
+      "The simulated environment helped me manage my time perfectly. Highly recommended for anyone aiming for top IUP programs.",
   },
 ];
 
@@ -30,7 +36,7 @@ export function Testimonials() {
           </p>
         </div>
 
-        <div className="grid gap-8 md:grid-cols-2">
+        <div className="grid gap-8 md:grid-cols-3">
           {testimonials.map(({ name, role, quote }) => (
             <article
               key={name}

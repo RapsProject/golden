@@ -16,10 +16,10 @@ const plans = [
   },
   {
     name: "Premium",
-    price: "IDR 349K",
+    price: "IDR 99K",
     description: "Cocok untuk persiapan serius menuju IUP International Class.",
     features: [
-      "Bank soal AqTest lengkap",
+      "Bank soal IUP lengkap",
       "Simulasi real-time & Analytics",
       "Leaderboard & pelacakan progres",
       "Modul strategi dari mahasiswa IUP International Class",
@@ -28,7 +28,7 @@ const plans = [
   },
   {
     name: "Ultimate",
-    price: "IDR 599K",
+    price: "IDR 129K",
     description: "Semua fitur Premium plus mentoring grup.",
     features: [
       "Semua fitur Premium",
@@ -49,7 +49,7 @@ export function Pricing({ onNavigateRegister }: PricingProps) {
       <Container>
         <div className="mb-12 text-center">
           <h2 className="mb-4 font-serif text-3xl font-bold text-white md:text-4xl">
-            Choose Your Path to ITB International.
+            Choose Your Path to Top IUP Universities.
           </h2>
           <p className="max-w-2xl mx-auto text-base text-brand-secondary md:text-lg">
             Start free, then upgrade when you&apos;re ready to commit. Every

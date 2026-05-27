@@ -3,9 +3,9 @@ import { Container } from "../ui/Container";
 
 const faqs = [
   {
-    question: "Is SabiAcademia officially affiliated with ITB?",
+    question: "Is SabiAcademia officially affiliated with UI, ITB, or UGM?",
     answer:
-      "SabiAcademia is built by IUP International Class students and alumni, but it is an independent preparation platform and not an official product of ITB.",
+      "SabiAcademia is built by IUP International Class students and alumni from top universities, but it is an independent preparation platform and not an official product of UI, ITB, or UGM.",
   },
   {
     question: "Do I need strong English skills before starting?",

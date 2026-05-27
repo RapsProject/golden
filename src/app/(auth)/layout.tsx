@@ -23,24 +23,9 @@ export function AuthLayout() {
               “Lolos IUP International Class berkat latihan rutin dan strategi yang tepat.”
             </h2>
             <p className="mb-8 text-slate-100/90">
-              Join 500+ students aiming for ITB International. Train with English-based questions,
+              Join 500+ students aiming for top IUP programs (UI, ITB, & UGM). Train with English-based questions,
               real-time simulations, and feedback that builds confidence.
             </p>
-
-            <div className="grid grid-cols-3 gap-4">
-              <div className="p-4 border bg-white/10 rounded-xl border-white/10">
-                <div className="text-2xl font-bold">500+</div>
-                <div className="text-xs text-slate-100/80">Students</div>
-              </div>
-              <div className="p-4 border bg-white/10 rounded-xl border-white/10">
-                <div className="text-2xl font-bold">95%</div>
-                <div className="text-xs text-slate-100/80">Success</div>
-              </div>
-              <div className="p-4 border bg-white/10 rounded-xl border-white/10">
-                <div className="text-2xl font-bold">1000+</div>
-                <div className="text-xs text-slate-100/80">Questions</div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
