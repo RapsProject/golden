@@ -45,14 +45,6 @@ function getUserSubLabel(user: AdminUserData): string {
 type SortField = 'name' | 'dreamMajor' | 'role' | 'subscription' | 'createdAt';
 type SortDir = 'asc' | 'desc';
 
-const SORT_OPTIONS: { field: SortField; label: string }[] = [
-  { field: 'name', label: 'Nama' },
-  { field: 'dreamMajor', label: 'Jurusan Impian' },
-  { field: 'role', label: 'Role' },
-  { field: 'subscription', label: 'Subscription' },
-  { field: 'createdAt', label: 'Tanggal Bergabung' },
-];
-
 const SUB_OPTIONS = ['Semua', 'Free', 'Premium', 'Ultimate'] as const;
 const ROLE_OPTIONS = ['Semua', 'student', 'admin'] as const;
 
@@ -407,7 +399,7 @@ export function AdminUsersPage() {
               <button
                 type="button"
                 onClick={clearFilters}
-                className="inline-flex items-center gap-1 mt-3 text-xs font-semibold transition-colors text-red-500 hover:text-red-700"
+                className="inline-flex items-center gap-1 mt-3 text-xs font-semibold text-red-500 transition-colors hover:text-red-700"
               >
                 <X className="w-3 h-3" />
                 Hapus semua filter
