@@ -163,11 +163,6 @@ export function SubscriptionPage() {
                   {currentPlan.description}
                 </div>
 
-                <div className="inline-flex items-center gap-2 px-4 py-2 text-xs font-medium rounded-full bg-black/40 text-slate-50 md:text-sm">
-                  <span className="font-semibold text-white">
-                    Sekali bayar, akses seumur hidup
-                  </span>
-                </div>
               </div>
 
               <div className="w-full p-4 space-y-4 shadow-xl bg-white/80 backdrop-blur rounded-2xl md:p-5">

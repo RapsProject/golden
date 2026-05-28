@@ -26,7 +26,7 @@ export function Navbar({ onNavigateLogin, onNavigateRegister }: NavbarProps) {
     <nav
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out",
-        isScrolled ? "pt-4 px-4" : "pt-4 px-4",
+        isScrolled ? "pt-4 px-4" : "pt-1 px-1",
       )}
     >
       <div
