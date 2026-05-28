@@ -18,13 +18,13 @@ const PLANS: {
     key: "Premium",
     name: "Premium",
     description: "Akses penuh bank soal, Analytics, dan Leaderboard",
-    price: 69000,
+    price: 99000,
   },
   {
     key: "Ultimate",
     name: "Ultimate",
     description: "Semua fitur Premium ditambah akses lebih banyak soal.",
-    price: 99000,
+    price: 129000,
     highlight: true,
   },
 ];
