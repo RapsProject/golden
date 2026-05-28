@@ -33,12 +33,16 @@ export function SubscriptionPage() {
   const [selectedPlan, setSelectedPlan] = useState<PlanKey>("Premium");
   const [loading, setLoading] = useState(false);
   const [dbPlans, setDbPlans] = useState<SubscriptionPlan[]>([]);
+  const [plansLoading, setPlansLoading] = useState(true);
   
   const navigate = useNavigate();
   const { session } = useAuth();
 
   useEffect(() => {
-    getSubscriptionPlans().then(setDbPlans).catch(console.error);
+    getSubscriptionPlans()
+      .then(setDbPlans)
+      .catch(console.error)
+      .finally(() => setPlansLoading(false));
 
     // Load Midtrans Snap Script
     const clientKey = import.meta.env.VITE_MIDTRANS_CLIENT_KEY;
@@ -188,9 +192,9 @@ export function SubscriptionPage() {
                   size="lg"
                   className="w-full mt-1 transition-all duration-300 transform bg-gradient-to-r from-brand-primary to-brand-secondary hover:scale-105"
                   onClick={handleSubscribe}
-                  disabled={loading}
+                  disabled={loading || plansLoading}
                 >
-                  {loading ? "Memproses..." : "Pilih"}
+                  {plansLoading ? "Memuat paket..." : loading ? "Memproses..." : "Pilih"}
                 </Button>
               </div>
             </div>
