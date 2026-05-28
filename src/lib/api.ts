@@ -664,6 +664,7 @@ export type AdminUsersSummary = {
   totalActiveSubscriptions: number;
   totalAdmins: number;
   totalStudents: number;
+  subscriptionDetails?: Array<{ name: string; count: number }>;
 };
 
 export async function getAdminUsers(token: string): Promise<AdminUserData[]> {

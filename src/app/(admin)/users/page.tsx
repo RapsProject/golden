@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, UserCheck, GraduationCap, Search, AlertCircle, BarChart3, School } from 'lucide-react';
+import { Users, UserCheck, GraduationCap, Search, AlertCircle, BarChart3, School, Crown } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
 import {
   getAdminUsers,
@@ -70,7 +70,7 @@ export function AdminUsersPage() {
   const stats = summary
     ? [
         { label: 'Total Users', value: summary.totalUsers, icon: Users, color: 'bg-blue-50 text-blue-600' },
-        { label: 'Active Subscriptions', value: summary.totalActiveSubscriptions, icon: UserCheck, color: 'bg-green-50 text-green-600' },
+        { label: 'Active Subscriptions', value: summary.totalActiveSubscriptions, icon: UserCheck, color: 'bg-green-50 text-green-600', details: summary.subscriptionDetails },
         { label: 'Students', value: summary.totalStudents, icon: GraduationCap, color: 'bg-purple-50 text-purple-600' },
       ]
     : [];
@@ -85,7 +85,7 @@ export function AdminUsersPage() {
       {/* Summary cards */}
       {summary && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          {stats.map(({ label, value, icon: Icon, color }) => (
+          {stats.map(({ label, value, icon: Icon, color, details }) => (
             <div
               key={label}
               className="flex items-center gap-4 p-5 bg-white border shadow-sm rounded-2xl border-brand-light"
@@ -96,6 +96,23 @@ export function AdminUsersPage() {
               <div>
                 <div className="text-2xl font-bold text-brand-dark">{value}</div>
                 <div className="text-xs text-slate-500 mt-0.5">{label}</div>
+                {details && details.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {details.map((d) => (
+                      <span
+                        key={d.name}
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${
+                          d.name.toLowerCase().includes('ultimate')
+                            ? 'bg-purple-50 text-purple-700 border-purple-200'
+                            : 'bg-amber-50 text-amber-700 border-amber-200'
+                        }`}
+                      >
+                        <Crown className="w-2.5 h-2.5" />
+                        {d.name}: {d.count}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           ))}
@@ -204,7 +221,11 @@ export function AdminUsersPage() {
                           </span>
                         </div>
                       ) : (
-                        <span className="text-xs text-slate-400">Free Plan</span>
+                        <span
+                          className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold ${subBadge('active', 'Free')}`}
+                        >
+                          Free
+                        </span>
                       )}
                     </td>
                     <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">
