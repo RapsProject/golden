@@ -2,12 +2,27 @@ const BASE = (import.meta.env.VITE_API_BASE_URL as string) ?? "";
 
 type ApiResponse<T> = { success: boolean; message: string; data?: T };
 
+// Simple in-memory cache for GET requests
+const getCache = new Map<string, { timestamp: number; data: unknown; token?: string | null }>();
+const CACHE_TTL_MS = 30000; // 30 seconds
+
 async function request<T>(
   method: string,
   path: string,
   options?: { body?: unknown; token?: string | null },
 ): Promise<ApiResponse<T>> {
   const url = `${BASE.replace(/\/$/, "")}${path.startsWith("/") ? path : `/${path}`}`;
+  
+  // Use cache for GET requests
+  const cacheKey = `${url}`;
+  if (method === "GET") {
+    const cached = getCache.get(cacheKey);
+    // If we have a valid cache and the token hasn't changed
+    if (cached && (Date.now() - cached.timestamp < CACHE_TTL_MS) && cached.token === options?.token) {
+      return cached.data as ApiResponse<T>;
+    }
+  }
+
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
@@ -23,6 +38,12 @@ async function request<T>(
   if (!res.ok) {
     throw new Error(json?.message ?? `HTTP ${res.status}`);
   }
+
+  // Save successful GET requests to cache
+  if (method === "GET") {
+    getCache.set(cacheKey, { timestamp: Date.now(), data: json, token: options?.token });
+  }
+
   return json;
 }
 

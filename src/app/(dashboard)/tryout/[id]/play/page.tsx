@@ -4,8 +4,8 @@ import { ExamTimer } from '../../../../../components/tryout/ExamTimer';
 import { QuestionCard } from '../../../../../components/tryout/QuestionCard';
 import { NavigationPalette } from '../../../../../components/tryout/NavigationPalette';
 import { useAuth } from '../../../../../contexts/AuthContext';
+import { useProfile, type UserTier } from '../../../../../contexts/ProfileContext';
 import {
-  getMyProfile,
   getTryoutById,
   saveAnswer,
   submitSession,
@@ -18,16 +18,9 @@ function sessionStorageKey(tryoutId: string) {
   return `tryout_session_${tryoutId}`;
 }
 
-function getUserTier(planName?: string): 'free' | 'premium' | 'ultimate' {
-  const normalized = planName?.trim().toLowerCase();
-  if (normalized === 'ultimate') return 'ultimate';
-  if (normalized === 'premium') return 'premium';
-  return 'free';
-}
-
 function canAccessTryout(
   tryout: { isPremium: boolean; isUltimate: boolean },
-  tier: 'free' | 'premium' | 'ultimate',
+  tier: UserTier,
 ) {
   if (tier === 'ultimate') return true;
   if (tier === 'premium') return !tryout.isUltimate || tryout.isPremium;
@@ -60,6 +53,7 @@ export function ExamPlayPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { accessToken } = useAuth();
+  const { tier } = useProfile();
 
   const stateSessionId = (location.state as { sessionId?: string } | null)?.sessionId;
 
@@ -88,13 +82,9 @@ export function ExamPlayPage() {
 
     (async () => {
       try {
-        const [tryoutData, profile] = await Promise.all([
-          getTryoutById(accessToken, id),
-          getMyProfile(accessToken),
-        ]);
+        const tryoutData = await getTryoutById(accessToken, id);
         if (cancelled) return;
 
-        const tier = getUserTier(profile?.subscriptions?.[0]?.plan?.name);
         if (!tryoutData || !canAccessTryout(tryoutData, tier)) {
           setFatalError('Akses tryout ini memerlukan subscription yang sesuai.');
           setLoading(false);

@@ -11,8 +11,8 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../../contexts/AuthContext";
+import { useProfile } from "../../../contexts/ProfileContext";
 import {
-  getMyProfile,
   getSubscriptionPlans,
   updateMyProfile,
   type ProfileDetail,
@@ -38,6 +38,7 @@ function subscriptionBadgeClass(status: string) {
 
 export function ProfilePage() {
   const { user: authUser, accessToken } = useAuth();
+  const { profile: ctxProfile, loading: profileLoading, refresh: refreshProfile } = useProfile();
   const [profile, setProfile] = useState<ProfileDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -51,30 +52,19 @@ export function ProfilePage() {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [plansLoading, setPlansLoading] = useState(true);
 
+  // Sync from context profile
   useEffect(() => {
-    if (!accessToken) return;
-    let cancelled = false;
-    getMyProfile(accessToken)
-      .then((data) => {
-        if (!cancelled && data) {
-          setProfile(data);
-          setFullName(data.fullName);
-          setPhoneNumber(data.phoneNumber ?? "");
-          setDreamMajor(data.dreamMajor ?? "");
-          setSchoolOrigin(data.schoolOrigin ?? "");
-        }
-      })
-      .catch((e) => {
-        if (!cancelled)
-          setError(e instanceof Error ? e.message : "Failed to load profile");
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [accessToken]);
+    if (ctxProfile) {
+      setProfile(ctxProfile);
+      setFullName(ctxProfile.fullName);
+      setPhoneNumber(ctxProfile.phoneNumber ?? "");
+      setDreamMajor(ctxProfile.dreamMajor ?? "");
+      setSchoolOrigin(ctxProfile.schoolOrigin ?? "");
+      setLoading(false);
+    } else if (!profileLoading) {
+      setLoading(false);
+    }
+  }, [ctxProfile, profileLoading]);
 
   useEffect(() => {
     let cancelled = false;
@@ -108,6 +98,7 @@ export function ProfilePage() {
       if (updated) {
         setProfile(updated);
         setFullName(updated.fullName);
+        refreshProfile(); // Refresh cached context so other pages see updated data
       }
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);

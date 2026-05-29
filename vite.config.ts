@@ -7,11 +7,22 @@ export default defineConfig({
   build: {
     target: 'esnext',
     cssCodeSplit: true,
-    modulePreload: false,
+    // Re-enable module preload for critical vendor chunk
+    modulePreload: {
+      polyfill: true,
+    },
+    chunkSizeWarningLimit: 300,
     rollupOptions: {
       output: {
         manualChunks: {
+          // Core framework — always needed
           vendor: ['react', 'react-dom', 'react-router-dom'],
+          // Auth provider — loaded early but separated from vendor
+          supabase: ['@supabase/supabase-js'],
+          // Heavy libraries — lazy-loaded when their pages are visited
+          katex: ['katex'],
+          recharts: ['recharts'],
+          quill: ['react-quill-new'],
         },
       },
     },

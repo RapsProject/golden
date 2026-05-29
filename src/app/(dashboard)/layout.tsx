@@ -15,7 +15,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '../../lib/utils';
 import { Button } from '../../components/ui/Button';
 import { useAuth } from '../../contexts/AuthContext';
-import { getMyProfile } from '../../lib/api';
+import { useProfile } from '../../contexts/ProfileContext';
 import { OnboardingModal } from '../../components/OnboardingModal';
 
 type NavItem = {
@@ -28,8 +28,8 @@ export function DashboardLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user: authUser, signOut, accessToken } = useAuth();
+  const { isAdmin } = useProfile();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(
     () => !!(location.state as { isNewUser?: boolean } | null)?.isNewUser
   );
@@ -49,22 +49,6 @@ export function DashboardLayout() {
     await signOut();
     navigate('/login');
   };
-
-  // Cek role user sekali saat ada accessToken
-  useEffect(() => {
-    if (!accessToken) {
-      setIsAdmin(false);
-      return;
-    }
-    getMyProfile(accessToken)
-      .then((profile) => {
-        const isAdminRole = profile?.role === 'admin';
-        setIsAdmin(isAdminRole);
-      })
-      .catch(() => {
-        setIsAdmin(false);
-      });
-  }, [accessToken]);
 
   const items: NavItem[] = useMemo(() => {
     const base: NavItem[] = [

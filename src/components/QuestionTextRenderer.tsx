@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment, memo } from "react";
 import { LatexText } from "./LatexText";
 
 interface QuestionTextRendererProps {
@@ -17,7 +17,7 @@ interface QuestionTextRendererProps {
  * - If no marker but `imageUrl` exists → image is rendered after the text (default fallback).
  * - Multiple `[img]` markers all render the same `imageUrl` (useful for positioning only).
  */
-export function QuestionTextRenderer({
+export const QuestionTextRenderer = memo(function QuestionTextRenderer({
   text,
   imageUrl,
   className = "",
@@ -66,7 +66,7 @@ export function QuestionTextRenderer({
       )}
     </div>
   );
-}
+});
 
 /** Returns the display text with [img] stripped — useful for truncated table previews */
 export function stripImgMarker(text: string) {

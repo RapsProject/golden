@@ -68,15 +68,78 @@ export default function App() {
             </RequireAuth>
           }
         >
-          <Route path="dashboard" element={<DashboardHomePage />} />
-          <Route path="tryout" element={<TryOutListPage />} />
-          <Route path="practice" element={<PracticeListPage />} />
-          <Route path="tryout/:id" element={<PreExamPage />} />
-          <Route path="tryout/:id/result" element={<ExamResultPage />} />
-          <Route path="analytics" element={<AnalyticsPage />} />
-          <Route path="leaderboard" element={<LeaderboardPage />} />
-          <Route path="profile" element={<ProfilePage />} />
-          <Route path="subscription" element={<SubscriptionPage />} />
+          <Route
+            path="dashboard"
+            element={
+              <Suspense fallback={<LoadingSpinner />}>
+                <DashboardHomePage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="tryout"
+            element={
+              <Suspense fallback={<LoadingSpinner />}>
+                <TryOutListPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="practice"
+            element={
+              <Suspense fallback={<LoadingSpinner />}>
+                <PracticeListPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="tryout/:id"
+            element={
+              <Suspense fallback={<LoadingSpinner />}>
+                <PreExamPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="tryout/:id/result"
+            element={
+              <Suspense fallback={<LoadingSpinner />}>
+                <ExamResultPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="analytics"
+            element={
+              <Suspense fallback={<LoadingSpinner />}>
+                <AnalyticsPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="leaderboard"
+            element={
+              <Suspense fallback={<LoadingSpinner />}>
+                <LeaderboardPage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="profile"
+            element={
+              <Suspense fallback={<LoadingSpinner />}>
+                <ProfilePage />
+              </Suspense>
+            }
+          />
+          <Route
+            path="subscription"
+            element={
+              <Suspense fallback={<LoadingSpinner />}>
+                <SubscriptionPage />
+              </Suspense>
+            }
+          />
         </Route>
 
         {/* ── Exam Play: full-screen, requires auth ── */}
