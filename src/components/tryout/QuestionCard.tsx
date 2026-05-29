@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Flag } from 'lucide-react';
 import type { Question } from '../../lib/mockData';
 import { cn } from '../../lib/utils';
@@ -20,7 +21,7 @@ interface QuestionCardProps {
   isLast: boolean;
 }
 
-export function QuestionCard({
+export const QuestionCard = memo(function QuestionCard({
   question,
   questionNumber,
   totalQuestions,
@@ -142,4 +143,4 @@ export function QuestionCard({
       </div>
     </div>
   );
-}
+});

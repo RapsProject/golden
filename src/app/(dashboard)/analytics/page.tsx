@@ -11,7 +11,8 @@ import {
 } from "recharts";
 import { BarChart3, ChevronRight, Clock, Lock } from "lucide-react";
 import { useAuth } from "../../../contexts/AuthContext";
-import { getMyProfile, getSessions } from "../../../lib/api";
+import { useProfile } from "../../../contexts/ProfileContext";
+import { getSessions } from "../../../lib/api";
 
 type SessionSummary = {
   id: string;
@@ -84,38 +85,13 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
 export function AnalyticsPage() {
   const navigate = useNavigate();
   const { accessToken } = useAuth();
+  const { canAccessPremium, loading: profileLoading } = useProfile();
   const [sessions, setSessions] = useState<SessionSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [canAccess, setCanAccess] = useState<boolean | null>(null);
-
-  // Cek subscription: hanya Premium/Ultimate yang boleh akses
-  useEffect(() => {
-    if (!accessToken) {
-      setCanAccess(false);
-      return;
-    }
-    let cancelled = false;
-    getMyProfile(accessToken)
-      .then((profile) => {
-        if (cancelled) return;
-        const activeSub = profile?.subscriptions?.[0];
-        const planName = activeSub?.plan?.name;
-        const allowed =
-          activeSub?.status === "active" &&
-          (planName === "Premium" || planName === "Ultimate");
-        setCanAccess(!!allowed);
-      })
-      .catch(() => {
-        if (!cancelled) setCanAccess(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [accessToken]);
 
   useEffect(() => {
-    if (!accessToken || canAccess !== true) return;
+    if (!accessToken || !canAccessPremium) return;
     let cancelled = false;
     getSessions(accessToken)
       .then((data) => {
@@ -140,7 +116,7 @@ export function AnalyticsPage() {
     return () => {
       cancelled = true;
     };
-  }, [accessToken, canAccess]);
+  }, [accessToken, canAccessPremium]);
 
   // Statistik ringkasan
   const stats = useMemo(() => {
@@ -175,7 +151,7 @@ export function AnalyticsPage() {
       }));
   }, [sessions]);
 
-  if (canAccess === null) {
+  if (profileLoading) {
     return (
       <div className="flex items-center justify-center min-h-[200px]">
         <p className="text-slate-500">Memuat…</p>
@@ -352,7 +328,7 @@ export function AnalyticsPage() {
   );
 
   // Free user: tampilkan halaman blur + overlay notifikasi
-  if (canAccess === false) {
+  if (!canAccessPremium) {
     return (
       <div className="relative min-h-[300px]">
         <div className="blur-md pointer-events-none select-none">

@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
-import { getMyProfile, getSessions, getTryouts } from '../../../lib/api';
+import { useProfile, type UserTier } from '../../../contexts/ProfileContext';
+import { getSessions, getTryouts } from '../../../lib/api';
 
 type PracticeItem = {
   id: string;
@@ -12,16 +13,9 @@ type PracticeItem = {
   score?: number;
 };
 
-function getUserTier(planName?: string): 'free' | 'premium' | 'ultimate' {
-  const normalized = planName?.trim().toLowerCase();
-  if (normalized === 'ultimate') return 'ultimate';
-  if (normalized === 'premium') return 'premium';
-  return 'free';
-}
-
 function canAccessTryout(
   tryout: { isPremium: boolean; isUltimate: boolean },
-  tier: 'free' | 'premium' | 'ultimate',
+  tier: UserTier,
 ) {
   if (tier === 'ultimate') return true;
   if (tier === 'premium') return !tryout.isUltimate || tryout.isPremium;
@@ -31,6 +25,7 @@ function canAccessTryout(
 export function PracticeListPage() {
   const navigate = useNavigate();
   const { accessToken } = useAuth();
+  const { tier } = useProfile();
   const [items, setItems] = useState<PracticeItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -40,14 +35,11 @@ export function PracticeListPage() {
     let cancelled = false;
     (async () => {
       try {
-        const [list, sessions, profile] = await Promise.all([
+        const [list, sessions] = await Promise.all([
           getTryouts(accessToken),
           getSessions(accessToken),
-          getMyProfile(accessToken),
         ]);
         if (cancelled) return;
-
-        const tier = getUserTier(profile?.subscriptions?.[0]?.plan?.name);
         const practiceTryouts = (list ?? [])
           .filter((t) => t.type === 'practice')
           .filter((t) => canAccessTryout(t, tier));

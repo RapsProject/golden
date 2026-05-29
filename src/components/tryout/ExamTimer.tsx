@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, memo } from 'react';
 import { Timer } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -8,7 +8,7 @@ interface ExamTimerProps {
   onExpire: () => void;
 }
 
-export function ExamTimer({ totalSeconds, initialSecondsLeft, onExpire }: ExamTimerProps) {
+export const ExamTimer = memo(function ExamTimer({ totalSeconds, initialSecondsLeft, onExpire }: ExamTimerProps) {
   const [secondsLeft, setSecondsLeft] = useState(
     () => initialSecondsLeft ?? totalSeconds,
   );
@@ -52,4 +52,4 @@ export function ExamTimer({ totalSeconds, initialSecondsLeft, onExpire }: ExamTi
       </span>
     </div>
   );
-}
+});

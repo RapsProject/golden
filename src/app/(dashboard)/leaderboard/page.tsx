@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Lock } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useProfile } from '../../../contexts/ProfileContext';
 import {
   getLeaderboard,
-  getMyProfile,
   getTryouts,
   type LeaderboardEntry,
   type LeaderboardFilterType,
@@ -27,28 +27,7 @@ export function LeaderboardPage() {
   const { accessToken, user } = useAuth();
 
   // ── Subscription: hanya Premium/Ultimate yang boleh akses ──────────────────
-  const [canAccess, setCanAccess] = useState<boolean | null>(null);
-  useEffect(() => {
-    if (!accessToken) {
-      setCanAccess(false);
-      return;
-    }
-    let cancelled = false;
-    getMyProfile(accessToken)
-      .then((profile) => {
-        if (cancelled) return;
-        const activeSub = profile?.subscriptions?.[0];
-        const planName = activeSub?.plan?.name;
-        const allowed =
-          activeSub?.status === 'active' &&
-          (planName === 'Premium' || planName === 'Ultimate');
-        setCanAccess(!!allowed);
-      })
-      .catch(() => {
-        if (!cancelled) setCanAccess(false);
-      });
-    return () => { cancelled = true; };
-  }, [accessToken]);
+  const { canAccessPremium, loading: profileLoading } = useProfile();
 
   // ── Filter state ──────────────────────────────────────────────────────────
   const [filterType, setFilterType] = useState<LeaderboardFilterType>('OVERALL');
@@ -67,7 +46,7 @@ export function LeaderboardPage() {
 
   // Load tryout list once (used only when filterType === 'TRYOUT')
   useEffect(() => {
-    if (!accessToken || canAccess !== true) return;
+    if (!accessToken || !canAccessPremium) return;
     let cancelled = false;
     setTryoutsLoading(true);
     getTryouts(accessToken)
@@ -81,11 +60,11 @@ export function LeaderboardPage() {
         if (!cancelled) setTryoutsLoading(false);
       });
     return () => { cancelled = true; };
-  }, [accessToken, canAccess]);
+  }, [accessToken, canAccessPremium]);
 
   // ── Fetch leaderboard whenever filters change ─────────────────────────────
   useEffect(() => {
-    if (!accessToken || canAccess !== true) return;
+    if (!accessToken || !canAccessPremium) return;
     // Gate: don't fetch TRYOUT without a valid examId
     if (filterType === 'TRYOUT' && !selectedTryoutId) {
       setEntries([]);
@@ -120,7 +99,7 @@ export function LeaderboardPage() {
       });
 
     return () => { cancelled = true; };
-  }, [accessToken, canAccess, filterType, subject, selectedTryoutId, selectedDreamMajor]);
+  }, [accessToken, canAccessPremium, filterType, subject, selectedTryoutId, selectedDreamMajor]);
 
   // ── Filter change handlers (with reset logic) ─────────────────────────────
   function handleFilterTypeChange(f: LeaderboardFilterType) {
@@ -173,7 +152,7 @@ export function LeaderboardPage() {
     (filterType === 'TRYOUT' && !selectedTryoutId) ||
     (filterType === 'DREAM_MAJOR' && !selectedDreamMajor);
 
-  if (canAccess === null) {
+  if (profileLoading) {
     return (
       <div className="flex items-center justify-center min-h-[200px]">
         <p className="text-slate-500">Memuat…</p>
@@ -288,7 +267,7 @@ export function LeaderboardPage() {
   );
 
   // Free user: tampilkan halaman blur + overlay notifikasi
-  if (canAccess === false) {
+  if (!canAccessPremium) {
     return (
       <div className="relative min-h-[300px]">
         <div className="blur-md pointer-events-none select-none">

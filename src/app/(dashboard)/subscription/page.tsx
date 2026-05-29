@@ -55,6 +55,8 @@ export function SubscriptionPage() {
       const script = document.createElement("script");
       script.id = "midtrans-snap-script";
       script.src = scriptUrl;
+      script.async = true;
+      script.defer = true;
       script.setAttribute("data-client-key", clientKey || "");
       document.body.appendChild(script);
     }

@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { Question } from '../../lib/mockData';
 import { cn } from '../../lib/utils';
 
@@ -9,7 +10,7 @@ interface NavigationPaletteProps {
   onJump: (index: number) => void;
 }
 
-export function NavigationPalette({
+export const NavigationPalette = memo(function NavigationPalette({
   questions,
   answers,
   markedQuestions,
@@ -72,4 +73,4 @@ export function NavigationPalette({
       </div>
     </aside>
   );
-}
+});
