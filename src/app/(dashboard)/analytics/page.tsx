@@ -118,12 +118,53 @@ export function AnalyticsPage() {
     };
   }, [accessToken, canAccessPremium]);
 
+  // Set mock data if free user so that the blurred background page renders beautifully with realistic mock data
+  const [mockSessions] = useState<SessionSummary[]>(() => {
+    const now = Date.now();
+    return [
+      {
+        id: "mock-1",
+        tryoutId: "tryout-1",
+        score: 85,
+        status: "completed",
+        startTime: new Date(now - 2 * 24 * 60 * 60 * 1000).toISOString(),
+        tryout: { id: "tryout-1", title: "Simulation UTBK Paket A", type: "utbk" },
+      },
+      {
+        id: "mock-2",
+        tryoutId: "tryout-2",
+        score: 72,
+        status: "completed",
+        startTime: new Date(now - 5 * 24 * 60 * 60 * 1000).toISOString(),
+        tryout: { id: "tryout-2", title: "Simulation UTBK Paket B", type: "utbk" },
+      },
+      {
+        id: "mock-3",
+        tryoutId: "tryout-3",
+        score: 64,
+        status: "completed",
+        startTime: new Date(now - 10 * 24 * 60 * 60 * 1000).toISOString(),
+        tryout: { id: "tryout-3", title: "Simulation Mandiri ITB", type: "mandiri" },
+      },
+    ];
+  });
+
+  const effectiveSessions = useMemo<SessionSummary[]>(() => {
+    if (!canAccessPremium) {
+      return mockSessions;
+    }
+    return sessions;
+  }, [canAccessPremium, sessions, mockSessions]);
+
+  const effectiveLoading = canAccessPremium ? loading : false;
+  const effectiveError = canAccessPremium ? error : null;
+
   // Statistik ringkasan
   const stats = useMemo(() => {
-    const scored = sessions.filter((s) => s.score != null);
+    const scored = effectiveSessions.filter((s) => s.score != null);
     if (scored.length === 0)
       return {
-        totalAttempts: sessions.length,
+        totalAttempts: effectiveSessions.length,
         avgScore: null,
         bestScore: null,
       };
@@ -131,12 +172,12 @@ export function AnalyticsPage() {
     const raw = allScores.reduce((sum, v) => sum + v, 0) / allScores.length;
     const avgScore = Math.round(raw * 100) / 100;
     const bestScore = Math.max(...allScores);
-    return { totalAttempts: sessions.length, avgScore, bestScore };
-  }, [sessions]);
+    return { totalAttempts: effectiveSessions.length, avgScore, bestScore };
+  }, [effectiveSessions]);
 
   // Data untuk grafik — setiap sesi diurutkan dari terlama ke terbaru
   const chartData = useMemo<ChartPoint[]>(() => {
-    return [...sessions]
+    return [...effectiveSessions]
       .filter((s) => s.score != null)
       .sort(
         (a, b) =>
@@ -149,7 +190,7 @@ export function AnalyticsPage() {
         score: s.score as number,
         date: formatShortDate(s.startTime),
       }));
-  }, [sessions]);
+  }, [effectiveSessions]);
 
   if (profileLoading) {
     return (
@@ -176,7 +217,7 @@ export function AnalyticsPage() {
       </div>
 
       {/* Stat cards */}
-      {!loading && !error && sessions.length > 0 && (
+      {!effectiveLoading && !effectiveError && effectiveSessions.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-white rounded-2xl border border-brand-light p-4 shadow-sm">
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
@@ -206,7 +247,7 @@ export function AnalyticsPage() {
       )}
 
       {/* Grafik progress nilai */}
-      {!loading && !error && chartData.length > 0 && (
+      {!effectiveLoading && !effectiveError && chartData.length > 0 && (
         <div className="bg-white rounded-2xl border border-brand-light p-5 md:p-6 shadow-sm">
           <h2 className="text-sm font-semibold text-brand-dark mb-4">
             Grafik Progress Nilai
@@ -272,13 +313,13 @@ export function AnalyticsPage() {
 
       {/* Daftar sesi */}
       <div className="bg-white rounded-2xl border border-brand-light shadow-sm overflow-hidden">
-        {loading ? (
+        {effectiveLoading ? (
           <div className="p-8 text-center text-slate-500 text-sm">
             Loading data…
           </div>
-        ) : error ? (
-          <div className="p-8 text-center text-red-500 text-sm">{error}</div>
-        ) : sessions.length === 0 ? (
+        ) : effectiveError ? (
+          <div className="p-8 text-center text-red-500 text-sm">{effectiveError}</div>
+        ) : effectiveSessions.length === 0 ? (
           <div className="p-8 text-center space-y-3">
             <p className="text-slate-500 text-sm">
               Belum ada simulation yang diselesaikan.
@@ -293,7 +334,7 @@ export function AnalyticsPage() {
           </div>
         ) : (
           <div className="divide-y divide-brand-light">
-            {sessions.map((s) => (
+            {effectiveSessions.map((s) => (
               <button
                 key={s.id}
                 type="button"
@@ -334,7 +375,7 @@ export function AnalyticsPage() {
         <div className="blur-md pointer-events-none select-none">
           {pageContent}
         </div>
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70 backdrop-blur-sm">
+        <div className="absolute inset-0 z-10 flex items-start justify-center pt-24 md:pt-32 bg-white/70 backdrop-blur-sm">
           <div className="bg-white rounded-2xl border border-brand-light p-6 md:p-8 shadow-xl text-center max-w-md mx-4">
             <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-amber-100 text-amber-600 mb-4">
               <Lock className="h-7 w-7" />

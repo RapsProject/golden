@@ -24,6 +24,88 @@ type NavItem = {
   icon: React.ComponentType<{ className?: string }>;
 };
 
+type SidebarProps = {
+  className?: string;
+  items: NavItem[];
+  user: { name: string; email: string };
+  handleLogout: () => void;
+  setMobileOpen?: (open: boolean) => void;
+};
+
+const Sidebar = ({ className, items, user, handleLogout, setMobileOpen }: SidebarProps) => (
+  <aside
+    className={cn(
+      "h-full w-[250px] flex flex-col bg-white border-r border-brand-light",
+      className,
+    )}
+  >
+    <div className="flex items-center gap-3 px-5 py-5 text-white bg-brand-dark">
+      <img
+        src="/Logo_Sabi_Putih.svg"
+        alt="SabiAcademia Logo"
+        className="object-contain w-10 h-10"
+      />
+      <div>
+        <div className="font-serif text-xl font-bold leading-none">
+          Sabi<span className="text-brand-secondary">Academia</span>
+        </div>
+        <div className="mt-1 text-xs text-white/80">Member Area</div>
+      </div>
+    </div>
+
+    <nav className="p-3 space-y-1">
+      {items.map(({ label, to, icon: Icon }) => (
+        <NavLink
+          key={label}
+          to={to}
+          onClick={() => setMobileOpen?.(false)}
+          className={({ isActive }) =>
+            cn(
+              "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+              isActive
+                ? "bg-brand-light text-brand-dark"
+                : "text-slate-700 hover:bg-brand-light/60 hover:text-brand-dark",
+            )
+          }
+          end={to === "/dashboard"}
+        >
+          <Icon className="w-5 h-5 text-brand-primary" />
+          <span>{label}</span>
+        </NavLink>
+      ))}
+    </nav>
+
+    <div className="p-4 mt-auto border-t border-brand-light">
+      <div className="flex items-center gap-3 mb-3">
+        <div className="flex items-center justify-center text-sm font-semibold text-white rounded-full h-9 w-9 bg-brand-primary">
+          {user.name
+            .split(" ")
+            .slice(0, 2)
+            .map((s) => s[0])
+            .join("")}
+        </div>
+        <div className="min-w-0">
+          <div className="text-sm font-semibold truncate text-slate-900">
+            {user.name}
+          </div>
+          <div className="text-xs truncate text-slate-500">{user.email}</div>
+        </div>
+      </div>
+      <Button
+        variant="outline"
+        size="sm"
+        className="justify-center w-full"
+        icon={LogOut}
+        iconPosition="left"
+        onClick={handleLogout}
+      >
+        Logout
+      </Button>
+    </div>
+  </aside>
+);
+
+
 export function DashboardLayout() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -65,85 +147,14 @@ export function DashboardLayout() {
     return base;
   }, [isAdmin]);
 
-  const Sidebar = ({ className }: { className?: string }) => (
-    <aside
-      className={cn(
-        "h-full w-[250px] flex flex-col bg-white border-r border-brand-light",
-        className,
-      )}
-    >
-      <div className="flex items-center gap-3 px-5 py-5 text-white bg-brand-dark">
-        <img
-          src="/Logo_Sabi_Putih.svg"
-          alt="SabiAcademia Logo"
-          className="object-contain w-10 h-10"
-        />
-        <div>
-          <div className="font-serif text-xl font-bold leading-none">
-            Sabi<span className="text-brand-secondary">Academia</span>
-          </div>
-          <div className="mt-1 text-xs text-white/80">Member Area</div>
-        </div>
-      </div>
 
-      <nav className="p-3 space-y-1">
-        {items.map(({ label, to, icon: Icon }) => (
-          <NavLink
-            key={label}
-            to={to}
-            onClick={() => setMobileOpen(false)}
-            className={({ isActive }) =>
-              cn(
-                "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-                isActive
-                  ? "bg-brand-light text-brand-dark"
-                  : "text-slate-700 hover:bg-brand-light/60 hover:text-brand-dark",
-              )
-            }
-            end={to === "/dashboard"}
-          >
-            <Icon className="w-5 h-5 text-brand-primary" />
-            <span>{label}</span>
-          </NavLink>
-        ))}
-      </nav>
-
-      <div className="p-4 mt-auto border-t border-brand-light">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="flex items-center justify-center text-sm font-semibold text-white rounded-full h-9 w-9 bg-brand-primary">
-            {user.name
-              .split(" ")
-              .slice(0, 2)
-              .map((s) => s[0])
-              .join("")}
-          </div>
-          <div className="min-w-0">
-            <div className="text-sm font-semibold truncate text-slate-900">
-              {user.name}
-            </div>
-            <div className="text-xs truncate text-slate-500">{user.email}</div>
-          </div>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          className="justify-center w-full"
-          icon={LogOut}
-          iconPosition="left"
-          onClick={handleLogout}
-        >
-          Logout
-        </Button>
-      </div>
-    </aside>
-  );
 
   return (
     <div className="min-h-screen bg-brand-light">
       {/* Desktop */}
       <div className="hidden md:flex">
         <div className="sticky top-0 h-screen">
-          <Sidebar />
+          <Sidebar items={items} user={user} handleLogout={handleLogout} setMobileOpen={setMobileOpen} />
         </div>
         <main className="flex-1 p-4 lg:p-6">
           <Outlet />
@@ -188,7 +199,7 @@ export function DashboardLayout() {
               onClick={() => setMobileOpen(false)}
             />
             <div className="absolute top-0 left-0 h-full">
-              <Sidebar />
+              <Sidebar items={items} user={user} handleLogout={handleLogout} setMobileOpen={setMobileOpen} />
             </div>
             <button
               type="button"

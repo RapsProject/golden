@@ -48,55 +48,71 @@ export function LeaderboardPage() {
   useEffect(() => {
     if (!accessToken || !canAccessPremium) return;
     let cancelled = false;
-    setTryoutsLoading(true);
-    getTryouts(accessToken)
-      .then((data) => {
+
+    const fetchTryouts = async () => {
+      setTryoutsLoading(true);
+      try {
+        const data = await getTryouts(accessToken);
         if (!cancelled) {
           setTryouts(data.map((t) => ({ id: t.id, title: t.title })));
         }
-      })
-      .catch(() => {/* non-critical; show empty select */})
-      .finally(() => {
+      } catch {
+        /* non-critical; show empty select */
+      } finally {
         if (!cancelled) setTryoutsLoading(false);
-      });
+      }
+    };
+
+    fetchTryouts();
+
     return () => { cancelled = true; };
   }, [accessToken, canAccessPremium]);
 
   // ── Fetch leaderboard whenever filters change ─────────────────────────────
   useEffect(() => {
     if (!accessToken || !canAccessPremium) return;
-    // Gate: don't fetch TRYOUT without a valid examId
-    if (filterType === 'TRYOUT' && !selectedTryoutId) {
-      setEntries([]);
-      setLoading(false);
-      return;
-    }
-    // Gate: don't fetch DREAM_MAJOR without a selected major
-    if (filterType === 'DREAM_MAJOR' && !selectedDreamMajor) {
-      setEntries([]);
-      setLoading(false);
-      return;
-    }
 
     let cancelled = false;
-    setLoading(true);
-    setError(null);
 
-    getLeaderboard(accessToken, {
-      filterType,
-      subject: filterType === 'SUBJECT' ? subject : undefined,
-      examId: filterType === 'TRYOUT' ? selectedTryoutId ?? undefined : undefined,
-      dreamMajor: filterType === 'DREAM_MAJOR' ? selectedDreamMajor ?? undefined : undefined,
-    })
-      .then((data) => {
+    const fetchLeaderboard = async () => {
+      // Gate: don't fetch TRYOUT without a valid examId
+      if (filterType === 'TRYOUT' && !selectedTryoutId) {
+        if (!cancelled) {
+          setEntries([]);
+          setLoading(false);
+        }
+        return;
+      }
+      // Gate: don't fetch DREAM_MAJOR without a selected major
+      if (filterType === 'DREAM_MAJOR' && !selectedDreamMajor) {
+        if (!cancelled) {
+          setEntries([]);
+          setLoading(false);
+        }
+        return;
+      }
+
+      if (!cancelled) {
+        setLoading(true);
+        setError(null);
+      }
+
+      try {
+        const data = await getLeaderboard(accessToken, {
+          filterType,
+          subject: filterType === 'SUBJECT' ? subject : undefined,
+          examId: filterType === 'TRYOUT' ? selectedTryoutId ?? undefined : undefined,
+          dreamMajor: filterType === 'DREAM_MAJOR' ? selectedDreamMajor ?? undefined : undefined,
+        });
         if (!cancelled) setEntries(data);
-      })
-      .catch((e) => {
+      } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : 'Failed to load leaderboard');
-      })
-      .finally(() => {
+      } finally {
         if (!cancelled) setLoading(false);
-      });
+      }
+    };
+
+    fetchLeaderboard();
 
     return () => { cancelled = true; };
   }, [accessToken, canAccessPremium, filterType, subject, selectedTryoutId, selectedDreamMajor]);
@@ -273,7 +289,7 @@ export function LeaderboardPage() {
         <div className="blur-md pointer-events-none select-none">
           {pageContent}
         </div>
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/70 backdrop-blur-sm">
+        <div className="absolute inset-0 z-10 flex items-start justify-center pt-24 md:pt-32 bg-white/70 backdrop-blur-sm">
           <div className="bg-white rounded-2xl border border-brand-light p-6 md:p-8 shadow-xl text-center max-w-md mx-4">
             <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-amber-100 text-amber-600 mb-4">
               <Lock className="h-7 w-7" />
