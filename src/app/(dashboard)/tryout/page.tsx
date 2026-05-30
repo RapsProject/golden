@@ -102,7 +102,7 @@ export function TryOutListPage() {
     return () => {
       cancelled = true;
     };
-  }, [accessToken]);
+  }, [accessToken, tier]);
 
   const hasTryouts = useMemo(() => tryouts.length > 0, [tryouts]);
 
