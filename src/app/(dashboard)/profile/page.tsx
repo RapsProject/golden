@@ -135,7 +135,7 @@ export function ProfilePage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Header: avatar + name + subscription badge */}
-      <div className="bg-white rounded-2xl border border-brand-light p-6 shadow-sm">
+      <div className="bg-white rounded-2xl border border-brand-light p-6 shadow-sm transition-all duration-300 ease-out transform-gpu hover:shadow-md hover:-translate-y-0.5 hover:border-brand-primary/10">
         <div className="flex items-center gap-5">
           {avatarUrl ? (
             <img
@@ -172,7 +172,7 @@ export function ProfilePage() {
 
       {/* Subscription detail */}
       {activeSub && (
-        <div className="bg-white rounded-2xl border border-brand-light p-5 shadow-sm">
+        <div className="bg-white rounded-2xl border border-brand-light p-5 shadow-sm transition-all duration-300 ease-out transform-gpu hover:shadow-md hover:-translate-y-0.5 hover:border-brand-primary/10">
           <h2 className="text-base font-semibold text-brand-dark mb-3">
             Subscription
           </h2>
@@ -206,7 +206,7 @@ export function ProfilePage() {
       )}
 
       {/* Upgrade subscription */}
-      <div className="bg-white rounded-2xl border border-brand-light p-5 shadow-sm">
+      <div className="bg-white rounded-2xl border border-brand-light p-5 shadow-sm transition-all duration-300 ease-out transform-gpu hover:shadow-md hover:-translate-y-1 hover:border-brand-primary/20">
         <h2 className="text-base font-semibold text-brand-dark mb-1 flex items-center gap-2">
           <CreditCard className="h-5 w-5 text-brand-primary" />
           Upgrade subscription
@@ -243,7 +243,7 @@ export function ProfilePage() {
                   {plan.durationDays} hari
                 </div>
                 <Link
-                  to="/subscription"
+                  to={`/subscription?plan=${plan.name}`}
                   className="mt-3 block w-full rounded-lg bg-brand-primary py-2.5 text-center text-sm font-semibold text-white hover:bg-brand-dark transition-colors"
                 >
                   Upgrade
@@ -257,7 +257,7 @@ export function ProfilePage() {
       {/* Editable fields */}
       <form
         onSubmit={handleSave}
-        className="bg-white rounded-2xl border border-brand-light p-5 shadow-sm space-y-5"
+        className="bg-white rounded-2xl border border-brand-light p-5 shadow-sm space-y-5 transition-all duration-300 ease-out transform-gpu hover:shadow-md hover:-translate-y-0.5 hover:border-brand-primary/10"
       >
         <h2 className="text-base font-semibold text-brand-dark">
           Edit Profile

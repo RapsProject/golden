@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Container } from "../../../components/ui/Container";
 import { Button } from "../../../components/ui/Button";
 import { useAuth } from "../../../contexts/AuthContext";
+import { useProfile } from "../../../contexts/ProfileContext";
 import { getSubscriptionPlans, createSubscriptionTransaction, type SubscriptionPlan } from "../../../lib/api";
 
 type PlanKey = "Premium" | "Ultimate";
@@ -30,13 +31,17 @@ const PLANS: {
 ];
 
 export function SubscriptionPage() {
-  const [selectedPlan, setSelectedPlan] = useState<PlanKey>("Premium");
+  const [searchParams] = useSearchParams();
+  const initialPlanRaw = searchParams.get("plan");
+  const initialPlan = initialPlanRaw === "Ultimate" ? "Ultimate" : "Premium";
+  const [selectedPlan, setSelectedPlan] = useState<PlanKey>(initialPlan);
   const [loading, setLoading] = useState(false);
   const [dbPlans, setDbPlans] = useState<SubscriptionPlan[]>([]);
   const [plansLoading, setPlansLoading] = useState(true);
   
   const navigate = useNavigate();
   const { session } = useAuth();
+  const { tier } = useProfile();
 
   useEffect(() => {
     getSubscriptionPlans()
@@ -65,8 +70,14 @@ export function SubscriptionPage() {
   const currentPlan = PLANS.find((p) => p.key === selectedPlan)!;
   const price = currentPlan.price;
 
+  // Determine if the current selected plan is lower than or equal to the user's tier
+  const isPlanDisabled = 
+    (selectedPlan === "Premium" && (tier === "premium" || tier === "ultimate")) ||
+    (selectedPlan === "Ultimate" && tier === "ultimate");
+
   const handleSubscribe = async () => {
     if (!session?.access_token) return;
+    if (isPlanDisabled) return;
     
     // Find matching plan from DB
     const dbPlan = dbPlans.find((p) => p.name.toLowerCase() === currentPlan.name.toLowerCase());
@@ -190,13 +201,23 @@ export function SubscriptionPage() {
                 </div>
 
                 <Button
-                  variant="primary"
+                  variant={isPlanDisabled ? "outline" : "primary"}
                   size="lg"
-                  className="w-full mt-1 transition-all duration-300 transform bg-gradient-to-r from-brand-primary to-brand-secondary hover:scale-105"
+                  className={`w-full mt-1 transition-all duration-300 transform ${
+                    isPlanDisabled
+                      ? "opacity-50 cursor-not-allowed"
+                      : "bg-gradient-to-r from-brand-primary to-brand-secondary hover:scale-105"
+                  }`}
                   onClick={handleSubscribe}
-                  disabled={loading || plansLoading}
+                  disabled={loading || plansLoading || isPlanDisabled}
                 >
-                  {plansLoading ? "Memuat paket..." : loading ? "Memproses..." : "Pilih"}
+                  {plansLoading
+                    ? "Memuat paket..."
+                    : isPlanDisabled
+                      ? "Plan Saat Ini"
+                      : loading
+                        ? "Memproses..."
+                        : "Pilih"}
                 </Button>
               </div>
             </div>

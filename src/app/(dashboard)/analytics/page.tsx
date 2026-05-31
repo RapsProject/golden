@@ -203,7 +203,7 @@ export function AnalyticsPage() {
   const pageContent = (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-2xl border border-brand-light p-5 md:p-6 shadow-sm">
+      <div className="bg-white rounded-2xl border border-brand-light p-5 md:p-6 shadow-sm transition-all duration-300 ease-out transform-gpu hover:shadow-md hover:-translate-y-0.5 hover:border-brand-primary/10">
         <div className="flex items-center gap-3 mb-1">
           <BarChart3 className="h-6 w-6 text-brand-primary" />
           <h1 className="text-xl md:text-2xl font-serif font-bold text-brand-dark">
@@ -219,7 +219,7 @@ export function AnalyticsPage() {
       {/* Stat cards */}
       {!effectiveLoading && !effectiveError && effectiveSessions.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white rounded-2xl border border-brand-light p-4 shadow-sm">
+          <div className="bg-white rounded-2xl border border-brand-light p-4 shadow-sm transition-all duration-300 ease-out transform-gpu hover:shadow-md hover:-translate-y-1 hover:border-brand-primary/20">
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
               Total Attempts
             </p>
@@ -227,7 +227,7 @@ export function AnalyticsPage() {
               {stats.totalAttempts}
             </p>
           </div>
-          <div className="bg-white rounded-2xl border border-brand-light p-4 shadow-sm">
+          <div className="bg-white rounded-2xl border border-brand-light p-4 shadow-sm transition-all duration-300 ease-out transform-gpu hover:shadow-md hover:-translate-y-1 hover:border-brand-primary/20">
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
               Rata-rata Nilai
             </p>
@@ -235,7 +235,7 @@ export function AnalyticsPage() {
               {stats.avgScore != null ? stats.avgScore : "—"}
             </p>
           </div>
-          <div className="bg-white rounded-2xl border border-brand-light p-4 shadow-sm">
+          <div className="bg-white rounded-2xl border border-brand-light p-4 shadow-sm transition-all duration-300 ease-out transform-gpu hover:shadow-md hover:-translate-y-1 hover:border-brand-primary/20">
             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
               Nilai Terbaik
             </p>
@@ -248,7 +248,7 @@ export function AnalyticsPage() {
 
       {/* Grafik progress nilai */}
       {!effectiveLoading && !effectiveError && chartData.length > 0 && (
-        <div className="bg-white rounded-2xl border border-brand-light p-5 md:p-6 shadow-sm">
+        <div className="bg-white rounded-2xl border border-brand-light p-5 md:p-6 shadow-sm transition-all duration-300 ease-out transform-gpu hover:shadow-md hover:-translate-y-1 hover:border-brand-primary/20">
           <h2 className="text-sm font-semibold text-brand-dark mb-4">
             Grafik Progress Nilai
           </h2>
@@ -312,7 +312,7 @@ export function AnalyticsPage() {
       )}
 
       {/* Daftar sesi */}
-      <div className="bg-white rounded-2xl border border-brand-light shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-brand-light shadow-sm overflow-hidden transition-all duration-300 ease-out transform-gpu hover:shadow-md hover:-translate-y-0.5 hover:border-brand-primary/10">
         {effectiveLoading ? (
           <div className="p-8 text-center text-slate-500 text-sm">
             Loading data…

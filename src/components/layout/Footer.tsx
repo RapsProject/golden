@@ -8,7 +8,7 @@ const socialLinks = [
   {
     name: "Instagram",
     icon: <Instagram size={20} />,
-    href: "#",
+    href: "https://www.instagram.com/sabi.iup/",
   },
   {
     name: "TikTok",
@@ -82,17 +82,33 @@ export function Footer({ onNavigateComingSoon }: FooterProps) {
           <div>
             <h3 className="mb-3 text-sm font-semibold text-white">Company</h3>
             <ul className="space-y-2 text-sm">
-              {companyLinks.map((item) => (
-                <li key={item}>
-                  <button
-                    type="button"
-                    className="transition-colors text-slate-400 hover:text-brand-secondary"
-                    onClick={onNavigateComingSoon}
-                  >
-                    {item}
-                  </button>
-                </li>
-              ))}
+              {companyLinks.map((item) => {
+                if (item === "Contact") {
+                  return (
+                    <li key={item}>
+                      <a
+                        href="https://www.instagram.com/sabi.iup/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="transition-colors text-slate-400 hover:text-brand-secondary inline-block"
+                      >
+                        {item}
+                      </a>
+                    </li>
+                  );
+                }
+                return (
+                  <li key={item}>
+                    <button
+                      type="button"
+                      className="transition-colors text-slate-400 hover:text-brand-secondary"
+                      onClick={onNavigateComingSoon}
+                    >
+                      {item}
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
           </div>
 
@@ -100,17 +116,33 @@ export function Footer({ onNavigateComingSoon }: FooterProps) {
           <div>
             <h3 className="mb-3 text-sm font-semibold text-white">Connect</h3>
             <div className="flex items-center gap-3">
-              {socialLinks.map((social) => (
-                <button
-                  key={social.name}
-                  type="button"
-                  className="p-2 transition-colors rounded-lg text-slate-400 hover:text-brand-secondary hover:bg-slate-800"
-                  onClick={onNavigateComingSoon}
-                  aria-label={social.name}
-                >
-                  {social.icon}
-                </button>
-              ))}
+              {socialLinks.map((social) => {
+                if (social.name === "Instagram") {
+                  return (
+                    <a
+                      key={social.name}
+                      href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="p-2 transition-colors rounded-lg text-slate-400 hover:text-brand-secondary hover:bg-slate-800 inline-flex items-center justify-center"
+                      aria-label={social.name}
+                    >
+                      {social.icon}
+                    </a>
+                  );
+                }
+                return (
+                  <button
+                    key={social.name}
+                    type="button"
+                    className="p-2 transition-colors rounded-lg text-slate-400 hover:text-brand-secondary hover:bg-slate-800"
+                    onClick={onNavigateComingSoon}
+                    aria-label={social.name}
+                  >
+                    {social.icon}
+                  </button>
+                );
+              })}
             </div>
           </div>
 

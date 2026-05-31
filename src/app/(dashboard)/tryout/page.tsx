@@ -15,6 +15,7 @@ type TryoutItem = {
   score?: number;
   isLocked?: boolean;
   lockReason?: string;
+  planTarget?: string;
 };
 
 function canAccessTryout(
@@ -85,6 +86,7 @@ export function TryOutListPage() {
               score: byTryout.get(t.id)?.score,
               isLocked: locked,
               lockReason,
+              planTarget: t.isUltimate ? "Ultimate" : "Premium",
             };
           });
         // Sort: unlocked first, then locked
@@ -165,7 +167,7 @@ export function TryOutListPage() {
           {tryouts.map((tryout) => (
             <div
               key={tryout.id}
-              className="bg-white rounded-2xl border border-brand-light shadow-sm p-5 flex flex-col gap-4 relative overflow-hidden"
+              className="bg-white rounded-2xl border border-brand-light shadow-sm p-5 flex flex-col gap-4 relative overflow-hidden transition-all duration-300 ease-out transform-gpu hover:shadow-md hover:-translate-y-1 hover:border-brand-primary/20"
             >
               {tryout.isLocked && (
                 <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/40 backdrop-blur-[3px]">
@@ -177,7 +179,7 @@ export function TryOutListPage() {
                     {tryout.lockReason}
                   </p>
                   <button
-                    onClick={() => navigate("/subscription")}
+                    onClick={() => navigate(`/subscription?plan=${tryout.planTarget || "Premium"}`)}
                     className="mt-3 px-4 py-2 bg-brand-primary text-white text-xs font-semibold rounded-xl shadow-sm hover:bg-brand-dark transition-colors border border-brand-primary"
                   >
                     Upgrade

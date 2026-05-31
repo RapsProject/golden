@@ -116,7 +116,7 @@ export function PracticeListPage() {
           {items.map((item) => (
             <div
               key={item.id}
-              className="bg-white rounded-2xl border border-brand-light shadow-sm p-5 flex flex-col gap-4"
+              className="bg-white rounded-2xl border border-brand-light shadow-sm p-5 flex flex-col gap-4 transition-all duration-300 ease-out transform-gpu hover:shadow-md hover:-translate-y-1 hover:border-brand-primary/20"
             >
               <div className="flex items-start justify-between gap-3">
                 <div>

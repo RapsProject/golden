@@ -61,10 +61,10 @@ const Sidebar = ({ className, items, user, handleLogout, setMobileOpen }: Sideba
           onClick={() => setMobileOpen?.(false)}
           className={({ isActive }) =>
             cn(
-              "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+              "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 ease-out transform-gpu active:scale-[0.98]",
               isActive
-                ? "bg-brand-light text-brand-dark"
-                : "text-slate-700 hover:bg-brand-light/60 hover:text-brand-dark",
+                ? "bg-brand-light text-brand-dark shadow-sm"
+                : "text-slate-700 hover:bg-brand-light/70 hover:text-brand-dark hover:translate-x-1.5 hover:shadow-sm",
             )
           }
           end={to === "/dashboard"}
@@ -167,7 +167,7 @@ export function DashboardLayout() {
           <div className="flex items-center justify-between px-4 py-3">
             <div className="flex items-center gap-2">
               <img
-                src="/Logo_Sabi_Putih.svg"
+                src="/Logo_Sabi_Default.svg"
                 alt="SabiAcademia Logo"
                 className="object-contain w-8 h-8"
               />

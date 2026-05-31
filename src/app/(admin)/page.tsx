@@ -57,7 +57,7 @@ export function AdminOverviewPage() {
         {stats.map(({ label, value, icon: Icon, color }) => (
           <div
             key={label}
-            className="bg-white rounded-2xl border border-brand-light p-5 shadow-sm flex items-center gap-4"
+            className="bg-white rounded-2xl border border-brand-light p-5 shadow-sm flex items-center gap-4 transition-all duration-300 ease-out transform-gpu hover:shadow-md hover:-translate-y-1 hover:border-brand-primary/20"
           >
             <div className={`p-2.5 rounded-xl ${color}`}>
               <Icon className="h-5 w-5" />
@@ -70,7 +70,7 @@ export function AdminOverviewPage() {
         ))}
       </div>
 
-      <div className="bg-white rounded-2xl border border-brand-light p-6 shadow-sm">
+      <div className="bg-white rounded-2xl border border-brand-light p-6 shadow-sm transition-all duration-300 ease-out transform-gpu hover:shadow-md hover:-translate-y-0.5 hover:border-brand-primary/10">
         <h2 className="text-base font-semibold text-brand-dark mb-2">Quick Actions</h2>
         <div className="flex flex-wrap gap-3 mt-3">
           <Link

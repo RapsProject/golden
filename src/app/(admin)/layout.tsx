@@ -66,10 +66,10 @@ export function AdminLayout() {
             onClick={() => setMobileOpen(false)}
             className={({ isActive }) =>
               cn(
-                'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 ease-out transform-gpu active:scale-[0.98]',
                 isActive
-                  ? 'bg-brand-light text-brand-dark'
-                  : 'text-slate-700 hover:bg-brand-light/60 hover:text-brand-dark',
+                  ? 'bg-brand-light text-brand-dark shadow-sm'
+                  : 'text-slate-700 hover:bg-brand-light/70 hover:text-brand-dark hover:translate-x-1.5 hover:shadow-sm',
               )
             }
           >

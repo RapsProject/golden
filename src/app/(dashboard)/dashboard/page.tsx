@@ -34,7 +34,7 @@ export function DashboardHomePage() {
   return (
     <div className="space-y-6">
       {/* Welcome hero */}
-      <section className="bg-white rounded-2xl border border-brand-light p-5 md:p-6 shadow-sm">
+      <section className="bg-white rounded-2xl border border-brand-light p-5 md:p-6 shadow-sm transition-all duration-300 ease-out transform-gpu hover:shadow-md hover:-translate-y-1 hover:border-brand-primary/20">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h1 className="text-xl md:text-2xl font-serif font-bold text-brand-dark">
@@ -58,7 +58,7 @@ export function DashboardHomePage() {
       </section>
 
       {/* Last Simulation summary */}
-      <section className="bg-white rounded-2xl border border-brand-light p-5 md:p-6 shadow-sm">
+      <section className="bg-white rounded-2xl border border-brand-light p-5 md:p-6 shadow-sm transition-all duration-300 ease-out transform-gpu hover:shadow-md hover:-translate-y-1 hover:border-brand-primary/20">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-brand-dark">Last Simulation</h2>
           <button
